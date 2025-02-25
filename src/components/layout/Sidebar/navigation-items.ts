@@ -28,6 +28,7 @@ export const adminNavItems: NavSection[] = [
   {
     category: "Communications",
     items: [
+      { icon: "MessageCircle", label: "All Conversation", path: "/admin-dashboard/communications" },
       { icon: "MessageSquare", label: "SMS Campaigns", path: "/admin-dashboard/sms-campaigns" },
       { icon: "Mail", label: "Email Dashboard", path: "/admin-dashboard/email-dashboard" },
       { icon: "Phone", label: "Voice Campaigns", path: "/admin-dashboard/voice-campaigns" },

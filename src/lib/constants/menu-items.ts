@@ -66,9 +66,9 @@ export const adminMenuItems: MenuItem[] = [
   },
   {
     id: '10',
-    label: 'Voice Agent',
+    label: 'All Conversations',
     icon: 'Phone',
-    path: '/admin-dashboard/voice-campaigns',
+    path: '/admin-dashboard/communications',
     group: 'Marketing'
   },
   {

@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from '../pages/LandingPage';
 import AdminDashboard from '../pages/admin/AdminDashboard';
+import CommunicationsDashboard from '../pages/admin/communications/CommunicationsDashboard';
 import StaffDashboard from '../pages/staff/StaffDashboard';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import InsuranceARDashboard from '../pages/admin/insurance/InsuranceARDashboard';
@@ -67,6 +68,7 @@ export const AppRoutes = () => {
         <Route path="settings/passwords" element={<PasswordManager />} />
         <Route path="contact-manager" element={<VendorManagement />} />
         <Route path="marketplace" element={<Marketplace />} />
+        <Route path="communications" element={<CommunicationsDashboard />} />
         {/* Add other admin routes */}
       </Route>
 

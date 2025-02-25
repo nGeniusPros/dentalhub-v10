@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+import { CommunicationProvider } from './contexts/CommunicationContext';
 import { AppRoutes } from './routes/index';
 
 const App: React.FC = () => {
@@ -10,9 +11,11 @@ const App: React.FC = () => {
     <AuthProvider>
       <ThemeProvider>
         <NotificationProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
+          <CommunicationProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </CommunicationProvider>
         </NotificationProvider>
       </ThemeProvider>
     </AuthProvider>

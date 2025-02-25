@@ -1,0 +1,25 @@
+[Unit]
+Description=DentalHub Twilio Integration Server
+After=network.target
+
+[Service]
+# Adjust the following paths to match your deployment
+WorkingDirectory=/path/to/dentalhub-v10/server
+ExecStart=/usr/bin/node src/index.js
+Restart=always
+# Restart service after 10 seconds if node service crashes
+RestartSec=10
+# Output to syslog
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=dentalhub-twilio
+# Environmental variables
+Environment=NODE_ENV=production
+
+# Use a dedicated user to run the service (recommended)
+# Replace 'username' with the actual user
+User=username
+Group=username
+
+[Install]
+WantedBy=multi-user.target
