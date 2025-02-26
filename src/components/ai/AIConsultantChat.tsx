@@ -1,116 +1,271 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import * as Icons from 'lucide-react';
-import { Button } from '../ui/button';
-import { useAIConsultant } from '../../hooks/use-ai-consultant';
-import type { AIConsultantPrompt } from '../../lib/types/ai';
+import React, { useState, useRef, useEffect } from 'react';
+import { useOrchestrator } from '../../hooks/useOrchestrator';
+import type { Recommendation } from '../../ai/recommendation/recommendation.agent';
+import type { KPIAnalysis } from '../../ai/data-analysis/data-analysis.agent';
+import type { LabCaseAnalysis } from '../../ai/lab-case-manager/lab-case-manager.agent';
 
-interface AIConsultantChatProps {
-  selectedQuestion?: string;
-}
-
-export const AIConsultantChat: React.FC<AIConsultantChatProps> = ({ selectedQuestion }) => {
+/**
+ * AI Consultant Chat Component
+ * Provides a chat interface for interacting with the AI orchestrator
+ */
+export const AIConsultantChat: React.FC = () => {
   const [question, setQuestion] = useState('');
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant', content: string }>>([]);
-  const { generateInsight, loading, error } = useAIConsultant();
-
-  useEffect(() => {
-    if (selectedQuestion) {
-      setQuestion(selectedQuestion);
-    }
-  }, [selectedQuestion]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Define types for chat messages and sections
+  type SectionContent =
+    | string
+    | KPIAnalysis
+    | Recommendation[]
+    | LabCaseAnalysis;
     
-    if (!question.trim()) return;
-
-    // Add user message
-    setMessages(prev => [...prev, { role: 'user', content: question }]);
-
-    const prompt: AIConsultantPrompt = {
-      metrics: {
-        monthlyRevenue: 150000,
-        patientCount: 1200,
-        appointmentFillRate: 75,
-        treatmentAcceptance: 65
-      },
-      focusArea: 'operations',
-      question: question
-    };
-
-    const insight = await generateInsight(prompt);
-    if (insight) {
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: insight.description 
-      }]);
+  type ChatSection = {
+    type: string;
+    title: string;
+    content: SectionContent;
+  };
+  
+  type ChatMessage = {
+    type: 'user' | 'ai';
+    content: string;
+    timestamp: Date;
+    sections?: ChatSection[];
+  };
+  
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
+  
+  const { askOrchestrator, loading, error, response } = useOrchestrator();
+  const endOfMessagesRef = useRef<HTMLDivElement>(null);
+  
+  // Scroll to bottom of chat when new messages arrive
+  useEffect(() => {
+    if (endOfMessagesRef.current) {
+      endOfMessagesRef.current.scrollIntoView({ behavior: 'smooth' });
     }
+  }, [chatHistory]);
+  
+  // Add response to chat history when it arrives
+  useEffect(() => {
+    if (response) {
+      setChatHistory(prev => [
+        ...prev,
+        {
+          type: 'ai',
+          content: response.answer,
+          timestamp: new Date(),
+          sections: response.sections
+        }
+      ]);
+    }
+  }, [response]);
 
+  /**
+   * Handle asking a question to the AI
+   */
+  const handleAsk = async () => {
+    if (!question.trim() || loading) return;
+    
+    // Add user question to chat history
+    setChatHistory(prev => [
+      ...prev,
+      {
+        type: 'user',
+        content: question,
+        timestamp: new Date()
+      }
+    ]);
+    
+    // Call the AI orchestrator
+    await askOrchestrator(question);
+    
+    // Clear the input
     setQuestion('');
   };
 
-  return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 h-[600px] flex flex-col">
-      <div className="p-4 border-b border-gray-200 bg-gradient-primary text-white rounded-t-xl">
-        <div className="flex items-center gap-3">
-          <Icons.Brain className="w-6 h-6" />
-          <div>
-            <h3 className="font-semibold">AI Practice Consultant</h3>
-            <p className="text-sm opacity-80">Ask me anything about your practice</p>
+  /**
+   * Handle pressing Enter to submit
+   */
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleAsk();
+    }
+  };
+
+  /**
+   * Render a recommendations section
+   */
+  const renderRecommendations = (recommendations: Recommendation[]) => (
+    <div className="bg-blue-50 p-4 rounded-md my-2">
+      <h3 className="font-semibold text-blue-800 mb-2">Recommendations</h3>
+      {recommendations.map((rec, index) => (
+        <div key={index} className="mb-3 pb-3 border-b border-blue-100 last:border-0">
+          <div className="flex items-center">
+            <span className="bg-blue-700 text-white text-xs px-2 py-1 rounded mr-2">{rec.priority}</span>
+            <h4 className="font-medium">{rec.title}</h4>
+          </div>
+          <p className="text-sm mt-1">{rec.description}</p>
+          <div className="mt-2">
+            <h5 className="text-xs font-semibold text-gray-500">Action Items:</h5>
+            <ul className="list-disc pl-5 text-xs">
+              {rec.actionItems.map((item, idx) => (
+                <li key={idx}>{item}</li>
+              ))}
+            </ul>
           </div>
         </div>
-      </div>
+      ))}
+    </div>
+  );
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <AnimatePresence>
-          {messages.map((message, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div className={`max-w-[80%] p-3 rounded-lg ${
-                message.role === 'user' 
-                  ? 'bg-primary text-white ml-4' 
-                  : 'bg-gray-100 text-gray-900 mr-4'
-              }`}>
-                {message.content}
+  /**
+   * Render a KPI analysis section
+   */
+  const renderKPIAnalysis = (analysis: KPIAnalysis) => (
+    <div className="bg-green-50 p-4 rounded-md my-2">
+      <h3 className="font-semibold text-green-800 mb-2">KPI Analysis</h3>
+      <p className="text-sm whitespace-pre-wrap">{analysis.summary}</p>
+      
+      <div className="mt-3 grid grid-cols-2 gap-2">
+        {Object.entries(analysis.metrics).map(([key, data]) => (
+          <div key={key} className={`p-2 rounded ${data.status === 'on-target' ? 'bg-green-100' : 'bg-yellow-100'}`}>
+            <div className="text-xs font-semibold">{key}</div>
+            <div className="text-sm">{data.actual} / {data.goal}</div>
+            <div className="text-xs">{data.performance.toFixed(1)}%</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  /**
+   * Render a lab case analysis section
+   */
+  const renderLabCaseAnalysis = (labData: LabCaseAnalysis) => (
+    <div className="bg-purple-50 p-4 rounded-md my-2">
+      <h3 className="font-semibold text-purple-800 mb-2">Lab Case Analysis</h3>
+      <p className="text-sm whitespace-pre-wrap">{labData.summary}</p>
+      
+      {labData.pendingTasks.length > 0 && (
+        <div className="mt-3">
+          <h4 className="text-xs font-semibold">Pending Tasks</h4>
+          <div className="mt-1 max-h-40 overflow-y-auto">
+            {labData.pendingTasks.map((task, index) => (
+              <div key={index} className="text-xs p-2 mb-1 rounded bg-white flex items-center">
+                <span className={`px-1 py-0.5 rounded mr-2 ${
+                  task.priority === 'high' ? 'bg-red-100 text-red-800' : 
+                  task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' : 
+                  'bg-blue-100 text-blue-800'
+                }`}>
+                  {task.priority}
+                </span>
+                <span>{task.description}</span>
               </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
-      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-200">
-        <div className="relative">
-          <input
-            type="text"
+  /**
+   * Render response section based on type
+   */
+  const renderSection = (type: string, content: SectionContent) => {
+    switch (type) {
+      case 'recommendations':
+        return renderRecommendations(content as Recommendation[]);
+      case 'kpi-analysis':
+        return renderKPIAnalysis(content as KPIAnalysis);
+      case 'lab-cases':
+        return renderLabCaseAnalysis(content as LabCaseAnalysis);
+      case 'deep-seek-context':
+        return (
+          <div className="bg-gray-50 p-4 rounded-md my-2">
+            <h3 className="font-semibold text-gray-800 mb-2">Additional Context</h3>
+            <p className="text-sm whitespace-pre-wrap">{content as string}</p>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Chat History */}
+      <div className="flex-grow overflow-y-auto p-4">
+        {chatHistory.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold mb-2">AI Dental Practice Consultant</h2>
+              <p>Ask questions about practice KPIs, lab cases, or request recommendations</p>
+            </div>
+          </div>
+        ) : (
+          chatHistory.map((msg, index) => (
+            <div key={index} className={`mb-4 ${msg.type === 'user' ? 'text-right' : ''}`}>
+              <div className={`inline-block max-w-3/4 p-3 rounded-lg ${
+                msg.type === 'user' 
+                  ? 'bg-blue-500 text-white' 
+                  : 'bg-white border border-gray-200'
+              }`}>
+                <p className="whitespace-pre-wrap">{msg.content}</p>
+              </div>
+              
+              {/* Render specialized content sections for AI responses */}
+              {msg.type === 'ai' && msg.sections && (
+                <div className="mt-2">
+                  {msg.sections.map((section, i) => (
+                    <div key={i}>
+                      {renderSection(section.type, section.content)}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <div className={`text-xs text-gray-500 mt-1 ${msg.type === 'user' ? 'text-right' : 'text-left'}`}>
+                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            </div>
+          ))
+        )}
+        <div ref={endOfMessagesRef} />
+      </div>
+      
+      {/* Error display */}
+      {error && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 mx-4 mb-2">
+          <p className="text-sm">{error}</p>
+        </div>
+      )}
+      
+      {/* Input area */}
+      <div className="border-t p-4">
+        <div className="flex items-center">
+          <textarea
+            className="flex-grow border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Ask about KPIs, lab cases, or practice recommendations..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Ask about your practice performance..."
-            className="w-full px-4 py-2 pr-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            onKeyPress={handleKeyPress}
+            rows={2}
             disabled={loading}
           />
-          <Button
-            type="submit"
+          <button
+            className={`ml-2 px-4 py-2 rounded-lg ${
+              loading 
+                ? 'bg-gray-300 cursor-not-allowed' 
+                : 'bg-blue-500 hover:bg-blue-600 text-white'
+            }`}
+            onClick={handleAsk}
             disabled={loading}
-            className="absolute right-2 top-1/2 -translate-y-1/2 !p-1 hover:bg-gray-100"
           >
-            {loading ? (
-              <Icons.Loader2 className="w-5 h-5 animate-spin text-primary" />
-            ) : (
-              <Icons.Send className="w-5 h-5 text-primary" />
-            )}
-          </Button>
+            {loading ? 'Thinking...' : 'Ask'}
+          </button>
         </div>
-        
-        {error && (
-          <p className="text-red-500 text-sm mt-2">{error}</p>
-        )}
-      </form>
+        <div className="text-xs text-gray-500 mt-1">
+          Press Enter to submit, Shift+Enter for new line
+        </div>
+      </div>
     </div>
   );
 };

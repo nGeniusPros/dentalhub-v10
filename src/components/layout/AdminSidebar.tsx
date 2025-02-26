@@ -92,6 +92,13 @@ const adminMenuItems: MenuItem[] = [
   },
   {
     id: '13',
+    label: 'Knowledge Base',
+    icon: 'BookMarked',
+    path: '/admin-dashboard/knowledge-base',
+    group: 'Resources'
+  },
+  {
+    id: '14',
     label: 'Settings',
     icon: 'Settings',
     path: '/admin-dashboard/settings',
@@ -126,12 +133,12 @@ const AdminSidebar = () => {
       </div>
 
       <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-6">
-        {Object.entries(adminMenuItems.reduce((acc, item) => {
+        {(Object.entries(adminMenuItems.reduce((acc, item) => {
           const group = item.group || 'Other';
           if (!acc[group]) acc[group] = [];
           acc[group].push(item);
           return acc;
-        }, {} as Record<string, MenuItem[]>)).map(([group, items]) => (
+        }, {} as Record<string, MenuItem[]>)) as [string, MenuItem[]][]).map(([group, items]) => (
           <MenuGroup
             key={group}
             title={group}

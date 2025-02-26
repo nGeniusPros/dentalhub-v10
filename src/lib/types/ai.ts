@@ -7,7 +7,9 @@ export interface PracticeMetrics {
 
 export interface AIConsultantPrompt {
   metrics: PracticeMetrics;
-  focusArea: 'revenue' | 'operations' | 'patient-care' | 'marketing';
+  focusArea: 'revenue' | 'operations' | 'patient-care' | 'marketing' |
+             'head-orchestrator' | 'data-retrieval' | 'data-analysis' |
+             'lab-case-manager' | 'recommendation' | string;
   question: string;
 }
 

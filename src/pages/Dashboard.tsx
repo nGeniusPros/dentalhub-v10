@@ -1,8 +1,9 @@
 import React from 'react';
-import StatsCard from '../components/dashboard/StatsCard';
 import { AppointmentsChart } from '../components/dashboard/charts/AppointmentsChart';
 import { RevenueChart } from '../components/dashboard/charts/RevenueChart';
+import PracticeSnapshotGrid from '../components/dashboard/PracticeSnapshotGrid';
 
+// Sample data for charts
 const data = [
   { month: 'Jan', appointments: 65, revenue: 12400 },
   { month: 'Feb', appointments: 59, revenue: 11800 },
@@ -14,10 +15,11 @@ const data = [
 
 const Dashboard = () => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header with welcome message and actions */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-ngenius-black">Ngenius Dental Hub</h1>
+          <h1 className="text-2xl font-bold text-ngenius-black">DentalHub AI Dashboard</h1>
           <p className="text-ngenius-gray-500 mt-1">Welcome back, Dr. Sarah Wilson</p>
         </div>
         <div className="flex gap-3">
@@ -30,38 +32,18 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatsCard
-          title="Total Patients"
-          value="1,234"
-          change={12}
-          icon="Users"
-          variant="primary"
-        />
-        <StatsCard
-          title="Today's Appointments"
-          value="8"
-          icon="Calendar"
-          variant="secondary"
-        />
-        <StatsCard
-          title="Monthly Revenue"
-          value="$45,678"
-          change={8}
-          icon="DollarSign"
-          variant="accent1"
-        />
-        <StatsCard
-          title="Pending Reports"
-          value="5"
-          icon="FileText"
-          variant="accent2"
-        />
-      </div>
+      {/* Practice Snapshots Section (Quick Access) */}
+      <PracticeSnapshotGrid />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AppointmentsChart data={data} />
-        <RevenueChart data={data} />
+      {/* Chart Section */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4 bg-gradient-to-r from-navy to-purple text-transparent bg-clip-text">
+          Overview Metrics
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <AppointmentsChart data={data} />
+          <RevenueChart data={data} />
+        </div>
       </div>
     </div>
   );

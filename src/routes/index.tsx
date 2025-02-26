@@ -1,6 +1,13 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import LandingPage from '../pages/LandingPage';
+import Dashboard from '../pages/Dashboard';
+import RevenueDashboard from '../pages/RevenueDashboard';
+import MonthlyRevenueReport from '../pages/MonthlyRevenueReport';
+import ActivePatientsDashboard from '../pages/ActivePatientsDashboard';
+import PatientSatisfactionDashboard from '../pages/PatientSatisfactionDashboard';
+import TreatmentSuccessDashboard from '../pages/TreatmentSuccessDashboard';
+import DailyHuddleDashboard from '../pages/DailyHuddleDashboard';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import CommunicationsDashboard from '../pages/admin/communications/CommunicationsDashboard';
 import StaffDashboard from '../pages/staff/StaffDashboard';
@@ -15,6 +22,7 @@ import MembershipPlans from '../pages/admin/MembershipPlans';
 import Membership from '../pages/patient/Membership';
 import Appointments from '../pages/patient/Appointments';
 import AIPracticeConsultant from '../pages/admin/AIPracticeConsultant';
+import KnowledgeBasePage from '../pages/admin/KnowledgeBasePage';
 import Patients from '../pages/admin/Patients';
 import SMSCampaigns from '../pages/admin/communications/SMSCampaigns';
 import PasswordManager from '../pages/admin/settings/PasswordManager';
@@ -44,10 +52,24 @@ export const AppRoutes = () => {
         <Route path="admin" element={<AdminLogin />} />
       </Route>
 
+      {/* Practice Dashboard Routes */}
+      <Route path="/dashboard" element={<DashboardLayout role="admin" />}>
+        <Route index element={<Dashboard />} />
+        <Route path="revenue-dashboard" element={<RevenueDashboard />} />
+        
+        {/* Additional dashboard routes will be added here */}
+        <Route path="active-patients" element={<ActivePatientsDashboard />} />
+        <Route path="patient-satisfaction" element={<PatientSatisfactionDashboard />} />
+        <Route path="treatment-success" element={<TreatmentSuccessDashboard />} />
+        <Route path="monthly-report" element={<MonthlyRevenueReport />} />
+        <Route path="daily-huddle" element={<DailyHuddleDashboard />} />
+      </Route>
+
       {/* Admin routes */}
       <Route path="/admin-dashboard" element={<DashboardLayout role="admin" />}>
         <Route index element={<AdminDashboard />} />
         <Route path="ai-consultant" element={<AIPracticeConsultant />} />
+        <Route path="knowledge-base" element={<KnowledgeBasePage />} />
         <Route path="hr" element={<HRDashboard />} />
         <Route path="insurance" element={<InsuranceARDashboard />} />
         <Route path="patients" element={<Patients />} />

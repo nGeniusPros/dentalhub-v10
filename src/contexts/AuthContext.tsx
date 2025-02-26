@@ -5,12 +5,15 @@ interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  devLogin: () => void; // Added for development/testing
 }
 
 interface User {
   id: string;
   role: 'admin' | 'staff' | 'patient';
   name: string;
+  title?: string;
+  department?: string;
 }
 
 interface LoginCredentials {
@@ -30,9 +33,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+    } else {
+      // Auto-login for development environment
+      if (import.meta.env.DEV) {
+        devLogin();
+      }
     }
     setIsLoading(false);
   }, []);
+
+  // Development login helper - creates a mock admin user
+  const devLogin = () => {
+    const devUser = {
+      id: 'dev-admin-user',
+      role: 'admin' as const,
+      name: 'Dev Admin',
+      title: 'Administrator',
+      department: 'Development'
+    };
+    setUser(devUser);
+    localStorage.setItem('user', JSON.stringify(devUser));
+    console.log('Development auto-login successful');
+  };
 
   const login = async (credentials: LoginCredentials) => {
     try {
@@ -60,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading, devLogin }}>
       {children}
     </AuthContext.Provider>
   );

@@ -296,89 +296,89 @@ const quickQuestionsFinancialGrowth = [
   "Fee scheduling?"
 ];
 
+// Main orchestrator and specialized agents
 const SUB_AGENTS = [
+  {
+    id: 'head-orchestrator',
+    title: 'Head Brain Consultant',
+    description: 'Coordinates between specialized agents for complete practice insights.',
+    image: '/illustrations/characters-with-objects/1.png',
+    questions: allQuestions.slice(0, 7),
+  },
   {
     id: 'data-retrieval',
     title: 'Data Retrieval Agent',
     description: 'Fetches raw data: production, schedules, AR, etc.',
-    image: '/illustrations/characters-with-objects/1.png',
+    image: '/illustrations/characters-with-objects/2.png',
     questions: dataRetrievalQuestions,
   },
   {
     id: 'data-analysis',
     title: 'Data Analysis Agent',
-    description: 'Analyzes KPI trends, identifies correlations.',
-    image: '/illustrations/characters-with-objects/2.png',
+    description: 'Analyzes KPI trends, identifies patterns and correlations.',
+    image: '/illustrations/characters-with-objects/3.png',
     questions: analysisQuestions,
+  },
+  {
+    id: 'recommendation',
+    title: 'Recommendation Agent',
+    description: 'Provides actionable recommendations based on practice data.',
+    image: '/illustrations/characters-with-objects/4.png',
+    questions: recommendationQuestions,
   },
   {
     id: 'lab-case-manager',
     title: 'Lab Case Manager Agent',
-    description: 'Tracks lab cases and quality control.',
-    image: '/illustrations/characters-with-objects/3.png',
-    questions: commonCombinationQuestions,
+    description: 'Tracks lab cases, due dates, and quality control.',
+    image: '/illustrations/characters-with-objects/5.png',
+    questions: [
+      "Show me overdue lab cases",
+      "Track the status of patient John Smith's crown",
+      "What lab cases are due this week?",
+      "List cases ready for delivery",
+      "Create follow-up tasks for pending lab cases"
+    ],
   },
   {
     id: 'procedure-code',
     title: 'Procedure Code Agent',
     description: 'Optimizes code utilization and compliance.',
-    image: '/illustrations/characters-with-objects/4.png',
+    image: '/illustrations/characters-with-objects/6.png',
     questions: recommendationQuestions,
   },
   {
     id: 'supplies-manager',
     title: 'Supplies Manager Agent',
     description: 'Manages inventory and supply chain optimization.',
-    image: '/illustrations/characters-with-objects/5.png',
+    image: '/illustrations/characters-with-objects/7.png',
     questions: quickQuestionsFinancialGrowth,
   },
   {
     id: 'profitability-appointment',
     title: 'Profitability Appointment Agent',
     description: 'Optimizes scheduling for maximum revenue.',
-    image: '/illustrations/characters-with-objects/6.png',
+    image: '/illustrations/characters-with-objects/8.png',
     questions: profitabilitySchedulingQuestions,
   },
   {
     id: 'marketing-roi',
     title: 'Marketing ROI Agent',
     description: 'Evaluates campaign performance and ROI.',
-    image: '/illustrations/characters-with-objects/7.png',
+    image: '/illustrations/characters-with-objects/9.png',
     questions: quickQuestionsPracticeGrowth,
   },
   {
     id: 'hygiene-analytics',
     title: 'Hygiene Analytics Agent',
     description: 'Monitors hygiene department performance.',
-    image: '/illustrations/characters-with-objects/8.png',
+    image: '/illustrations/characters-with-objects/10.png',
     questions: analysisQuestions,
   },
   {
     id: 'patient-demographics',
     title: 'Patient Demographics Agent',
     description: 'Analyzes patient population and trends.',
-    image: '/illustrations/characters-with-objects/9.png',
-    questions: quickQuestionsPatientExperience,
-  },
-  {
-    id: 'osha-compliance',
-    title: 'OSHA Compliance Agent',
-    description: 'Ensures compliance with regulations.',
-    image: '/illustrations/characters-with-objects/10.png',
-    questions: coachingQuestions,
-  },
-  {
-    id: 'revenue-agent',
-    title: 'Revenue Agent',
-    description: 'Tracks financial performance and growth.',
     image: '/illustrations/characters-with-objects/11.png',
-    questions: analysisQuestions,
-  },
-  {
-    id: 'patient-care',
-    title: 'Patient Care Agent',
-    description: 'Monitors satisfaction and care quality.',
-    image: '/illustrations/characters-with-objects/12.png',
     questions: quickQuestionsPatientExperience,
   },
   {
@@ -397,11 +397,14 @@ const SUB_AGENTS = [
   }
 ];
 
+// Clean up unused variables to fix ESLint warnings
+// (We're keeping these arrays as they may be referenced by other components)
+
 const AIPracticeConsultant = () => {
-  const [question, setQuestion] = useState('');
+  const [selectedQuestion, setSelectedQuestion] = useState('');
 
   const handleAsk = (newQuestion: string) => {
-    setQuestion(newQuestion);
+    setSelectedQuestion(newQuestion);
   };
 
   return (
@@ -411,17 +414,29 @@ const AIPracticeConsultant = () => {
         Ask questions and get intelligent insights from our multi-agent AI system designed specifically for dental practices.
       </p>
 
-      <ConversationStarter onAsk={(question) => console.log("Question submitted:", question)} />
+      {/* Chat interface with the Head Brain Consultant */}
+      <div className="mb-8">
+        <LocalHeadOrchestratorChat
+          selectedQuestion={selectedQuestion}
+          title="Head Brain Consultant"
+          description="Ask any practice question to our AI orchestrator"
+        />
+      </div>
+
+      {/* Conversation starters */}
+      <h3 className="text-lg font-bold text-gray-800 mt-8">Try asking:</h3>
+      <ConversationStarter onAsk={handleAsk} />
 
       <h2 className="text-xl font-bold mt-8 text-gray-800">Specialized Consultant Agents</h2>
       <p className="text-gray-600 mb-4">
-        Our AI system has specialized agents for different aspects of your dental practice. Ask specific questions to each agent for more detailed insights.
+        Our AI system has specialized agents for different aspects of your dental practice.
+        Click on any question to ask the Head Brain Consultant, which will delegate to the appropriate agent.
       </p>
 
       <ErrorBoundary>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8" style={{display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gridGap: "1rem"}}>
           {SUB_AGENTS.map((agent) => (
-            <AgentCard key={agent.id} agent={agent} onAsk={handleAsk}   />
+            <AgentCard key={agent.id} agent={agent} onAsk={handleAsk} />
           ))}
         </div>
       </ErrorBoundary>

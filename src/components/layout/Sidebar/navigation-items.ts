@@ -1,53 +1,42 @@
 import type { NavSection } from './types';
 
-export const adminNavItems: NavSection[] = [
-  {
+const quickAccessSection: NavSection = {
     category: "Quick Access",
     items: [
-      { icon: "DollarSign", label: "Revenue", path: "/admin-dashboard?metric=revenue" },
-      { icon: "Users2", label: "Active Patients", path: "/admin-dashboard?metric=patients" },
-      { icon: "Star", label: "Patient Satisfaction", path: "/admin-dashboard/satisfaction" },
-      { icon: "Activity", label: "Treatment Success", path: "/admin-dashboard/success" },
-      { icon: "PieChart", label: "Demographics", path: "/admin-dashboard?metric=demographics" },
-      { icon: "FileBarChart", label: "Monthly Reports", path: "/admin-dashboard?metric=reports" },
+      { icon: "DollarSign", label: "Practice Revenue", path: "/dashboard/revenue-dashboard" },
+      { icon: "BarChart2", label: "Monthly Revenue Report", path: "/dashboard/monthly-report" },
+      { icon: "Users2", label: "Active Patients", path: "/dashboard/active-patients" },
+      { icon: "Activity", label: "Treatment Plan Success", path: "/dashboard/treatment-success" },
+      { icon: "Star", label: "Patient Satisfaction", path: "/dashboard/patient-satisfaction" },
+      { icon: "LineChart", label: "Daily Huddle KPI's", path: "/dashboard/daily-huddle" },
     ],
-  },
-  {
-    category: "Core",
+  };
+
+const practiceAcceleratorsSection: NavSection = {
+    category: "Practice Accelerators",
     items: [
       { icon: "LayoutDashboard", label: "Dashboard", path: "/admin-dashboard" },
       { icon: "Brain", label: "AI Consultant", path: "/admin-dashboard/ai-consultant" },
       { icon: "Users2", label: "Patients", path: "/admin-dashboard/patients" },
       { icon: "CalendarCheck", label: "Appointments", path: "/admin-dashboard/appointments" },
-      { icon: "BarChart3", label: "Analytics", path: "/admin-dashboard/analytics" },
       { icon: "UserCog", label: "Staff", path: "/admin-dashboard/staff" },
       { icon: "Users2", label: "HR", path: "/admin-dashboard/hr" },
       { icon: "Crown", label: "Membership Plans", path: "/admin-dashboard/membership-plans" },
     ],
-  },
-  {
-    category: "Communications",
-    items: [
-      { icon: "MessageCircle", label: "All Conversation", path: "/admin-dashboard/communications" },
-      { icon: "MessageSquare", label: "SMS Campaigns", path: "/admin-dashboard/sms-campaigns" },
-      { icon: "Mail", label: "Email Dashboard", path: "/admin-dashboard/email-dashboard" },
-      { icon: "Phone", label: "Voice Campaigns", path: "/admin-dashboard/voice-campaigns" },
-    ],
-  },
-  {
-    category: "System",
-    items: [
-      { icon: "Building2", label: "Contact Manager", path: "/admin-dashboard/contact-manager" },
-      { icon: "Settings", label: "Settings", path: "/admin-dashboard/settings" },
-    ],
-  },
-  {
+  };
+
+const resourcesSection: NavSection = {
     category: "Resources",
     items: [
       {
         label: 'Resources',
         icon: 'Files',
         path: '/admin-dashboard/resources'
+      },
+      {
+        label: 'Knowledge Base',
+        icon: 'Database',
+        path: '/admin-dashboard/knowledge-base'
       },
       {
         label: 'Learning Center',
@@ -60,7 +49,33 @@ export const adminNavItems: NavSection[] = [
         path: '/admin-dashboard/marketplace'
       }
     ]
-  }
+  };
+
+const communicationsSection: NavSection = {
+    category: "Communications",
+    items: [
+      { icon: "MessageCircle", label: "All Conversation", path: "/admin-dashboard/communications" },
+      { icon: "MessageSquare", label: "SMS Campaigns", path: "/admin-dashboard/sms-campaigns" },
+      { icon: "Mail", label: "Email Dashboard", path: "/admin-dashboard/email-dashboard" },
+      { icon: "Phone", label: "Voice Campaigns", path: '/admin-dashboard/voice-campaigns' },
+      { icon: "Globe2", label: "Social Media", path: '/admin-dashboard/social-media' },
+    ],
+  };
+
+const systemSection: NavSection = {
+    category: "System",
+    items: [
+      { icon: "Building2", label: "Contact Manager", path: "/admin-dashboard/contact-manager" },
+      { icon: "Settings", label: "Settings", path: "/admin-dashboard/settings" },
+    ],
+  };
+
+export const adminNavItems: NavSection[] = [
+  quickAccessSection,
+  practiceAcceleratorsSection,
+  communicationsSection,
+  resourcesSection,
+  systemSection,
 ];
 
 export const staffNavItems: NavSection[] = [
