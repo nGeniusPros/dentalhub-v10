@@ -31,9 +31,9 @@ const DashboardLayout = ({ role = "staff" }: DashboardLayoutProps) => {
         </SettingsProvider>
 
         {/* Background Elements */}
-        <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        {/* <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10"> */}
           {/* Animated gradient orbs */}
-          <motion.div
+          {/* <motion.div
             className="absolute w-[1000px] h-[1000px] blur-3xl"
             style={{
               background: 'radial-gradient(circle, rgba(27,43,133,0.1) 0%, transparent 70%)',
@@ -67,8 +67,8 @@ const DashboardLayout = ({ role = "staff" }: DashboardLayoutProps) => {
               repeat: Infinity,
               ease: "easeInOut"
             }}
-          />
-        </div>
+          /> */}
+        {/* </div> */}
       </div>
     </div>
   );
