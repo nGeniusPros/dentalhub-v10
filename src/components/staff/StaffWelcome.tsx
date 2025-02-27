@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { DentalHubAvatar } from '../ui/DentalHubAvatar';
 
 export const StaffWelcome = () => {
   const { user } = useAuthContext();
@@ -12,14 +13,22 @@ export const StaffWelcome = () => {
       animate={{ opacity: 1, y: 0 }}
       className="flex items-center justify-between"
     >
-      <div>
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-[#1B2B85] to-[#3B4AB9] text-transparent bg-clip-text">
-          Staff Dashboard
-        </h1>
-        <p className="text-gray-500 mt-1">
-          Welcome back, {user?.name} - {user?.title}
-        </p>
-        <p className="text-sm text-gray-400">{user?.department}</p>
+      <div className="flex items-center gap-4">
+        <DentalHubAvatar
+          userId={user?.id}
+          name={user?.name}
+          size="lg"
+          theme="gradient"
+        />
+        <div>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-[#1B2B85] to-[#3B4AB9] text-transparent bg-clip-text">
+            Staff Dashboard
+          </h1>
+          <p className="text-gray-500 mt-1">
+            Welcome back, {user?.name} - {user?.title}
+          </p>
+          <p className="text-sm text-gray-400">{user?.department}</p>
+        </div>
       </div>
       <div className="flex gap-3">
         <button className="px-4 py-2 text-sm font-medium text-white bg-[#1B2B85] rounded-lg hover:bg-[#2B3A9F] transition-colors">

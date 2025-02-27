@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from '../ui/icon-strategy';
 import { Button } from '../ui/button';
 import { useNotifications } from '../../contexts/NotificationContext';
 import { cn } from '../../lib/utils';
+import { DentalHubAvatar } from '../ui/DentalHubAvatar';
 
 interface NotificationBellProps {
   count: number;
@@ -21,7 +22,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ count }) => 
         onClick={() => setIsOpen(!isOpen)}
         className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg relative"
       >
-        <Icons.Bell className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+        <Icon name="Bell" className="w-5 h-5 text-gray-600 dark:text-gray-300" />
         {count > 0 && (
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs flex items-center justify-center rounded-full">
             {count}
@@ -65,16 +66,24 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ count }) => 
                     )}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={cn(
-                        "p-2 rounded-lg",
-                        notification.type === 'task' && "bg-blue-100",
-                        notification.type === 'message' && "bg-green-100",
-                        notification.type === 'alert' && "bg-red-100"
-                      )}>
-                        {notification.type === 'task' && <Icons.CheckSquare className="w-4 h-4 text-blue-600" />}
-                        {notification.type === 'message' && <Icons.MessageSquare className="w-4 h-4 text-green-600" />}
-                        {notification.type === 'alert' && <Icons.AlertTriangle className="w-4 h-4 text-red-600" />}
-                      </div>
+                      {notification.type === 'message' ? (
+                        <DentalHubAvatar 
+                          index={notification.senderId || Math.floor(Math.random() * 15)} 
+                          alt="Sender"
+                          size="sm"
+                        />
+                      ) : (
+                        <div className={cn(
+                          "p-2 rounded-lg",
+                          notification.type === 'task' && "bg-blue-100",
+                          notification.type === 'message' && "bg-green-100",
+                          notification.type === 'alert' && "bg-red-100"
+                        )}>
+                          {notification.type === 'task' && <Icon name="CheckSquare" className="w-4 h-4 text-blue-600" />}
+                          {notification.type === 'message' && <Icon name="MessageSquare" className="w-4 h-4 text-green-600" />}
+                          {notification.type === 'alert' && <Icon name="AlertTriangle" className="w-4 h-4 text-red-600" />}
+                        </div>
+                      )}
                       <div>
                         <p className="font-medium text-gray-900">{notification.title}</p>
                         <p className="text-sm text-gray-600">{notification.message}</p>

@@ -1,5 +1,6 @@
-import React from 'react';
-import { LocalHeadOrchestratorChat } from '../../pages/admin/AIPracticeConsultant';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { AgentHeadOrchestratorChat } from '../../pages/admin/AIPracticeConsultant';
 
 interface AgentCardProps {
   agent: {
@@ -13,29 +14,86 @@ interface AgentCardProps {
 }
 
 const AgentCard: React.FC<AgentCardProps> = ({ agent, onAsk }) => {
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleAsk = (question: string) => {
     onAsk(question);
   };
 
-  return (
-    <div className="rounded-xl p-6 shadow-lg border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
-      <img src={agent.image} alt={agent.title} className="w-24 h-24 rounded-full object-cover mb-4" />
-      <h3 className="text-xl font-bold text-gray-800">{agent.title}</h3>
-      <p className="mt-2 text-gray-600">{agent.description}</p>
+  // Limit questions display to maximum 3 for consistency
+  const displayQuestions = agent.questions.slice(0, 3);
 
-      <div className="mt-4">
-        <h4 className="text-lg font-semibold text-gray-700">Example Questions:</h4>
-        <ul className="list-none pl-5 text-gray-600">
-          {agent.questions.map((q, index) => (
-            <li key={index} className="cursor-pointer hover:text-blue-500" onClick={() => handleAsk(q)}>{q}</li>
+  // Determine gradient background based on agent ID
+  const getGradientClass = () => {
+    switch (agent.id) {
+      case 'revenue-analysis':
+        return 'bg-gradient-gold';
+      case 'patient-experience':
+      case 'recall-optimization':
+        return 'bg-gradient-tropical';
+      case 'team-performance':
+        return 'bg-gradient-royal';
+      case 'staff-training':
+        return 'bg-gradient-ocean';
+      case 'financial-growth':
+      case 'profitability-scheduling':
+        return 'bg-gradient-nature';
+      case 'marketing-roi':
+      case 'operations-agent':
+        return 'bg-gradient-ocean';
+      default:
+        return 'bg-gradient-corporate';
+    }
+  };
+
+  return (
+    <motion.div 
+      className="rounded-xl shadow-lg border border-gray-200 bg-white hover:shadow-xl transition-all duration-300 h-full flex flex-col overflow-hidden"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      whileHover={{ scale: 1.02 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className={`${getGradientClass()} p-4 text-white`}>
+        <div className="flex items-center">
+          <img 
+            src={agent.image} 
+            alt={agent.title} 
+            className="w-16 h-16 rounded-full object-cover mr-3 border-2 border-white/40"
+            onError={(e) => {
+              // Fallback for failed image loads
+              e.currentTarget.src = `/avatars/avatar style 2/avatar-${(agent.id.charCodeAt(0) % 15) + 1}.png`;
+            }}
+          />
+          <div>
+            <h3 className="text-lg font-bold">{agent.title}</h3>
+            <p className="text-sm opacity-80">{agent.description}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4 flex-1">
+        <h4 className="text-sm font-semibold text-navy-default mb-2">Example Questions:</h4>
+        <ul className="list-none pl-2 text-sm text-gray-600 space-y-1">
+          {displayQuestions.map((q, index) => (
+            <li 
+              key={index} 
+              className="cursor-pointer hover:text-navy-default py-1 flex items-start" 
+              onClick={() => handleAsk(q)}
+            >
+              <span className="text-gold-default mr-2">•</span>
+              <span className="hover:underline">{q}</span>
+            </li>
           ))}
         </ul>
       </div>
-      <div className="mt-4">
-      <LocalHeadOrchestratorChat selectedQuestion={agent.id} title={agent.title} description={agent.description} />
+      
+      <div className="mt-auto p-3 border-t border-gray-100">
+        <AgentHeadOrchestratorChat selectedQuestion={agent.id} title={agent.title} description={agent.description} />
       </div>
-    </div>
+    </motion.div>
   );
 };
 

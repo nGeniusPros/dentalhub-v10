@@ -84,11 +84,11 @@ const MembershipPlans = () => {
       {/* Membership Plans */}
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-navy via-purple to-turquoise text-transparent bg-clip-text">
+          <h2 className="text-2xl font-bold bg-gradient-gold text-transparent bg-clip-text">
             Membership Plans
           </h2>
           <Button 
-            className="bg-gradient-to-r from-navy to-purple text-white"
+            variant="gradient-gold"
             onClick={() => setShowCreateModal(true)}
           >
             <Icons.Plus className="w-4 h-4 mr-2" />

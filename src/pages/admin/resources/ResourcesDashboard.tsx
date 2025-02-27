@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from '../../../components/ui/icon-strategy';
 import { Button } from '../../../components/ui/button';
 import { useNotifications } from '../../../contexts/NotificationContext';
 import { AddResourceModal } from './components/AddResourceModal';
@@ -56,7 +56,7 @@ const ResourcesDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-navy via-purple to-turquoise text-transparent bg-clip-text">
+          <h1 className="text-2xl font-bold bg-gradient-corporate text-transparent bg-clip-text">
             Resources & Learning Center
           </h1>
           <p className="text-gray-600">Access forms, educational materials, training resources, and learning modules</p>
@@ -66,11 +66,14 @@ const ResourcesDashboard = () => {
             variant="outline"
             onClick={() => setShowUploadResource(true)}
           >
-            <Icons.Upload className="w-4 h-4 mr-2" />
+            <Icon name="Upload" className="w-4 h-4 mr-2" />
             Upload Resource
           </Button>
-          <Button onClick={() => setShowAddResource(true)}>
-            <Icons.Plus className="w-4 h-4 mr-2" />
+          <Button 
+            variant="gradient-corporate"
+            onClick={() => setShowAddResource(true)}
+          >
+            <Icon name="Plus" className="w-4 h-4 mr-2" />
             Add Resource
           </Button>
         </div>

@@ -35,7 +35,7 @@ const StaffManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-navy via-purple to-turquoise text-transparent bg-clip-text">
+          <h1 className="text-2xl font-bold bg-gradient-royal text-transparent bg-clip-text">
             Staff Management
           </h1>
           <p className="text-gray-600">Comprehensive staff management and analytics</p>
@@ -45,7 +45,7 @@ const StaffManagement = () => {
             <Icons.Download className="w-4 h-4 mr-2" />
             Export Reports
           </Button>
-          <Button>
+          <Button variant="gradient-royal">
             <Icons.UserPlus className="w-4 h-4 mr-2" />
             Add Employee
           </Button>
@@ -87,28 +87,29 @@ const StaffManagement = () => {
               value="24"
               change={8}
               icon="Users"
-              variant="primary"
+              variant="royal"
+              isGlowing={true}
             />
             <StatsCard
               title="Active Staff" 
               value="22"
               change={5}
               icon="UserCheck"
-              variant="secondary"
+              variant="corporate"
             />
             <StatsCard
               title="Satisfaction"
               value="92%"
               change={3}
               icon="Heart"
-              variant="accent1"
+              variant="gold"
             />
             <StatsCard
               title="Retention Rate"
               value="95%"
               change={2}
               icon="UserPlus"
-              variant="accent2"
+              variant="ocean"
             />
           </div>
         </div>

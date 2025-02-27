@@ -1,5 +1,5 @@
 import React from 'react';
-import * as Icons from 'lucide-react';
+import { Icon } from '../../ui/icon-strategy';
 import { Button } from '../../ui/button';
 import {
   Tooltip,
@@ -17,8 +17,6 @@ interface SidebarNavItemProps {
 }
 
 export const SidebarNavItem = ({ item, isActive, collapsed, onClick }: SidebarNavItemProps) => {
-  const Icon = Icons[item.icon as keyof typeof Icons];
-
   const button = (
     <Button
       variant={isActive ? "default" : "ghost"}
@@ -31,12 +29,15 @@ export const SidebarNavItem = ({ item, isActive, collapsed, onClick }: SidebarNa
       )}
       onClick={onClick}
     >
-      <Icon className={cn(
-        "h-4 w-4 transition-colors",
-        isActive 
-          ? "text-primary dark:text-primary" 
-          : "text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
-      )} />
+      <Icon 
+        name={item.icon}
+        className={cn(
+          "h-4 w-4 transition-colors",
+          isActive 
+            ? "text-primary dark:text-primary" 
+            : "text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300"
+        )} 
+      />
       {!collapsed && <span>{item.label}</span>}
     </Button>
   );

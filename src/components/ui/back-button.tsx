@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import * as Icons from 'lucide-react';
+import { Icon } from './icon-strategy';
 import { Button } from './button';
 
 interface BackButtonProps {
@@ -17,7 +17,7 @@ export const BackButton: React.FC<BackButtonProps> = ({ className }) => {
       onClick={() => navigate(-1)}
       className={className}
     >
-      <Icons.ArrowLeft className="w-4 h-4 mr-2" />
+      <Icon name="ArrowLeft" className="w-4 h-4 mr-2" />
       Back
     </Button>
   );

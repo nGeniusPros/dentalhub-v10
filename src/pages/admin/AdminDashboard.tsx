@@ -16,7 +16,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <p className="text-gray-500 text-center">Debug: AdminDashboard rendered</p>
       <DashboardHeader />
       <KPIOverview />
       

@@ -2,12 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { Button } from '../ui/button';
+import { DentalHubAvatar } from '../ui/DentalHubAvatar';
 
 export const StaffLeaderboard = () => {
   const leaderboardData = [
-    { name: 'Dr. Sarah Wilson', points: 1250, badges: 8, rank: 1 },
-    { name: 'Dr. Michael Chen', points: 1150, badges: 7, rank: 2 },
-    { name: 'Dr. Emily Parker', points: 1050, badges: 6, rank: 3 }
+    { name: 'Dr. Sarah Wilson', points: 1250, badges: 8, rank: 1, avatarIndex: 2 },
+    { name: 'Dr. Michael Chen', points: 1150, badges: 7, rank: 2, avatarIndex: 7 },
+    { name: 'Dr. Emily Parker', points: 1050, badges: 6, rank: 3, avatarIndex: 4 }
   ];
 
   return (
@@ -38,6 +39,11 @@ export const StaffLeaderboard = () => {
               }`}>
                 {staff.rank}
               </div>
+              <DentalHubAvatar
+                index={staff.avatarIndex}
+                alt={staff.name}
+                size="sm"
+              />
               <div>
                 <p className="font-medium text-gray-900">{staff.name}</p>
                 <div className="flex items-center gap-2 text-sm text-gray-500">

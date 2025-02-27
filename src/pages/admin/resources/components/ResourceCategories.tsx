@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from '../../../../components/ui/icon-strategy';
 import { cn } from '../../../../lib/utils';
 
 interface ResourceCategoriesProps {
@@ -18,7 +18,7 @@ export const ResourceCategories: React.FC<ResourceCategoriesProps> = ({
     { id: 'education', name: 'Educational Resources', icon: 'GraduationCap' },
     { id: 'manuals', name: 'Manuals & Guidelines', icon: 'BookOpen' },
     { id: 'training', name: 'Training Materials', icon: 'Lightbulb' },
-    { id: 'templates', name: 'Document Templates', icon: 'Files' }, // Changed from FileTemplate to Files
+    { id: 'templates', name: 'Document Templates', icon: 'Files' }, 
     { id: 'policies', name: 'Policies & Procedures', icon: 'Shield' }
   ];
 
@@ -31,7 +31,6 @@ export const ResourceCategories: React.FC<ResourceCategoriesProps> = ({
       <h2 className="text-lg font-semibold mb-4">Categories</h2>
       <div className="space-y-1">
         {categories.map((category) => {
-          const Icon = Icons[category.icon as keyof typeof Icons];
           return (
             <button
               key={category.id}
@@ -43,7 +42,7 @@ export const ResourceCategories: React.FC<ResourceCategoriesProps> = ({
                   : "hover:bg-gray-100 text-gray-700"
               )}
             >
-              <Icon className="w-5 h-5" />
+              <Icon name={category.icon} className="w-5 h-5" />
               <span className="text-sm font-medium">{category.name}</span>
             </button>
           );

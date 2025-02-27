@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Download, Calendar, BarChart3, DollarSign, TrendingUp, UserCheck } from 'lucide-react';
+import { Icon } from '../components/ui/icon-strategy';
 import StatsCard from '../components/dashboard/StatsCard';
 
 // Types to represent data that would come from API/database
@@ -106,7 +106,7 @@ const TreatmentSuccessDashboard = () => {
       <div className="space-y-8">
         <div className="flex items-center">
           <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-primary mr-4">
-            <ArrowLeft className="w-4 h-4 mr-1" />
+            <Icon name="ArrowLeft" className="w-4 h-4 mr-1" />
             <span>Back</span>
           </Link>
           <h1 className="text-2xl font-bold">Treatment Success Dashboard</h1>
@@ -127,7 +127,7 @@ const TreatmentSuccessDashboard = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-primary mr-4">
-            <ArrowLeft className="w-4 h-4 mr-1" />
+            <Icon name="ArrowLeft" className="w-4 h-4 mr-1" />
             <span>Back</span>
           </Link>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-navy to-purple text-transparent bg-clip-text">
@@ -136,11 +136,11 @@ const TreatmentSuccessDashboard = () => {
         </div>
         <div className="flex gap-3">
           <button className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-            <Calendar className="w-4 h-4 mr-2" />
+            <Icon name="Calendar" className="w-4 h-4 mr-2" />
             <span>Date Range</span>
           </button>
           <button className="flex items-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
-            <Download className="w-4 h-4 mr-2" />
+            <Icon name="Download" className="w-4 h-4 mr-2" />
             <span>Export Report</span>
           </button>
         </div>
@@ -229,7 +229,7 @@ const TreatmentSuccessDashboard = () => {
       >
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-medium">Provider Performance</h3>
-          <UserCheck className="w-5 h-5 text-gray-500" />
+          <Icon name="UserCheck" className="w-5 h-5 text-gray-500" />
         </div>
 
         <div className="overflow-x-auto">
@@ -279,7 +279,7 @@ const TreatmentSuccessDashboard = () => {
       >
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-medium">Treatment Type Analysis</h3>
-          <BarChart3 className="w-5 h-5 text-gray-500" />
+          <Icon name="BarChart3" className="w-5 h-5 text-gray-500" />
         </div>
 
         <div className="overflow-x-auto">
@@ -345,7 +345,7 @@ const TreatmentSuccessDashboard = () => {
       >
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-medium">Unscheduled Treatment Value</h3>
-          <DollarSign className="w-5 h-5 text-gray-500" />
+          <Icon name="DollarSign" className="w-5 h-5 text-gray-500" />
         </div>
 
         <div className="text-center mb-6">
@@ -356,7 +356,7 @@ const TreatmentSuccessDashboard = () => {
         <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
           <div className="flex">
             <div className="flex-shrink-0">
-              <TrendingUp className="h-5 w-5 text-yellow-400" />
+              <Icon name="TrendingUp" className="h-5 w-5 text-yellow-400" />
             </div>
             <div className="ml-3">
               <p className="text-sm text-yellow-700">

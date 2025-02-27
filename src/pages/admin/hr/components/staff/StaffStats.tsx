@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import StatsCard from '../../../../../components/dashboard/StatsCard';
+import { Icon } from '../../../../../components/ui/icon-strategy';
 
 export const StaffStats = () => {
   return (
@@ -10,28 +11,29 @@ export const StaffStats = () => {
         value="24"
         change={8}
         icon="Users"
-        variant="primary"
+        variant="royal"
+        isGlowing={true}
       />
       <StatsCard
         title="Active Staff"
         value="22"
         change={5}
         icon="UserCheck"
-        variant="secondary"
+        variant="corporate"
       />
       <StatsCard
         title="Satisfaction"
         value="92%"
         change={3}
         icon="Heart"
-        variant="accent1"
+        variant="gold"
       />
       <StatsCard
         title="Retention Rate"
         value="95%"
         change={2}
         icon="UserPlus"
-        variant="accent2"
+        variant="ocean"
       />
     </div>
   );

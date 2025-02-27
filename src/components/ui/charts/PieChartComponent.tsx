@@ -1,52 +1,64 @@
 import React from 'react';
-import { PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { BaseChart } from './BaseChart';
+import { chartColors, chartConfig, chartColorSequence } from '../../../lib/chartStyles';
 
 interface PieChartProps {
   data: Array<{
     name: string;
     value: number;
-    color: string;
+    color?: string;
   }>;
   title?: string;
   height?: number;
   innerRadius?: number;
   outerRadius?: number;
+  paddingAngle?: number;
+  className?: string;
 }
 
 export const PieChartComponent: React.FC<PieChartProps> = ({
   data,
   title,
   height,
-  innerRadius = 60,
-  outerRadius = 80,
+  innerRadius = chartConfig.pieChart.innerRadius,
+  outerRadius = chartConfig.pieChart.outerRadius,
+  paddingAngle = chartConfig.pieChart.paddingAngle,
+  className
 }) => {
+  // Add colors from the sequence to any data items that don't have a color specified
+  const coloredData = data.map((item, index) => ({
+    ...item,
+    color: item.color || chartColorSequence[index % chartColorSequence.length]
+  }));
+
   return (
-    <BaseChart title={title} height={height}>
+    <BaseChart title={title} height={height} className={className}>
       <PieChart>
         <Pie
-          data={data}
+          data={coloredData}
           cx="50%"
           cy="50%"
           innerRadius={innerRadius}
           outerRadius={outerRadius}
-          paddingAngle={5}
+          paddingAngle={paddingAngle}
           dataKey="value"
-          label
+          label={chartConfig.pieChart.labelLine ? {
+            fill: chartColors.navy.DEFAULT,
+            fontSize: 12
+          } : false}
+          labelLine={chartConfig.pieChart.labelLine}
         >
-          {data.map((entry, index) => (
-            <Cell key={index} fill={entry.color} />
+          {coloredData.map((entry, index) => (
+            <Cell key={index} fill={entry.color} stroke={chartColors.navy.ultraLight} />
           ))}
         </Pie>
         <Tooltip
-          contentStyle={{
-            backgroundColor: '#fff',
-            border: 'none',
-            borderRadius: '0.5rem',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-          }}
+          contentStyle={chartConfig.tooltip.contentStyle}
         />
-        <Legend />
+        <Legend formatter={(value, entry, index) => (
+          <span style={{ color: chartColors.navy.DEFAULT }}>{value}</span>
+        )} />
       </PieChart>
     </BaseChart>
   );

@@ -10,28 +10,29 @@ export const EmailCampaignStats = () => {
         value="12,345"
         change={8}
         icon="Send"
-        variant="primary"
+        variant="ocean"
+        isGlowing={true}
       />
       <StatsCard
         title="Open Rate"
         value="45.8%"
         change={5}
         icon="Eye"
-        variant="secondary"
+        variant="tropical"
       />
       <StatsCard
         title="Click Rate"
         value="12.3%"
         change={3}
         icon="MousePointer"
-        variant="accent1"
+        variant="royal"
       />
       <StatsCard
         title="Conversion Rate"
         value="8.7%"
         change={2}
         icon="TrendingUp"
-        variant="accent2"
+        variant="nature"
       />
     </div>
   );

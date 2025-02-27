@@ -10,56 +10,58 @@ export const KPIOverview = () => {
         value="$145,678"
         change={8}
         icon="DollarSign"
-        variant="primary"
+        variant="ocean"
+        isGlowing={true}
       />
       <StatsCard
         title="Patient Growth"
         value="3,456"
         change={12}
         icon="Users"
-        variant="secondary"
+        variant="royal"
       />
       <StatsCard
         title="Treatment Acceptance"
         value="78%"
         change={5}
         icon="CheckCircle"
-        variant="accent1"
+        variant="gold"
       />
       <StatsCard
         title="Appointment Fill Rate"
-        value="92%"
+        value="94%"
         change={3}
         icon="Calendar"
-        variant="accent2"
+        variant="tropical"
       />
       <StatsCard
         title="Insurance Claims"
         value="245"
         change={7}
         icon="FileCheck"
-        variant="primary"
+        variant="nature"
       />
       <StatsCard
         title="Average Wait Time"
         value="12min"
         change={-4}
-        icon="Clock"
-        variant="secondary"
+        icon="DentalClock"
+        variant="corporate"
       />
       <StatsCard
         title="Patient Satisfaction"
         value="4.8"
         change={2}
         icon="Star"
-        variant="accent1"
+        variant="gold"
+        isGlowing={true}
       />
       <StatsCard
         title="Staff Productivity"
         value="94%"
         change={6}
         icon="TrendingUp"
-        variant="accent2"
+        variant="ocean"
       />
     </div>
   );

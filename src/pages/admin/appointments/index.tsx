@@ -3,10 +3,71 @@ import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { AppointmentActions } from '../../../components/appointments/AppointmentActions';
+import { FullscreenCalendar } from '../../../components/ui/fullscreen-calendar';
 
 const AdminAppointmentsDashboard = () => {
   const [selectedView, setSelectedView] = useState<'calendar' | 'list'>('calendar');
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const appointmentCalendarData = [
+    {
+      day: new Date("2025-02-26"), 
+      events: [
+        {
+          id: 1,
+          name: "John Smith - Cleaning",
+          time: "10:00 AM",
+          datetime: "2025-02-26T10:00",
+        },
+        {
+          id: 2,
+          name: "Sarah Johnson - Check-up",
+          time: "11:30 AM",
+          datetime: "2025-02-26T11:30",
+        },
+        {
+          id: 3,
+          name: "Michael Brown - Root Canal",
+          time: "2:00 PM",
+          datetime: "2025-02-26T14:00",
+        },
+      ],
+    },
+    {
+      day: new Date("2025-02-27"), 
+      events: [
+        {
+          id: 4,
+          name: "Emily Davis - Tooth Extraction",
+          time: "9:00 AM",
+          datetime: "2025-02-27T09:00",
+        },
+        {
+          id: 5,
+          name: "Robert Wilson - Denture Fitting",
+          time: "1:00 PM",
+          datetime: "2025-02-27T13:00",
+        },
+      ],
+    },
+    {
+      day: new Date("2025-02-28"), 
+      events: [
+        {
+          id: 6,
+          name: "Jessica Martinez - Crown Placement",
+          time: "11:00 AM",
+          datetime: "2025-02-28T11:00",
+        },
+        {
+          id: 7,
+          name: "Thomas Anderson - Teeth Whitening",
+          time: "3:30 PM",
+          datetime: "2025-02-28T15:30",
+        },
+      ],
+    },
+  ];
 
   const appointments = [
     {
@@ -118,13 +179,16 @@ const AdminAppointmentsDashboard = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="bg-white rounded-xl shadow-glow p-6"
+        className="bg-white rounded-xl shadow-glow p-6 overflow-hidden flex flex-col h-[calc(100vh-280px)]"
       >
         {selectedView === 'calendar' ? (
-          <div className="h-[600px]">
-            {/* Calendar implementation will go here */}
-            <div className="flex items-center justify-center h-full text-gray-500">
-              Calendar view coming soon...
+          <div className="flex-1 flex flex-col h-full">
+            <div className="mb-4">
+              <h1 className="text-3xl font-bold">Appointments</h1>
+            </div>
+            
+            <div className="flex-1 overflow-hidden">
+              <FullscreenCalendar data={appointmentCalendarData} />
             </div>
           </div>
         ) : (

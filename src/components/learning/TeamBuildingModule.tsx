@@ -4,6 +4,7 @@ import * as Icons from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
 import { useNotifications } from '../../contexts/NotificationContext';
+import { DentalHubAvatar } from '../ui/DentalHubAvatar';
 
 interface TeamBuildingModuleProps {
   onComplete: (score: number) => void;
@@ -15,6 +16,15 @@ export const TeamBuildingModule: React.FC<TeamBuildingModuleProps> = ({
   const [currentScenario, setCurrentScenario] = useState(0);
   const [score, setScore] = useState(0);
   const { dispatch: notifyDispatch } = useNotifications();
+
+  // Mock team members for the exercise
+  const teamMembers = [
+    { id: 'team1', name: 'Dr. Emily Johnson', role: 'Lead Dentist' },
+    { id: 'team2', name: 'Michael Chen', role: 'Dental Hygienist' },
+    { id: 'team3', name: 'Sarah Rodriguez', role: 'Office Manager' },
+    { id: 'team4', name: 'David Kim', role: 'Dental Assistant' },
+    { id: 'team5', name: 'Lisa Patel', role: 'Receptionist' }
+  ];
 
   const scenarios = [
     {
@@ -42,7 +52,7 @@ export const TeamBuildingModule: React.FC<TeamBuildingModuleProps> = ({
     {
       id: '2',
       title: 'Conflict Resolution',
-      description: 'Two team members disagree on the best approach for a project. What's your solution?',
+      description: 'Two team members disagree on the best approach for a project. What\'s your solution?',
       options: [
         {
           text: 'Schedule a meeting to discuss both approaches objectively',
@@ -86,48 +96,57 @@ export const TeamBuildingModule: React.FC<TeamBuildingModuleProps> = ({
   ];
 
   const handleAnswer = (points: number, feedback: string) => {
-    setScore(score + points);
+    setScore(prev => prev + points);
     
     notifyDispatch({
       type: 'ADD_NOTIFICATION',
       payload: {
         id: Date.now().toString(),
-        type: 'message',
-        title: 'Scenario Completed',
+        type: points >= 8 ? 'success' : points > 3 ? 'info' : 'warning',
+        title: points >= 8 ? 'Great Choice!' : 'Consider This',
         message: feedback,
-        timestamp: new Date().toISOString(),
-        read: false,
-        priority: 'medium'
+        autoClose: true
       }
     });
-
+    
     if (currentScenario < scenarios.length - 1) {
-      setCurrentScenario(currentScenario + 1);
+      setCurrentScenario(prev => prev + 1);
     } else {
-      onComplete(score);
+      onComplete(score + points);
     }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Current Scenario */}
+    <div className="space-y-4">
+      {/* Team Member Display */}
+      <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <h3 className="text-lg font-semibold mb-3">Your Team</h3>
+        <div className="flex flex-wrap gap-4">
+          {teamMembers.map((member) => (
+            <div key={member.id} className="flex flex-col items-center">
+              <DentalHubAvatar
+                userId={member.id}
+                name={member.name}
+                size="md"
+                theme="gradient"
+                className="mb-2"
+              />
+              <span className="text-sm font-medium text-center">{member.name.split(' ')[0]}</span>
+              <span className="text-xs text-gray-500">{member.role}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <motion.div
-        key={currentScenario}
+        key={scenarios[currentScenario].id}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-xl shadow-lg border border-gray-200 p-6"
+        exit={{ opacity: 0, y: -20 }}
+        className="bg-white rounded-lg shadow-sm p-6"
       >
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-primary/10 rounded-lg">
-            <Icons.Users className="w-6 h-6 text-primary" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold">{scenarios[currentScenario].title}</h3>
-            <p className="text-sm text-gray-500">Scenario {currentScenario + 1} of {scenarios.length}</p>
-          </div>
-        </div>
-
-        <p className="text-gray-700 mb-6">{scenarios[currentScenario].description}</p>
+        <h2 className="text-xl font-semibold mb-2">{scenarios[currentScenario].title}</h2>
+        <p className="text-gray-600 mb-6">{scenarios[currentScenario].description}</p>
 
         <div className="space-y-3">
           {scenarios[currentScenario].options.map((option, index) => (

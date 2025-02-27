@@ -10,27 +10,28 @@ export const LearningStats = () => {
         value="1,250"
         change={15}
         icon="Award"
-        variant="primary"
+        variant="royal"
+        isGlowing={true}
       />
       <StatsCard
         title="Courses Completed"
         value="8"
         change={2}
         icon="GraduationCap"
-        variant="secondary"
+        variant="ocean"
       />
       <StatsCard
         title="Active Challenges"
         value="3"
         change={1}
         icon="Target"
-        variant="accent1"
+        variant="gold"
       />
       <StatsCard
         title="Current Rank"
         value="Gold"
         icon="Trophy"
-        variant="accent2"
+        variant="tropical"
       />
     </div>
   );

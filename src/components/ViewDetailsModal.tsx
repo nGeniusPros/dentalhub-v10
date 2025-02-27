@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from './ui/icon-strategy';
 import { Button } from './ui/button';
 import { cn } from '../lib/utils';
 
@@ -158,9 +158,9 @@ export const ViewDetailsModal: React.FC<ViewDetailsModalProps> = ({
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           {module.completed ? (
-                            <Icons.CheckCircle className="w-4 h-4 text-green-500" />
+                            <Icon name="CheckCircle" className="w-4 h-4 text-green-500" />
                           ) : (
-                            <Icons.Circle className="w-4 h-4 text-gray-300" />
+                            <Icon name="Circle" className="w-4 h-4 text-gray-300" />
                           )}
                           <span className="font-medium">{module.title}</span>
                         </div>
@@ -184,7 +184,7 @@ export const ViewDetailsModal: React.FC<ViewDetailsModalProps> = ({
                 <div className="space-y-2">
                   {data.requirements.map((req: string, index: number) => (
                     <div key={index} className="flex items-center gap-2">
-                      <Icons.CheckCircle className="w-4 h-4 text-green-500" />
+                      <Icon name="CheckCircle" className="w-4 h-4 text-green-500" />
                       <span className="text-sm">{req}</span>
                     </div>
                   ))}
@@ -260,7 +260,7 @@ export const ViewDetailsModal: React.FC<ViewDetailsModalProps> = ({
                       className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
                     >
                       <div className="flex items-center gap-2">
-                        <Icons.FileText className="w-4 h-4 text-gray-400" />
+                        <Icon name="FileText" className="w-4 h-4 text-gray-400" />
                         <span className="text-sm">{file.name}</span>
                       </div>
                       <span className="text-sm text-gray-500">{file.size}</span>
@@ -298,7 +298,7 @@ export const ViewDetailsModal: React.FC<ViewDetailsModalProps> = ({
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">{data.title}</h2>
             <Button variant="ghost" size="sm" onClick={onClose}>
-              <Icons.X className="w-5 h-5" />
+              <Icon name="X" className="w-5 h-5" />
             </Button>
           </div>
         </div>
@@ -326,17 +326,17 @@ export const ViewDetailsModal: React.FC<ViewDetailsModalProps> = ({
               <Button onClick={() => onAction?.('start-course')}>
                 {data.progress === 0 ? (
                   <>
-                    <Icons.Play className="w-4 h-4 mr-2" />
+                    <Icon name="Play" className="w-4 h-4 mr-2" />
                     Start Course
                   </>
                 ) : data.progress === 100 ? (
                   <>
-                    <Icons.RotateCcw className="w-4 h-4 mr-2" />
+                    <Icon name="RotateCcw" className="w-4 h-4 mr-2" />
                     Retake Course
                   </>
                 ) : (
                   <>
-                    <Icons.ArrowRight className="w-4 h-4 mr-2" />
+                    <Icon name="ArrowRight" className="w-4 h-4 mr-2" />
                     Continue
                   </>
                 )}
@@ -344,19 +344,19 @@ export const ViewDetailsModal: React.FC<ViewDetailsModalProps> = ({
             )}
             {type === 'challenge' && (
               <Button onClick={() => onAction?.('join-challenge')}>
-                <Icons.Users className="w-4 h-4 mr-2" />
+                <Icon name="Users" className="w-4 h-4 mr-2" />
                 Join Challenge
               </Button>
             )}
             {type === 'certification' && (
               <Button onClick={() => onAction?.('start-certification')}>
-                <Icons.FileCheck className="w-4 h-4 mr-2" />
+                <Icon name="FileCheck" className="w-4 h-4 mr-2" />
                 Begin Certification
               </Button>
             )}
             {type === 'assignment' && (
               <Button onClick={() => onAction?.('start-assignment')}>
-                <Icons.Play className="w-4 h-4 mr-2" />
+                <Icon name="Play" className="w-4 h-4 mr-2" />
                 Start Assignment
               </Button>
             )}

@@ -4,6 +4,7 @@ import { Button } from '../../components/ui/button';
 import VoiceCallDialog from '../../components/communication/VoiceCallDialog';
 import SMSDialog from '../../components/communication/SMSDialog';
 import { useCommunication } from '../../contexts/CommunicationContext';
+import DentalIcons, { Tooth, DentistChair, DentalCalendar } from '../../lib/dental-icons';
 
 // Define Patient type
 interface Patient {
@@ -308,7 +309,7 @@ const Patients = () => {
             className="bg-primary hover:bg-primary/90"
             onClick={() => setIsAddPatientDialogOpen(true)}
           >
-            <Icons.UserPlus className="w-4 h-4 mr-2" />
+            <Tooth className="w-5 h-5 mr-2" color="#fff" />
             Add Patient
           </Button>
         </div>
@@ -339,13 +340,19 @@ const Patients = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Patient
+                  <div className="flex items-center">
+                    <Tooth className="w-4 h-4 mr-1 text-navy" />
+                    Patient
+                  </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Contact
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Next Appointment
+                  <div className="flex items-center">
+                    <DentalCalendar className="w-4 h-4 mr-1 text-navy" />
+                    Next Appointment
+                  </div>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status

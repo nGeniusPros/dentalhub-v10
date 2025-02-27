@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { Button } from '../../../../components/ui/button';
+import { Progress } from '../../../../components/ui/progress';
 import { cn } from '../../../../lib/utils';
 
 export const LearningPathProgress = () => {
@@ -13,6 +14,7 @@ export const LearningPathProgress = () => {
       nextMilestone: 'Advanced Patient Care',
       remainingCourses: 3,
       category: 'Clinical',
+      variant: 'gradient-ocean',
       rewards: [
         { type: 'badge', name: 'Clinical Expert', unlocked: false },
         { type: 'points', value: 1000, unlocked: false }
@@ -31,6 +33,7 @@ export const LearningPathProgress = () => {
       nextMilestone: 'Team Management',
       remainingCourses: 5,
       category: 'Professional',
+      variant: 'gradient-royal',
       rewards: [
         { type: 'badge', name: 'Leadership Star', unlocked: false },
         { type: 'certificate', name: 'Leadership Excellence', unlocked: false }
@@ -55,7 +58,7 @@ export const LearningPathProgress = () => {
           <h2 className="text-lg font-semibold">Learning Paths</h2>
           <p className="text-sm text-gray-500">Track your progress in different areas</p>
         </div>
-        <Button variant="outline">
+        <Button variant="gradient-nature">
           <Icons.Plus className="w-4 h-4 mr-2" />
           Join New Path
         </Button>
@@ -68,8 +71,12 @@ export const LearningPathProgress = () => {
             className="bg-gray-50 rounded-xl p-6 hover:shadow-md transition-shadow"
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Icons.Map className="w-5 h-5 text-primary" />
+              <div className={cn(
+                "p-2 rounded-lg",
+                path.variant === 'gradient-ocean' ? 'bg-gradient-ocean' : 'bg-gradient-royal',
+                "text-white"
+              )}>
+                <Icons.Map className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="font-medium text-gray-900">{path.name}</h3>
@@ -84,12 +91,12 @@ export const LearningPathProgress = () => {
                   <span className="text-gray-600">Overall Progress</span>
                   <span className="font-medium">{path.progress}%</span>
                 </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full transition-all duration-300"
-                    style={{ width: `${path.progress}%` }}
-                  />
-                </div>
+                <Progress 
+                  value={path.progress} 
+                  variant={path.variant as any} 
+                  size="md"
+                  animate={true}
+                />
               </div>
 
               {/* Milestones */}
@@ -99,12 +106,12 @@ export const LearningPathProgress = () => {
                     key={index}
                     className={cn(
                       "flex items-center gap-3 p-2 rounded-lg transition-colors",
-                      milestone.completed ? "bg-green-50" : "bg-gray-100"
+                      milestone.completed ? "bg-green/10" : "bg-gray-100"
                     )}
                   >
                     <div className={cn(
                       "w-6 h-6 rounded-full flex items-center justify-center",
-                      milestone.completed ? "bg-green-100 text-green-600" : "bg-gray-200 text-gray-400"
+                      milestone.completed ? "bg-green/20 text-green" : "bg-gray-200 text-gray-400"
                     )}>
                       {milestone.completed ? (
                         <Icons.Check className="w-4 h-4" />
@@ -114,7 +121,7 @@ export const LearningPathProgress = () => {
                     </div>
                     <span className={cn(
                       "text-sm",
-                      milestone.completed ? "text-green-600" : "text-gray-600"
+                      milestone.completed ? "text-green" : "text-gray-600"
                     )}>
                       {milestone.name}
                     </span>
@@ -132,7 +139,7 @@ export const LearningPathProgress = () => {
                       className={cn(
                         "px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1",
                         reward.unlocked
-                          ? "bg-yellow-100 text-yellow-800"
+                          ? "bg-gold/10 text-gold"
                           : "bg-gray-100 text-gray-600"
                       )}
                     >
@@ -147,10 +154,10 @@ export const LearningPathProgress = () => {
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm">
-                  <Icons.BookOpen className="w-4 h-4 text-primary" />
+                  <Icons.BookOpen className="w-4 h-4 text-navy" />
                   <span>{path.remainingCourses} courses remaining</span>
                 </div>
-                <Button>Continue Path</Button>
+                <Button variant={path.variant as any} size="sm">Continue</Button>
               </div>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from '../ui/icon-strategy';
 import { MenuGroup } from './Sidebar/MenuGroup';
 import { cn } from '../utils/cn';
 import type { MenuItem } from '../types';
@@ -128,7 +128,7 @@ const AdminSidebar = () => {
           animate={{ scale: 1 }}
           className="relative w-12 h-12"
         >
-          <Icons.Atom className="w-full h-full text-white animate-spin-slow" />
+          <Icon name="Atom" className="w-full h-full text-white animate-spin-slow" />
         </motion.div>
       </div>
 
@@ -157,7 +157,7 @@ const AdminSidebar = () => {
             "hover:bg-white/10 backdrop-blur-sm transition-colors"
           )}
         >
-          <Icons.PanelLeftClose className={cn(
+          <Icon name="PanelLeftClose" className={cn(
             "w-5 h-5 transition-transform",
             isCollapsed && "rotate-180"
           )} />

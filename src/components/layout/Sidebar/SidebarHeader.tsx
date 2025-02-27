@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from '../../ui/icon-strategy';
 import { Button } from '../../ui/button';
 import { cn } from '../../../lib/utils';
 
@@ -29,7 +29,7 @@ export const SidebarHeader = ({ collapsed, onToggle }: SidebarHeaderProps) => {
             }}
             className="w-8 h-8"
           >
-            <Icons.Atom className="w-full h-full text-primary" />
+            <Icon name="Atom" className="w-full h-full text-primary" />
           </motion.div>
           <span className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">
             NGenius Dental
@@ -43,9 +43,9 @@ export const SidebarHeader = ({ collapsed, onToggle }: SidebarHeaderProps) => {
         className="text-primary hover:text-primary/80"
       >
         {collapsed ? (
-          <Icons.ChevronRight className="h-4 w-4" />
+          <Icon name="ChevronRight" className="h-4 w-4" />
         ) : (
-          <Icons.ChevronLeft className="h-4 w-4" />
+          <Icon name="ChevronLeft" className="h-4 w-4" />
         )}
       </Button>
     </div>

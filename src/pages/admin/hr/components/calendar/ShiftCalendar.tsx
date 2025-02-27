@@ -5,6 +5,7 @@ import { Button } from '../../../../../components/ui/button';
 import { AddShiftModal } from './AddShiftModal';
 import { ViewShiftModal } from './ViewShiftModal';
 import { cn } from '../../../../../lib/utils';
+import DentalIcons, { DentalCalendar, DentistChair } from '../../../../../lib/dental-icons';
 
 interface Shift {
   id: string;
@@ -91,8 +92,15 @@ export const ShiftCalendar = () => {
   const days = getDaysInMonth(selectedDate);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="bg-white rounded-xl shadow-xl">
+      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex items-center space-x-4">
+          <DentalCalendar className="w-6 h-6 text-navy" />
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">Staff Schedule</h2>
+            <p className="text-sm text-gray-500">Manage staff shifts and appointments</p>
+          </div>
+        </div>
         <div className="flex items-center gap-4">
           <Button
             variant="outline"
@@ -113,7 +121,7 @@ export const ShiftCalendar = () => {
           </Button>
         </div>
         <Button onClick={() => setShowAddShift(true)}>
-          <Icons.Plus className="w-4 h-4 mr-2" />
+          <DentistChair className="w-5 h-5 mr-2 text-white" />
           Add Shift
         </Button>
       </div>
@@ -150,18 +158,15 @@ export const ShiftCalendar = () => {
                     key={shift.id}
                     onClick={() => setShowViewShift(shift)}
                     className={cn(
-                      "w-full text-left px-2 py-1 rounded text-xs",
-                      "hover:bg-gray-100 transition-colors",
-                      shift.status === 'checked-in' && "bg-green-100 text-green-800",
-                      shift.status === 'checked-out' && "bg-blue-100 text-blue-800",
-                      shift.status === 'absent' && "bg-red-100 text-red-800",
-                      shift.status === 'scheduled' && "bg-gray-100 text-gray-800"
+                      "w-full py-1 px-2 text-xs rounded text-left",
+                      shift.role === 'Dentist' && "bg-navy/10 text-navy border-l-2 border-navy",
+                      shift.role === 'Hygienist' && "bg-turquoise/10 text-turquoise border-l-2 border-turquoise",
+                      shift.role === 'Assistant' && "bg-purple/10 text-purple border-l-2 border-purple",
+                      shift.role === 'Front Desk' && "bg-gold/10 text-gold-darker border-l-2 border-gold"
                     )}
                   >
                     <div className="font-medium truncate">{shift.employeeName}</div>
-                    <div className="text-xs opacity-75">
-                      {shift.startTime} - {shift.endTime}
-                    </div>
+                    <div>{shift.startTime} - {shift.endTime}</div>
                   </button>
                 ))}
               </div>

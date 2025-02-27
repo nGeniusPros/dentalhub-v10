@@ -3,6 +3,8 @@ import { useOrchestrator } from '../../hooks/useOrchestrator';
 import type { Recommendation } from '../../ai/recommendation/recommendation.agent';
 import type { KPIAnalysis } from '../../ai/data-analysis/data-analysis.agent';
 import type { LabCaseAnalysis } from '../../ai/lab-case-manager/lab-case-manager.agent';
+import { DentalHubAvatar } from '../ui/DentalHubAvatar';
+import { useAuthContext } from '../../contexts/AuthContext';
 
 /**
  * AI Consultant Chat Component
@@ -33,7 +35,15 @@ export const AIConsultantChat: React.FC = () => {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   
   const { askOrchestrator, loading, error, response } = useOrchestrator();
+  const { user } = useAuthContext();
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
+  
+  // AI consultant data
+  const aiConsultant = {
+    id: 'ai-consultant',
+    name: 'AI Dental Consultant',
+    avatarId: 3 // Using a specific avatar from the set
+  };
   
   // Scroll to bottom of chat when new messages arrive
   useEffect(() => {
@@ -191,40 +201,86 @@ export const AIConsultantChat: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Chat History */}
-      <div className="flex-grow overflow-y-auto p-4">
+      <div className="border-b p-4 flex items-center">
+        <DentalHubAvatar
+          userId={aiConsultant.id}
+          name={aiConsultant.name}
+          avatarId={aiConsultant.avatarId}
+          size="sm"
+          theme="gradient"
+          className="mr-3"
+        />
+        <div>
+          <h2 className="font-medium">{aiConsultant.name}</h2>
+          <p className="text-xs text-gray-500">Dental Practice Intelligence</p>
+        </div>
+      </div>
+      
+      <div className="flex-grow overflow-y-auto p-4 bg-gray-50">
         {chatHistory.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            <div className="text-center">
-              <h2 className="text-xl font-semibold mb-2">AI Dental Practice Consultant</h2>
-              <p>Ask questions about practice KPIs, lab cases, or request recommendations</p>
+          <div className="h-full flex flex-col items-center justify-center text-gray-400">
+            <div className="bg-white p-6 rounded-lg shadow-sm max-w-md text-center">
+              <DentalHubAvatar
+                userId={aiConsultant.id}
+                name={aiConsultant.name}
+                avatarId={aiConsultant.avatarId}
+                size="lg"
+                theme="gradient"
+                className="mx-auto mb-4"
+              />
+              <h3 className="font-semibold text-gray-700 mb-2">AI Dental Consultant</h3>
+              <p className="text-sm">
+                I can help with practice analytics, patient insights, and dental business recommendations.
+                Ask me anything about your practice performance.
+              </p>
             </div>
           </div>
         ) : (
           chatHistory.map((msg, index) => (
-            <div key={index} className={`mb-4 ${msg.type === 'user' ? 'text-right' : ''}`}>
-              <div className={`inline-block max-w-3/4 p-3 rounded-lg ${
-                msg.type === 'user' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'bg-white border border-gray-200'
-              }`}>
-                <p className="whitespace-pre-wrap">{msg.content}</p>
-              </div>
-              
-              {/* Render specialized content sections for AI responses */}
-              {msg.type === 'ai' && msg.sections && (
-                <div className="mt-2">
-                  {msg.sections.map((section, i) => (
-                    <div key={i}>
-                      {renderSection(section.type, section.content)}
-                    </div>
-                  ))}
-                </div>
+            <div key={index} className={`mb-4 ${msg.type === 'user' ? 'flex justify-end' : 'flex justify-start'}`}>
+              {msg.type === 'ai' && (
+                <DentalHubAvatar
+                  userId={aiConsultant.id}
+                  name={aiConsultant.name}
+                  avatarId={aiConsultant.avatarId}
+                  size="sm"
+                  theme="simple"
+                  className="mr-2 mt-1 flex-shrink-0"
+                />
               )}
-              
-              <div className={`text-xs text-gray-500 mt-1 ${msg.type === 'user' ? 'text-right' : 'text-left'}`}>
-                {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              <div className="max-w-3/4">
+                <div className={`p-3 rounded-lg ${
+                  msg.type === 'user' 
+                    ? 'bg-navy text-white' 
+                    : 'bg-white border border-gray-200'
+                }`}>
+                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                </div>
+                
+                {/* Render specialized content sections for AI responses */}
+                {msg.type === 'ai' && msg.sections && (
+                  <div className="mt-2">
+                    {msg.sections.map((section, i) => (
+                      <div key={i}>
+                        {renderSection(section.type, section.content)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                <div className={`text-xs text-gray-500 mt-1 ${msg.type === 'user' ? 'text-right' : 'text-left'}`}>
+                  {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
               </div>
+              {msg.type === 'user' && (
+                <DentalHubAvatar
+                  userId={user?.id}
+                  name={user?.name}
+                  size="sm"
+                  theme="simple"
+                  className="ml-2 mt-1 flex-shrink-0"
+                />
+              )}
             </div>
           ))
         )}

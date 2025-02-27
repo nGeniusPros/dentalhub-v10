@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from '../ui/icon-strategy';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { DentalHubAvatar } from '../ui/DentalHubAvatar';
 
 export const UserProfile = () => {
   const { user } = useAuthContext();
@@ -38,11 +39,12 @@ export const UserProfile = () => {
           {user?.title} - {user?.department}
         </p>
       </div>
-      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#1B2B85] to-[#40E0D0] p-0.5 hover:shadow-lg transition-shadow">
-        <div className="w-full h-full rounded-full bg-white dark:bg-gray-900 flex items-center justify-center">
-          <Icons.User className="w-5 h-5 text-[#1B2B85]" />
-        </div>
-      </div>
+      <DentalHubAvatar 
+        userId={user?.id}
+        name={user?.name}
+        size="md"
+        theme="gradient"
+      />
     </motion.div>
   );
 };

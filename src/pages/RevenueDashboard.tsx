@@ -3,8 +3,9 @@ import { motion } from 'framer-motion';
 import { ChartContainer } from '../components/dashboard/charts/ChartContainer';
 import { RevenueChart } from '../components/dashboard/charts/RevenueChart';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Download, Calendar, DollarSign, PieChart } from 'lucide-react';
+import { Icon } from '../components/ui/icon-strategy';
 import StatsCard from '../components/dashboard/StatsCard';
+
 // Import AI components (commented out for now)
 // import { DataAnalysisAgent } from '../ai/data-analysis/data-analysis.agent';
 // import { RecommendationAgent } from '../ai/recommendation.agent';
@@ -75,7 +76,7 @@ const marketingSpendData = [
   { category: 'Local Events', spend: 4500, roi: 2.5 },
   { category: 'Referral Program', spend: 2800, roi: 4.1 },
   { category: 'SEO/Website', spend: 5000, roi: 3.7 },
-];
+  ];
 
 const RevenueDashboard = () => {
   const [activeTab, setActiveTab] = useState<'annual' | 'quarterly' | 'monthly'>('monthly');
@@ -153,12 +154,17 @@ const RevenueDashboard = () => {
     }).format(value);
   };
 
+  // Format percentage to 1 decimal place
+  const formatPercentage = (value: number) => {
+    return value.toFixed(1);
+  };
+
   if (loading) {
     return (
       <div className="space-y-8">
         <div className="flex items-center">
-          <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-primary mr-4">
-            <ArrowLeft className="w-4 h-4 mr-1" />
+          <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-navy mr-4">
+            <Icon name="ArrowLeft" className="w-4 h-4 mr-1" />
             <span>Back</span>
           </Link>
           <h1 className="text-2xl font-bold">Revenue Dashboard</h1>
@@ -178,8 +184,8 @@ const RevenueDashboard = () => {
       {/* Header section */}
       <div className="flex items-center justify-between">
         <div className="flex items-center">
-          <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-primary mr-4">
-            <ArrowLeft className="w-4 h-4 mr-1" />
+          <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-navy mr-4">
+            <Icon name="ArrowLeft" className="w-4 h-4 mr-1" />
             <span>Back</span>
           </Link>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-navy to-purple text-transparent bg-clip-text">
@@ -188,11 +194,11 @@ const RevenueDashboard = () => {
         </div>
         <div className="flex gap-3">
           <button className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-            <Calendar className="w-4 h-4 mr-2" />
+            <Icon name="Calendar" className="w-4 h-4 mr-2" />
             <span>Date Range</span>
           </button>
-          <button className="flex items-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
-            <Download className="w-4 h-4 mr-2" />
+          <button className="flex items-center px-4 py-2 text-sm font-medium text-white bg-navy rounded-lg hover:bg-navy-light">
+            <Icon name="Download" className="w-4 h-4 mr-2" />
             <span>Export Report</span>
           </button>
         </div>
@@ -228,7 +234,7 @@ const RevenueDashboard = () => {
             <div className="text-center p-4 bg-gray-50 rounded-lg">
               <p className="text-gray-500 text-sm mb-1">YoY Change</p>
               <p className={`text-2xl font-bold ${(revenueData?.annual.yoyChange || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {(revenueData?.annual.yoyChange || 0) >= 0 ? '+' : ''}{revenueData?.annual.yoyChange || 0}%
+                {(revenueData?.annual.yoyChange || 0) >= 0 ? '+' : ''}{formatPercentage(revenueData?.annual.yoyChange || 0)}%
               </p>
             </div>
           </div>
@@ -238,7 +244,7 @@ const RevenueDashboard = () => {
         <div className="mt-6">
           <div className="flex justify-between text-sm mb-1">
             <span>Progress toward annual goal</span>
-            <span className="font-medium">{revenueData?.annual.performance || 0}%</span>
+            <span className="font-medium">{formatPercentage(revenueData?.annual.performance || 0)}%</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div
@@ -258,8 +264,8 @@ const RevenueDashboard = () => {
           <StatsCard
             title="Year to Date"
             value={formatCurrency(revenueData?.ytd.actual || 0)}
-            change={revenueData?.ytd.performance ? revenueData.ytd.performance - 100 : 0}
-            icon="Activity"
+            change={(revenueData?.ytd.performance ? formatPercentage(revenueData.ytd.performance - 100) : '0')}
+            icon="LineChart"
             variant="primary"
           />
         </div>
@@ -267,8 +273,8 @@ const RevenueDashboard = () => {
           <StatsCard
             title="Month to Date"
             value={formatCurrency(revenueData?.mtd.actual || 0)}
-            change={revenueData?.mtd.performance ? revenueData.mtd.performance - 100 : 0}
-            icon="Calendar"
+            change={(revenueData?.mtd.performance ? formatPercentage(revenueData.mtd.performance - 100) : '0')}
+            icon="CalendarDays"
             variant="secondary"
           />
         </div>
@@ -276,7 +282,7 @@ const RevenueDashboard = () => {
           <StatsCard
             title="Week to Date"
             value={formatCurrency(revenueData?.wtd.actual || 0)}
-            change={revenueData?.wtd.performance ? revenueData.wtd.performance - 100 : 0}
+            change={(revenueData?.wtd.performance ? formatPercentage(revenueData.wtd.performance - 100) : '0')}
             icon="DollarSign"
             variant="accent1"
           />
@@ -291,19 +297,19 @@ const RevenueDashboard = () => {
           </h2>
           <div className="flex bg-gray-100 rounded-lg p-1">
             <button
-              className={`px-4 py-1 text-sm rounded-md ${activeTab === 'monthly' ? 'bg-white shadow-sm text-primary' : 'text-gray-500'}`}
+              className={`px-4 py-1 text-sm rounded-md ${activeTab === 'monthly' ? 'bg-white shadow-sm text-navy' : 'text-gray-500'}`}
               onClick={() => setActiveTab('monthly')}
             >
               Monthly
             </button>
             <button
-              className={`px-4 py-1 text-sm rounded-md ${activeTab === 'quarterly' ? 'bg-white shadow-sm text-primary' : 'text-gray-500'}`}
+              className={`px-4 py-1 text-sm rounded-md ${activeTab === 'quarterly' ? 'bg-white shadow-sm text-navy' : 'text-gray-500'}`}
               onClick={() => setActiveTab('quarterly')}
             >
               Quarterly
             </button>
             <button
-              className={`px-4 py-1 text-sm rounded-md ${activeTab === 'annual' ? 'bg-white shadow-sm text-primary' : 'text-gray-500'}`}
+              className={`px-4 py-1 text-sm rounded-md ${activeTab === 'annual' ? 'bg-white shadow-sm text-navy' : 'text-gray-500'}`}
               onClick={() => setActiveTab('annual')}
             >
               Annual
@@ -311,10 +317,19 @@ const RevenueDashboard = () => {
           </div>
         </div>
 
-        <ChartContainer title={`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Revenue vs Goal`}>
-          {/* This would be replaced with a chart component that handles different periods */}
-          <RevenueChart data={monthlyData} />
-        </ChartContainer>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white/95 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-light hover:shadow-xl transition-shadow duration-300"
+        >
+          <h2 className="text-lg font-semibold mb-6 bg-gradient-to-r from-navy via-purple to-turquoise text-transparent bg-clip-text">
+            {`${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Revenue vs Goal`}
+          </h2>
+          <div className="h-80 relative">
+            <div className="absolute inset-0 bg-gradient-radial from-white/50 to-transparent opacity-50" />
+            <RevenueChart data={monthlyData} />
+          </div>
+        </motion.div>
       </div>
 
       {/* Marketing metrics section */}
@@ -322,27 +337,27 @@ const RevenueDashboard = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/95 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-light"
+          className="mt-8 bg-white/95 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-light h-full"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium">Marketing Budget</h3>
             <div className="flex items-center text-gray-500 text-sm">
-              <DollarSign className="w-4 h-4 mr-1" />
-              <span>{revenueData?.marketing.revenuePercentage || 0}% of revenue</span>
+              <Icon name="DollarSign" className="w-4 h-4 mr-1" />
+              <span>{formatPercentage(revenueData?.marketing.revenuePercentage || 0)}% of revenue</span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-gray-500 text-sm mb-1">Current Spend</p>
-              <p className="text-xl font-bold text-primary">
+              <p className="text-xl font-bold text-navy">
                 {formatCurrency(revenueData?.marketing.spend || 0)}
               </p>
             </div>
-
+            
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="text-gray-500 text-sm mb-1">AI Suggested Budget</p>
-              <p className="text-xl font-bold text-purple-600">
+              <p className="text-xl font-bold text-purple">
                 {formatCurrency(revenueData?.marketing.suggestedBudget || 0)}
               </p>
             </div>
@@ -351,19 +366,18 @@ const RevenueDashboard = () => {
           <div className="border-t border-gray-200 pt-4">
             <h4 className="text-sm font-medium mb-2">AI Recommendation</h4>
             <p className="text-sm text-gray-600">
-              Based on your current performance and industry benchmarks, increasing marketing spend to {revenueData?.marketing.suggestedBudget ? ((revenueData.marketing.suggestedBudget / revenueData.annual.actual) * 100).toFixed(1) : 0}% of revenue could help close the annual revenue gap. Focus additional budget on Digital Ads and Referral Programs which show the highest ROI.
+              Based on your current performance and industry benchmarks, increasing marketing spend to {revenueData?.marketing.suggestedBudget ? formatPercentage((revenueData.marketing.suggestedBudget / revenueData.annual.actual) * 100) : 0}% of revenue could help close the annual revenue gap. Focus additional budget on Digital Ads and Referral Programs which show the highest ROI.
             </p>
           </div>
         </motion.div>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/95 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-light"
+          className="mt-8 bg-white/95 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-light h-full"
         >
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium">Marketing ROI by Channel</h3>
-            <PieChart className="w-5 h-5 text-gray-500" />
+            <Icon name="PieChart" className="w-5 h-5 text-gray-500" />
           </div>
 
           <div className="space-y-3">
@@ -375,7 +389,7 @@ const RevenueDashboard = () => {
                 </div>
                 <div className="w-24 h-2 bg-gray-200 rounded-full">
                   <div
-                    className="h-2 rounded-full bg-primary"
+                    className="h-2 rounded-full bg-navy"
                     style={{ width: `${(channel.roi / 5) * 100}%` }}
                   ></div>
                 </div>

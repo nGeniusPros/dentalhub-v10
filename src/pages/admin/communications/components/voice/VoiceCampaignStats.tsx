@@ -14,28 +14,29 @@ export const VoiceCampaignStats = () => {
         value="5"
         change={2}
         icon="Phone"
-        variant="primary"
+        variant="gold"
+        isGlowing={true}
       />
       <StatsCard
         title="Total Calls"
         value="1,234"
         change={8}
         icon="PhoneCall"
-        variant="secondary"
+        variant="corporate"
       />
       <StatsCard
         title="Connection Rate"
         value="68%"
         change={5}
         icon="PhoneOutgoing"
-        variant="accent1"
+        variant="ocean"
       />
       <StatsCard
         title="Response Rate"
         value="45%"
         change={3}
         icon="MessageSquare"
-        variant="accent2"
+        variant="nature"
       />
     </motion.div>
   );

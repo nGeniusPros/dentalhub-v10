@@ -1,0 +1,59 @@
+/* 
+* This file ensures Tailwind generates all gradient classes
+* It's imported in main.tsx to make sure these classes are always available
+*/
+
+/* Ocean Gradient */
+.bg-gradient-ocean {
+  /* The class is already defined in tailwind.config.js */
+}
+
+/* Gold Gradient */
+.bg-gradient-gold {
+  /* The class is already defined in tailwind.config.js */
+}
+
+/* Tropical Gradient */
+.bg-gradient-tropical {
+  /* The class is already defined in tailwind.config.js */
+}
+
+/* Royal Gradient */
+.bg-gradient-royal {
+  /* The class is already defined in tailwind.config.js */
+}
+
+/* Nature Gradient */
+.bg-gradient-nature {
+  /* The class is already defined in tailwind.config.js */
+}
+
+/* Corporate Gradient */
+.bg-gradient-corporate {
+  /* The class is already defined in tailwind.config.js */
+}
+
+/* Text Gradients */
+.text-gradient-ocean {
+  @apply bg-gradient-ocean text-transparent bg-clip-text;
+}
+
+.text-gradient-gold {
+  @apply bg-gradient-gold text-transparent bg-clip-text;
+}
+
+.text-gradient-tropical {
+  @apply bg-gradient-tropical text-transparent bg-clip-text;
+}
+
+.text-gradient-royal {
+  @apply bg-gradient-royal text-transparent bg-clip-text;
+}
+
+.text-gradient-nature {
+  @apply bg-gradient-nature text-transparent bg-clip-text;
+}
+
+.text-gradient-corporate {
+  @apply bg-gradient-corporate text-transparent bg-clip-text;
+}

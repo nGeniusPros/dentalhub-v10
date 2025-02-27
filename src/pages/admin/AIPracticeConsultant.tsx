@@ -8,6 +8,8 @@ import { useAIConsultant } from '../../hooks/use-ai-consultant';
 import type { AIConsultantPrompt } from '../../lib/types/ai';
 import ConversationStarter from '../../components/ai/ConversationStarter';
 import AgentCard from '../../components/ai/AgentCard';
+import { DentalHubAvatar } from '../../components/ui/DentalHubAvatar';
+import PracticeInsightScene from '../../components/ai/PracticeInsightScene';
 
 // We keep the ErrorBoundary to catch rendering errors in this page
 class ErrorBoundary extends React.Component<{ fallback?: React.ReactNode; children?: React.ReactNode }, { hasError: boolean }> {
@@ -61,28 +63,36 @@ export function LocalHeadOrchestratorChat({ selectedQuestion, title, description
       // @ts-expect-error - Adding head-orchestrator focus area
       focusArea: 'head-orchestrator',
       question: question,
+      dateRange: { start: "2023-01-01", end: "2023-12-31" },
     };
 
-    const insight = await generateInsight(prompt);
-    if (insight) {
-      setMessages((prev) => [...prev, { role: 'assistant', content: insight.description }]);
+    try {
+      const result = await generateInsight(prompt);
+      setMessages((prev) => [...prev, { role: 'assistant', content: result }]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setQuestion('');
     }
-
-    setQuestion('');
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 h-[400px] flex flex-col">
-      <div className="p-4 border-b border-gray-200 bg-gradient-corporate text-white rounded-t-xl">
-        <div className="flex items-center gap-3">
-          <Icons.Brain className="w-6 h-6" />
+    <div className="border border-gray-200 bg-white rounded-lg shadow-sm overflow-hidden flex flex-col h-[400px]">
+      <div className="bg-navy-default p-4 text-white">
+        <div className="flex items-center">
+          <DentalHubAvatar 
+            size="md"
+            theme="gradient"
+            userId={title}
+            name={title || "AI Consultant"}
+            className="mr-3"
+          />
           <div>
-            <h3 className="font-semibold">{title}</h3>
-            <p className="text-sm opacity-80">{description}</p>
+            <h3 className="font-semibold">{title || "AI Consultant"}</h3>
+            <p className="text-sm opacity-80">{description || "Ask any practice question to our AI orchestrator"}</p>
           </div>
         </div>
       </div>
-
       <div className="flex-1 overflow-y-auto p-4 space-y-4 relative">
         <AnimatePresence>
           {messages.map((message, index) => (
@@ -93,6 +103,15 @@ export function LocalHeadOrchestratorChat({ selectedQuestion, title, description
               exit={{ opacity: 0, y: -20 }}
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
+              {message.role === 'assistant' && (
+                <DentalHubAvatar
+                  size="sm"
+                  theme="gradient"
+                  userId={title}
+                  name={title || "AI Consultant"}
+                  className="mr-2 flex-shrink-0 mt-1"
+                />
+              )}
               <div
                 className={`max-w-[80%] p-3 rounded-lg ${
                   message.role === 'user'
@@ -100,11 +119,36 @@ export function LocalHeadOrchestratorChat({ selectedQuestion, title, description
                     : 'bg-gray-lighter text-gray-darker mr-4'
                 }`}
               >
-                {message.content}
+                <p>{message.content}</p>
               </div>
+              {message.role === 'user' && (
+                <DentalHubAvatar
+                  size="sm"
+                  theme="navy"
+                  userId="current-user"
+                  name="You"
+                  className="ml-2 flex-shrink-0 mt-1"
+                />
+              )}
             </motion.div>
           ))}
         </AnimatePresence>
+
+        {loading && (
+          <div className="flex justify-start">
+            <div className="flex items-center space-x-2 bg-gray-lighter p-3 rounded-lg">
+              <div className="w-2 h-2 bg-navy rounded-full animate-pulse delay-100"></div>
+              <div className="w-2 h-2 bg-navy rounded-full animate-pulse delay-200"></div>
+              <div className="w-2 h-2 bg-navy rounded-full animate-pulse delay-300"></div>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="text-red-500 p-3 bg-red-50 rounded-lg">
+            There was an error processing your request. Please try again.
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleSubmit} className="p-4 border-t border-gray-200">
@@ -117,20 +161,139 @@ export function LocalHeadOrchestratorChat({ selectedQuestion, title, description
             className="w-full px-4 py-2 pr-12 border border-gray-200 rounded-lg focus:ring-2 focus:ring-navy/20 focus:border-navy"
             disabled={loading}
           />
-          <Button
+          <button
             type="submit"
+            className="absolute right-1 top-1 bg-navy-default hover:bg-navy-light text-white rounded-lg p-2"
             disabled={loading}
-            className="absolute right-2 top-1/2 -translate-y-1/2 !p-1 hover:bg-gray-lighter"
           >
-            {loading ? (
-              <Icons.Loader2 className="w-5 h-5 animate-spin text-navy" />
-            ) : (
-              <Icons.Send className="w-5 h-5 text-navy" />
-            )}
-          </Button>
+            <Icons.Send size={16} className="text-current" />
+          </button>
         </div>
+      </form>
+    </div>
+  );
+}
 
-        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+// Special chat component for agent cards with smaller height
+export function AgentHeadOrchestratorChat({ selectedQuestion, title, description }: { selectedQuestion?: string, title?: string, description?: string }) {
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
+  const { generateInsight, loading, error } = useAIConsultant();
+
+  const [question, setQuestion] = useState(selectedQuestion || '');
+
+  React.useEffect(() => {
+    if (selectedQuestion) {
+      setQuestion(selectedQuestion);
+    }
+  }, [selectedQuestion]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!question.trim()) return;
+
+    setMessages((prev) => [...prev, { role: 'user', content: question }]);
+
+    const prompt: AIConsultantPrompt = {
+      metrics: {
+        monthlyRevenue: 150000,
+        patientCount: 1200,
+        appointmentFillRate: 75,
+        treatmentAcceptance: 65,
+      },
+      // @ts-expect-error - Adding head-orchestrator focus area
+      focusArea: 'head-orchestrator',
+      question: question,
+      dateRange: { start: "2023-01-01", end: "2023-12-31" },
+    };
+
+    try {
+      const result = await generateInsight(prompt);
+      setMessages((prev) => [...prev, { role: 'assistant', content: result }]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setQuestion('');
+    }
+  }
+
+  return (
+    <div className="border border-gray-200 bg-white rounded-lg shadow-sm overflow-hidden flex flex-col h-[180px]">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 relative">
+        <AnimatePresence>
+          {messages.map((message, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              {message.role === 'assistant' && (
+                <DentalHubAvatar
+                  size="xs"
+                  theme="gradient"
+                  userId={title}
+                  name={title || "AI Consultant"}
+                  className="mr-1 flex-shrink-0 mt-1"
+                />
+              )}
+              <div
+                className={`max-w-[85%] p-2 text-sm rounded-lg ${
+                  message.role === 'user'
+                    ? 'bg-navy hover:bg-navy-light text-white ml-2'
+                    : 'bg-gray-lighter text-gray-darker mr-2'
+                }`}
+              >
+                <p>{message.content}</p>
+              </div>
+              {message.role === 'user' && (
+                <DentalHubAvatar
+                  size="xs"
+                  theme="navy"
+                  userId="current-user"
+                  name="You"
+                  className="ml-1 flex-shrink-0 mt-1"
+                />
+              )}
+            </motion.div>
+          ))}
+        </AnimatePresence>
+
+        {loading && (
+          <div className="flex justify-start">
+            <div className="flex items-center space-x-1 bg-gray-lighter p-2 rounded-lg">
+              <div className="w-1.5 h-1.5 bg-navy rounded-full animate-pulse delay-100"></div>
+              <div className="w-1.5 h-1.5 bg-navy rounded-full animate-pulse delay-200"></div>
+              <div className="w-1.5 h-1.5 bg-navy rounded-full animate-pulse delay-300"></div>
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <div className="text-red-500 p-2 bg-red-50 rounded-lg text-xs">
+            Error. Please try again.
+          </div>
+        )}
+      </div>
+
+      <form onSubmit={handleSubmit} className="p-2 border-t border-gray-200">
+        <div className="relative">
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Ask a question..."
+            className="w-full px-3 py-1 pr-8 text-sm border border-gray-200 rounded-lg focus:ring-1 focus:ring-navy/20 focus:border-navy"
+            disabled={loading}
+          />
+          <button
+            type="submit"
+            className="absolute right-1 top-1 bg-navy-default hover:bg-navy-light text-white rounded-lg p-1"
+            disabled={loading}
+          >
+            <Icons.Send size={12} className="text-current" />
+          </button>
+        </div>
       </form>
     </div>
   );
@@ -180,27 +343,7 @@ const allQuestions = [
   "Production is down - analyze the issue and tell me how to fix it",
   "We're not meeting goals - give me a complete plan to improve",
   "Help me make this month more profitable",
-  "Our hygiene department is struggling - analyze and create a solution",
-  "What are the key metrics for growth?",
-  "How to increase case acceptance?",
-  "Best marketing strategies?",
-  "Building referral programs?",
-  "Improving satisfaction scores?",
-  "Reducing wait times?",
-  "Handling complaints?",
-  "Better waiting room experience?",
-  "Optimizing scheduling?",
-  "Reducing no-shows?",
-  "Front desk efficiency?",
-  "Inventory management?",
-  "Improving retention?",
-  "Training new staff?",
-  "Team meetings?",
-  "Performance reviews?",
-  "Increasing revenue?",
-  "Insurance collections?",
-  "Membership programs?",
-  "Fee scheduling?"
+  "Our hygiene department is struggling - analyze and create a solution"
 ];
 
 const dataRetrievalQuestions = [
@@ -414,6 +557,16 @@ const AIPracticeConsultant = () => {
         Ask questions and get intelligent insights from our multi-agent AI system designed specifically for dental practices.
       </p>
 
+      {/* Interactive 3D Scene to engage practice owners */}
+      <div className="mb-8">
+        <PracticeInsightScene 
+          // Using fallback visualization instead of broken Spline scene
+          onInteract={() => {
+            setSelectedQuestion("How can I improve my practice performance?");
+          }} 
+        />
+      </div>
+
       {/* Chat interface with the Head Brain Consultant */}
       <div className="mb-8">
         <LocalHeadOrchestratorChat
@@ -423,10 +576,7 @@ const AIPracticeConsultant = () => {
         />
       </div>
 
-      {/* Conversation starters */}
-      <h3 className="text-lg font-bold text-gray-800 mt-8">Try asking:</h3>
-      <ConversationStarter onAsk={handleAsk} />
-
+      {/* Specialized Consultant Agents section */}
       <h2 className="text-xl font-bold mt-8 text-gray-800">Specialized Consultant Agents</h2>
       <p className="text-gray-600 mb-4">
         Our AI system has specialized agents for different aspects of your dental practice.
@@ -434,14 +584,14 @@ const AIPracticeConsultant = () => {
       </p>
 
       <ErrorBoundary>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8" style={{display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gridGap: "1rem"}}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {SUB_AGENTS.map((agent) => (
             <AgentCard key={agent.id} agent={agent} onAsk={handleAsk} />
           ))}
         </div>
       </ErrorBoundary>
     </div>
-  )
-}
+  );
+};
 
-export default AIPracticeConsultant
+export default AIPracticeConsultant;

@@ -10,28 +10,29 @@ export const SMSCampaignStats = () => {
         value="45,678"
         change={12}
         icon="MessageSquare"
-        variant="primary"
+        variant="tropical"
+        isGlowing={true}
       />
       <StatsCard
         title="Delivery Rate"
         value="98.5%"
         change={2}
         icon="CheckCircle"
-        variant="secondary"
+        variant="nature"
       />
       <StatsCard
         title="Response Rate"
         value="42%"
         change={5}
         icon="MessageCircle"
-        variant="accent1"
+        variant="ocean"
       />
       <StatsCard
         title="Conversion Rate"
         value="28%"
         change={3}
         icon="TrendingUp"
-        variant="accent2"
+        variant="royal"
       />
     </div>
   );

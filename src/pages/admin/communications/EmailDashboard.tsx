@@ -100,13 +100,13 @@ const EmailDashboard = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-navy via-purple to-turquoise text-transparent bg-clip-text">
+          <h1 className="text-2xl font-bold bg-gradient-tropical text-transparent bg-clip-text">
             Email Campaigns
           </h1>
           <p className="text-gray-600">Create and manage email campaigns with AI-powered insights</p>
         </div>
         {view === 'list' && (
-          <Button onClick={handleCreateCampaign} className="bg-gradient-to-r from-navy to-purple text-white">
+          <Button onClick={handleCreateCampaign} variant="gradient-tropical">
             <Icons.Plus className="w-4 h-4 mr-2" />
             Create Campaign
           </Button>

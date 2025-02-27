@@ -10,28 +10,29 @@ export const SocialMediaStats = () => {
         value="12,345"
         change={8}
         icon="Users"
-        variant="primary"
+        variant="royal"
+        isGlowing={true}
       />
       <StatsCard
         title="Engagement Rate"
         value="4.8%"
         change={12}
         icon="Heart"
-        variant="secondary"
+        variant="ocean"
       />
       <StatsCard
         title="Post Reach"
         value="45.2K"
         change={15}
         icon="Share2"
-        variant="accent1"
+        variant="gold"
       />
       <StatsCard
         title="Reviews"
         value="4.9"
         change={3}
         icon="Star"
-        variant="accent2"
+        variant="tropical"
       />
     </div>
   );

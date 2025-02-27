@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from '../../ui/icon-strategy';
 import { cn } from '../../../utils/cn';
 import type { MenuItem as MenuItemType } from '../../../types';
 
@@ -11,8 +11,6 @@ interface MenuItemProps {
 }
 
 export const MenuItem: React.FC<MenuItemProps> = ({ item, isCollapsed }) => {
-  const Icon = Icons[item.icon as keyof typeof Icons];
-
   return (
     <motion.li
       whileHover={{ x: 4 }}
@@ -30,7 +28,7 @@ export const MenuItem: React.FC<MenuItemProps> = ({ item, isCollapsed }) => {
           )
         }
       >
-        <Icon className="w-5 h-5 flex-shrink-0" />
+        <Icon name={item.icon} className="w-5 h-5 flex-shrink-0" />
         {!isCollapsed && (
           <span className="text-sm font-medium truncate">{item.label}</span>
         )}

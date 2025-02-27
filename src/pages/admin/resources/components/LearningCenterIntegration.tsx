@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from '../../../../components/ui/icon-strategy';
 import { Button } from '../../../../components/ui/button';
 import { useNavigate } from 'react-router-dom';
 
@@ -27,7 +27,7 @@ export const LearningCenterIntegration = () => {
           size="sm"
           onClick={() => navigate('/admin-dashboard/learning')}
         >
-          <Icons.ExternalLink className="w-4 h-4 mr-2" />
+          <Icon name="ExternalLink" className="w-4 h-4 mr-2" />
           Open
         </Button>
       </div>
@@ -37,14 +37,14 @@ export const LearningCenterIntegration = () => {
         <div className="grid grid-cols-2 gap-2">
           <div className="p-3 bg-primary/5 rounded-lg">
             <div className="flex items-center gap-2 mb-1">
-              <Icons.BookOpen className="w-4 h-4 text-primary" />
+              <Icon name="BookOpen" className="w-4 h-4 text-primary" />
               <span className="text-sm font-medium">Assigned</span>
             </div>
             <p className="text-2xl font-bold text-primary">{learningStats.assignedCourses}</p>
           </div>
           <div className="p-3 bg-green-50 rounded-lg">
             <div className="flex items-center gap-2 mb-1">
-              <Icons.CheckCircle className="w-4 h-4 text-green-600" />
+              <Icon name="CheckCircle" className="w-4 h-4 text-green-600" />
               <span className="text-sm font-medium">Completed</span>
             </div>
             <p className="text-2xl font-bold text-green-600">{learningStats.completedCourses}</p>
@@ -58,7 +58,7 @@ export const LearningCenterIntegration = () => {
             className="w-full justify-start"
             onClick={() => navigate('/admin-dashboard/learning/courses')}
           >
-            <Icons.GraduationCap className="w-4 h-4 mr-2" />
+            <Icon name="GraduationCap" className="w-4 h-4 mr-2" />
             Browse Courses
           </Button>
           <Button
@@ -66,7 +66,7 @@ export const LearningCenterIntegration = () => {
             className="w-full justify-start"
             onClick={() => navigate('/admin-dashboard/learning/certifications')}
           >
-            <Icons.Award className="w-4 h-4 mr-2" />
+            <Icon name="Award" className="w-4 h-4 mr-2" />
             Certifications
             {learningStats.certificationsExpiringSoon > 0 && (
               <span className="ml-auto px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
@@ -79,7 +79,7 @@ export const LearningCenterIntegration = () => {
             className="w-full justify-start"
             onClick={() => navigate('/admin-dashboard/learning/assignments')}
           >
-            <Icons.ClipboardList className="w-4 h-4 mr-2" />
+            <Icon name="ClipboardList" className="w-4 h-4 mr-2" />
             Assignments
           </Button>
         </div>
@@ -119,7 +119,7 @@ export const LearningCenterIntegration = () => {
                       )}
                     </div>
                   </div>
-                  <Icons.ChevronRight className="w-4 h-4 text-gray-400" />
+                  <Icon name="ChevronRight" className="w-4 h-4 text-gray-400" />
                 </div>
               </div>
             ))}

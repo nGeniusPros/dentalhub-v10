@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from './ui/button';
-import * as Icons from 'lucide-react';
+import { Icon } from './ui/icon-strategy';
 import { ViewDetailsModal } from './ViewDetailsModal';
 
 interface ViewDetailsButtonProps {
@@ -30,7 +30,7 @@ export const ViewDetailsButton: React.FC<ViewDetailsButtonProps> = ({
         className={className}
         onClick={() => setShowDetails(true)}
       >
-        <Icons.Eye className="w-4 h-4 mr-2" />
+        <Icon name="Eye" className="w-4 h-4 mr-2" />
         View Details
       </Button>
 

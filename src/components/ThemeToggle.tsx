@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sun, Moon } from 'lucide-react';
+import { Icon } from './ui/icon-strategy';
 import { useTheme } from '../hooks/use-theme';
 
 export function ThemeToggle() {
@@ -15,9 +15,9 @@ export function ThemeToggle() {
       aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
       {theme === 'light' ? (
-        <Moon className="w-5 h-5 text-gray-800" />
+        <Icon name="Moon" className="w-5 h-5 text-gray-800" />
       ) : (
-        <Sun className="w-5 h-5 text-white" />
+        <Icon name="Sun" className="w-5 h-5 text-white" />
       )}
     </motion.button>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from './ui/icon-strategy';
 import { Button } from './ui/button';
 
 interface Reminder {
@@ -45,7 +45,7 @@ export const ReminderDialog: React.FC<ReminderDialogProps> = ({ isOpen, onClose,
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Send Reminder</h2>
             <Button variant="ghost" size="sm" onClick={onClose}>
-              <Icons.X className="w-5 h-5" />
+              <Icon name="X" className="w-5 h-5" />
             </Button>
           </div>
         </div>

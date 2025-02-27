@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from '../../../../components/ui/icon-strategy';
 import { Button } from '../../../../components/ui/button';
 import { cn } from '../../../../lib/utils';
 
@@ -40,9 +40,7 @@ export const ResourceFilters: React.FC<ResourceFiltersProps> = ({
             selectedFilters.includes(filter.id) && "bg-primary text-white"
           )}
         >
-          {React.createElement(Icons[filter.icon as keyof typeof Icons], {
-            className: "w-4 h-4"
-          })}
+          <Icon name={filter.icon} className="w-4 h-4" />
           {filter.label}
         </Button>
       ))}

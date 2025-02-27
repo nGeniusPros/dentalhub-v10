@@ -1,5 +1,5 @@
 import React from 'react';
-import * as Icons from 'lucide-react';
+import { Icon } from '../../ui/icon-strategy';
 import { Button } from '../../ui/button';
 import { useTheme } from '../../../hooks/use-theme';
 import { cn } from '../../../lib/utils';
@@ -26,9 +26,9 @@ export const SidebarThemeToggle = () => {
         onClick={toggleTheme}
       >
         {theme === "light" ? (
-          <Icons.Moon className="h-5 w-5" />
+          <Icon name="Moon" className="h-5 w-5" />
         ) : (
-          <Icons.Sun className="h-5 w-5" />
+          <Icon name="Sun" className="h-5 w-5" />
         )}
       </Button>
     </div>

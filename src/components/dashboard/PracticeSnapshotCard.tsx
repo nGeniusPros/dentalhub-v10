@@ -21,16 +21,19 @@ interface PracticeSnapshotCardProps {
   value: string | number;
   change?: number;
   icon: keyof typeof iconMap;
-  variant: 'primary' | 'secondary' | 'accent1' | 'accent2';
+  variant: 'ocean' | 'gold' | 'tropical' | 'royal' | 'nature' | 'corporate';
   linkTo: string;
   description?: string;
+  isGlowing?: boolean;
 }
 
 const variantStyles = {
-  primary: 'bg-gradient-ocean text-white',
-  secondary: 'bg-gradient-royal text-white',
-  accent1: 'bg-gradient-gold text-white',
-  accent2: 'bg-gradient-tropical text-white',
+  ocean: 'bg-gradient-ocean text-white',
+  gold: 'bg-gradient-gold text-white',
+  tropical: 'bg-gradient-tropical text-white',
+  royal: 'bg-gradient-royal text-white',
+  nature: 'bg-gradient-nature text-white',
+  corporate: 'bg-gradient-corporate text-white',
 };
 
 const PracticeSnapshotCard = ({
@@ -40,7 +43,8 @@ const PracticeSnapshotCard = ({
   icon,
   variant,
   linkTo,
-  description
+  description,
+  isGlowing = false
 }: PracticeSnapshotCardProps) => {
   // Get the specific icon component
   const IconComponent = iconMap[icon];
@@ -50,8 +54,11 @@ const PracticeSnapshotCard = ({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        whileHover={{ y: -5, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
-        className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-gray-light hover:shadow-xl transition-all duration-300 cursor-pointer h-full"
+        whileHover={{ y: -5 }}
+        className={cn(
+          "bg-white/90 backdrop-blur-sm rounded-xl p-6 border border-gray-light transition-all duration-300 cursor-pointer h-full",
+          isGlowing ? "shadow-glow hover:shadow-glow-lg" : "shadow-lg hover:shadow-xl"
+        )}
       >
         <div className="flex items-center justify-between">
           <div className={cn('p-3 rounded-lg shadow-md', variantStyles[variant])}>
@@ -74,7 +81,15 @@ const PracticeSnapshotCard = ({
           )}
         </div>
         
-        <h3 className="mt-4 text-2xl font-semibold bg-gradient-corporate text-transparent bg-clip-text">
+        <h3 className={cn(
+          "mt-4 text-2xl font-semibold text-transparent bg-clip-text",
+          variant === 'ocean' ? 'bg-gradient-ocean' :
+          variant === 'gold' ? 'bg-gradient-gold' :
+          variant === 'tropical' ? 'bg-gradient-tropical' :
+          variant === 'royal' ? 'bg-gradient-royal' :
+          variant === 'nature' ? 'bg-gradient-nature' :
+          variant === 'corporate' ? 'bg-gradient-corporate' : ''
+        )}>
           {value}
         </h3>
         <p className="text-gray-dark text-sm">{title}</p>
@@ -83,7 +98,10 @@ const PracticeSnapshotCard = ({
           <p className="mt-2 text-xs text-gray-500">{description}</p>
         )}
         
-        <div className="flex items-center justify-end mt-4 text-sm text-primary font-medium">
+        <div className={cn(
+          "flex items-center justify-end mt-4 text-sm font-medium",
+          `text-${variant === 'gold' ? 'navy' : variant}`
+        )}>
           <span>View Details</span>
           <ArrowRight className="ml-1 w-4 h-4" />
         </div>

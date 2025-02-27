@@ -4,6 +4,7 @@ import * as Icons from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
 import { useNotifications } from '../../contexts/NotificationContext';
+import { DentalHubAvatar } from '../ui/DentalHubAvatar';
 
 interface AssignStaffModalProps {
   isOpen: boolean;
@@ -162,6 +163,12 @@ export const AssignStaffModal: React.FC<AssignStaffModalProps> = ({
                       }
                     }}
                     className="rounded border-gray-300"
+                  />
+                  <DentalHubAvatar
+                    userId={staff.id}
+                    name={staff.name}
+                    size="sm"
+                    theme={selectedStaff.includes(staff.id) ? "gradient" : "simple"}
                   />
                   <div>
                     <p className="font-medium text-gray-900">{staff.name}</p>

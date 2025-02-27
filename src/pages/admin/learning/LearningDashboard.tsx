@@ -55,7 +55,7 @@ const LearningDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-navy via-purple to-turquoise text-transparent bg-clip-text">
+          <h1 className="text-2xl font-bold bg-gradient-ocean text-transparent bg-clip-text">
             Learning Center
           </h1>
           <p className="text-gray-600">Grow your skills and earn rewards</p>
@@ -68,7 +68,10 @@ const LearningDashboard = () => {
             <Icons.Trophy className="w-4 h-4 mr-2" />
             View Rewards
           </Button>
-          <Button onClick={() => setActiveTab('courses')}>
+          <Button 
+            variant="gradient-ocean"
+            onClick={() => setActiveTab('courses')}
+          >
             <Icons.GraduationCap className="w-4 h-4 mr-2" />
             Start Learning
           </Button>

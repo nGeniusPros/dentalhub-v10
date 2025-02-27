@@ -9,9 +9,10 @@ interface SnapshotData {
   value: string;
   change?: number;
   icon: 'DollarSign' | 'Users' | 'Star' | 'Calendar' | 'HeartPulse' | 'Award' | 'Activity';
-  variant: 'primary' | 'secondary' | 'accent1' | 'accent2';
+  variant: 'ocean' | 'gold' | 'tropical' | 'royal' | 'nature' | 'corporate';
   linkTo: string;
   description?: string;
+  isGlowing?: boolean;
 }
 
 export const PracticeSnapshotGrid = () => {
@@ -37,16 +38,17 @@ export const PracticeSnapshotGrid = () => {
             value: '$1.45M',
             change: 8,
             icon: 'DollarSign',
-            variant: 'primary',
+            variant: 'ocean',
             linkTo: '/dashboard/revenue-dashboard',
-            description: 'YTD performance against $1.6M goal'
+            description: 'YTD performance against $1.6M goal',
+            isGlowing: true
           },
           {
             title: 'Active Patients',
             value: '1,234',
             change: 5,
             icon: 'Users',
-            variant: 'secondary',
+            variant: 'royal',
             linkTo: '/dashboard/active-patients',
             description: '87 new patients this month'
           },
@@ -55,7 +57,7 @@ export const PracticeSnapshotGrid = () => {
             value: '4.8/5',
             change: 2,
             icon: 'Star',
-            variant: 'accent1',
+            variant: 'gold',
             linkTo: '/dashboard/patient-satisfaction',
             description: 'Based on 126 recent reviews'
           },
@@ -64,7 +66,7 @@ export const PracticeSnapshotGrid = () => {
             value: '78%',
             change: -3,
             icon: 'Award',
-            variant: 'accent2',
+            variant: 'tropical',
             linkTo: '/dashboard/treatment-success',
             description: 'Case acceptance rate last 30 days'
           },
@@ -72,7 +74,7 @@ export const PracticeSnapshotGrid = () => {
             title: 'Monthly Revenue Report',
             value: 'May 2025',
             icon: 'Calendar',
-            variant: 'primary',
+            variant: 'nature',
             linkTo: '/dashboard/monthly-report',
             description: 'Current: 87% of monthly goal'
           },
@@ -80,7 +82,7 @@ export const PracticeSnapshotGrid = () => {
             title: 'Daily Huddle KPI\'s',
             value: 'Today',
             icon: 'Activity',
-            variant: 'secondary',
+            variant: 'corporate',
             linkTo: '/dashboard/daily-huddle',
             description: '8 appointments scheduled'
           }
@@ -122,6 +124,7 @@ export const PracticeSnapshotGrid = () => {
               variant={snapshot.variant}
               linkTo={snapshot.linkTo}
               description={snapshot.description}
+              isGlowing={snapshot.isGlowing}
             />
           ))}
         </div>

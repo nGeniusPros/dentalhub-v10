@@ -17,7 +17,7 @@ const SocialMediaDashboard = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-navy via-purple to-turquoise text-transparent bg-clip-text mb-1">
+          <h1 className="text-2xl font-bold bg-gradient-royal text-transparent bg-clip-text mb-1">
             Social Media Dashboard
           </h1>
           <p className="text-gray-600">Comprehensive social media analytics and management</p>
@@ -27,7 +27,7 @@ const SocialMediaDashboard = () => {
             <Icons.Download className="w-4 h-4 mr-2" />
             Export Report
           </Button>
-          <Button className="bg-gradient-to-r from-navy to-purple text-white">
+          <Button variant="gradient-royal">
             <Icons.Plus className="w-4 h-4 mr-2" />
             Create Post
           </Button>

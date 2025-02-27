@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from '../../ui/icon-strategy';
 import { Button } from '../../ui/button';
 import { useTheme } from '../../../hooks/use-theme';
 import { cn } from '../../../lib/utils';
 import { adminNavItems, staffNavItems, patientNavItems } from './navigation-items';
+import { DentalHubAvatar } from '../../ui/DentalHubAvatar';
 
 interface SidebarProps {
   role?: "admin" | "staff" | "patient";
@@ -51,7 +52,7 @@ export const Sidebar = ({ role = "staff" }: SidebarProps) => {
               }}
               className="w-8 h-8"
             >
-              <Icons.Atom className="w-full h-full text-primary" />
+              <Icon name="Atom" className="w-full h-full text-primary" />
             </motion.div>
             <span className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">
               nGenius
@@ -65,9 +66,9 @@ export const Sidebar = ({ role = "staff" }: SidebarProps) => {
           className="text-primary hover:text-primary/80"
         >
           {collapsed ? (
-            <Icons.ChevronRight className="h-4 w-4" />
+            <Icon name="ChevronRight" className="h-4 w-4" />
           ) : (
-            <Icons.ChevronLeft className="h-4 w-4" />
+            <Icon name="ChevronLeft" className="h-4 w-4" />
           )}
         </Button>
       </div>
@@ -83,7 +84,7 @@ export const Sidebar = ({ role = "staff" }: SidebarProps) => {
             )}
             <div className="space-y-1">
               {section.items.map((item) => {
-                const IconComponent = Icons[item.icon as keyof typeof Icons] as React.ComponentType<React.SVGProps<SVGSVGElement>>;
+                const IconComponent = Icon;
                 const isActive = location.pathname === item.path;
 
                 return (
@@ -99,7 +100,7 @@ export const Sidebar = ({ role = "staff" }: SidebarProps) => {
                     )}
                     onClick={() => { console.log("Navigating to", item.path); navigate(item.path); }}
                   >
-                    <IconComponent className={cn(
+                    <IconComponent name={item.icon} className={cn(
                       "h-4 w-4 transition-colors",
                       isActive ? "text-primary" : "text-gray-500 dark:text-gray-400"
                     )} />
@@ -112,20 +113,43 @@ export const Sidebar = ({ role = "staff" }: SidebarProps) => {
         ))}
       </div>
 
-      {/* Theme Toggle */}
-      <div className="p-4 border-t border-gray-200/20">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          className="w-full h-9"
-        >
-          {theme === "light" ? (
-            <Icons.Moon className="h-4 w-4" />
-          ) : (
-            <Icons.Sun className="h-4 w-4" />
-          )}
-        </Button>
+      {/* User Section */}
+      <div className="mt-auto p-3 border-t border-gray-200/50 dark:border-gray-700/30">
+        <div className="p-4 border-t border-gray-200/20">
+          <div className={cn(
+            "flex items-center gap-3",
+            collapsed ? "justify-center" : "justify-start"
+          )}>
+            <DentalHubAvatar
+              index={role === 'admin' ? 0 : role === 'staff' ? 5 : 12}
+              alt={`${role} user`}
+              size="sm"
+              status="online"
+            />
+            {!collapsed && (
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Dr. John Smith</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{role}</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Theme Toggle */}
+        <div className="p-4 border-t border-gray-200/20">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="w-full h-9"
+          >
+            {theme === "light" ? (
+              <Icon name="Moon" className="h-4 w-4" />
+            ) : (
+              <Icon name="Sun" className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </div>
     </motion.div>
   );

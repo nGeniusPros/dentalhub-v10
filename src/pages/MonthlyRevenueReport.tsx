@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Download, Calendar, BarChart2 } from 'lucide-react';
+import { Icon } from '../components/ui/icon-strategy';
 import StatsCard from '../components/dashboard/StatsCard';
 
 // Types to represent data that would come from API
@@ -173,7 +173,7 @@ const MonthlyRevenueReport = () => {
       <div className="space-y-8">
         <div className="flex items-center">
           <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-primary mr-4">
-            <ArrowLeft className="w-4 h-4 mr-1" />
+            <Icon name="ArrowLeft" className="w-4 h-4 mr-1" />
             <span>Back</span>
           </Link>
           <h1 className="text-2xl font-bold">Monthly Revenue Report</h1>
@@ -194,7 +194,7 @@ const MonthlyRevenueReport = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-primary mr-4">
-            <ArrowLeft className="w-4 h-4 mr-1" />
+            <Icon name="ArrowLeft" className="w-4 h-4 mr-1" />
             <span>Back</span>
           </Link>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-navy to-purple text-transparent bg-clip-text">
@@ -203,11 +203,11 @@ const MonthlyRevenueReport = () => {
         </div>
         <div className="flex gap-3">
           <button className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-            <Calendar className="w-4 h-4 mr-2" />
+            <Icon name="Calendar" className="w-4 h-4 mr-2" />
             <span>{data?.currentMonth}</span>
           </button>
           <button className="flex items-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
-            <Download className="w-4 h-4 mr-2" />
+            <Icon name="Download" className="w-4 h-4 mr-2" />
             <span>Export Report</span>
           </button>
         </div>
@@ -321,7 +321,7 @@ const MonthlyRevenueReport = () => {
       >
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-medium">Revenue by Category</h3>
-          <BarChart2 className="w-5 h-5 text-gray-500" />
+          <Icon name="BarChart2" className="w-5 h-5 text-gray-500" />
         </div>
 
         <div className="overflow-x-auto">

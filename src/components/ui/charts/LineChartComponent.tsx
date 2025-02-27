@@ -1,17 +1,19 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { BaseChart } from './BaseChart';
+import { chartColors, chartConfig } from '../../../lib/chartStyles';
 
 interface LineChartProps {
   data: any[];
   lines: Array<{
     key: string;
-    color: string;
+    color?: string;
     name?: string;
   }>;
   xAxisKey: string;
   title?: string;
   height?: number;
+  className?: string;
 }
 
 export const LineChartComponent: React.FC<LineChartProps> = ({
@@ -19,44 +21,55 @@ export const LineChartComponent: React.FC<LineChartProps> = ({
   lines,
   xAxisKey,
   title,
-  height
+  height,
+  className
 }) => {
   return (
-    <BaseChart title={title} height={height}>
+    <BaseChart title={title} height={height} className={className}>
       <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(203, 213, 225, 0.3)" />
+        <CartesianGrid 
+          strokeDasharray={chartConfig.lineChart.gridStrokeDasharray} 
+          stroke={`rgba(203, 213, 225, ${chartConfig.lineChart.gridStrokeOpacity})`} 
+        />
         <XAxis
           dataKey={xAxisKey}
           axisLine={false}
           tickLine={false}
-          tick={{ fill: '#1B2B5B', fontSize: 12 }}
+          tick={{ fill: chartColors.navy.DEFAULT, fontSize: 12 }}
         />
         <YAxis
           axisLine={false}
           tickLine={false}
-          tick={{ fill: '#1B2B5B', fontSize: 12 }}
+          tick={{ fill: chartColors.navy.DEFAULT, fontSize: 12 }}
         />
         <Tooltip
-          contentStyle={{
-            backgroundColor: '#fff',
-            border: 'none',
-            borderRadius: '0.5rem',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-          }}
+          contentStyle={chartConfig.tooltip.contentStyle}
         />
         <Legend />
-        {lines.map((line, index) => (
-          <Line
-            key={index}
-            type="monotone"
-            dataKey={line.key}
-            name={line.name || line.key}
-            stroke={line.color}
-            strokeWidth={2}
-            dot={{ fill: line.color, strokeWidth: 2, r: 4 }}
-            activeDot={{ r: 8, strokeWidth: 2 }}
-          />
-        ))}
+        {lines.map((line, index) => {
+          // Use Navy as the default color with fallback to the color sequence
+          const color = line.color || (index === 0 ? chartColors.navy.DEFAULT : chartColors.navy.opacity);
+          
+          return (
+            <Line
+              key={index}
+              type="monotone"
+              dataKey={line.key}
+              name={line.name || line.key}
+              stroke={color}
+              strokeWidth={chartConfig.lineChart.strokeWidth}
+              dot={{ 
+                fill: color, 
+                strokeWidth: chartConfig.lineChart.strokeWidth, 
+                r: chartConfig.lineChart.dotRadius 
+              }}
+              activeDot={{ 
+                r: chartConfig.lineChart.activeDotRadius, 
+                strokeWidth: chartConfig.lineChart.strokeWidth 
+              }}
+            />
+          );
+        })}
       </LineChart>
     </BaseChart>
   );

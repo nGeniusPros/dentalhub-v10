@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '../../lib/utils';
+import { DentalHubAvatar } from '../ui/DentalHubAvatar';
 
 interface AITutorAvatarProps {
   name: string;
@@ -60,17 +61,13 @@ export const AITutorAvatar: React.FC<AITutorAvatarProps> = ({
           >
             <div className="flex items-start gap-3 mb-4">
               <div className="relative">
-                {avatar ? (
-                  <img
-                    src={avatar}
-                    alt={name}
-                    className="w-12 h-12 rounded-full"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Icons.GraduationCap className="w-6 h-6 text-primary" />
-                  </div>
-                )}
+                <DentalHubAvatar
+                  src={avatar}
+                  alt={name}
+                  size="md"
+                  fallback={<Icons.GraduationCap className="w-6 h-6 text-primary" />}
+                  status="online"
+                />
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
               </div>
               <div>

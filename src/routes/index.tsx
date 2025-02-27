@@ -38,6 +38,7 @@ import LearningDashboard from '../pages/admin/learning/LearningDashboard';
 import ResourcesDashboard from '../pages/admin/resources/ResourcesDashboard';
 import AdminAppointmentsDashboard from '../pages/admin/appointments';
 import StaffAppointmentsDashboard from '../pages/staff/appointments';
+import GradientTester from '../pages/test/GradientTester';
 
 export const AppRoutes = () => {
   return (
@@ -91,6 +92,7 @@ export const AppRoutes = () => {
         <Route path="contact-manager" element={<VendorManagement />} />
         <Route path="marketplace" element={<Marketplace />} />
         <Route path="communications" element={<CommunicationsDashboard />} />
+        <Route path="gradients" element={<GradientTester />} />
         {/* Add other admin routes */}
       </Route>
 
@@ -108,6 +110,9 @@ export const AppRoutes = () => {
         <Route path="appointments" element={<Appointments />} />
         {/* Add patient routes */}
       </Route>
+
+      {/* Testing routes */}
+      <Route path="/test/gradients" element={<GradientTester />} />
 
       {/* Fallback route */}
       <Route path="*" element={<Navigate to="/" replace />} />

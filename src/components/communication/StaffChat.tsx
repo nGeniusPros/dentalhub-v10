@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { Button } from '../ui/button';
+import { DentalHubAvatar } from '../ui/DentalHubAvatar';
 
 export const StaffChat = () => {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
@@ -9,9 +10,22 @@ export const StaffChat = () => {
   const [messages, setMessages] = useState<Array<{
     id: string;
     sender: string;
+    senderId?: string;
+    senderName?: string;
     content: string;
     timestamp: string;
   }>>([]);
+
+  // Mock data for demonstration
+  const currentUser = {
+    id: 'user123',
+    name: 'Dr. Johnson'
+  };
+  
+  const otherStaff = {
+    id: 'staff456',
+    name: 'Nurse Smith'
+  };
 
   const handleSend = () => {
     if (!message.trim()) return;
@@ -21,11 +35,28 @@ export const StaffChat = () => {
       {
         id: Date.now().toString(),
         sender: 'me',
+        senderId: currentUser.id,
+        senderName: currentUser.name,
         content: message,
         timestamp: new Date().toISOString()
       }
     ]);
     setMessage('');
+    
+    // Mock response for demonstration
+    setTimeout(() => {
+      setMessages(prev => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          sender: 'other',
+          senderId: otherStaff.id,
+          senderName: otherStaff.name,
+          content: 'Thanks for the update!',
+          timestamp: new Date().toISOString()
+        }
+      ]);
+    }, 2000);
   };
 
   return (
@@ -40,16 +71,34 @@ export const StaffChat = () => {
             key={msg.id}
             className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'} mb-4`}
           >
+            {msg.sender !== 'me' && (
+              <DentalHubAvatar
+                userId={msg.senderId}
+                name={msg.senderName}
+                size="sm"
+                theme="simple"
+                className="mr-2 self-end"
+              />
+            )}
             <div className={`max-w-[80%] p-3 rounded-lg ${
               msg.sender === 'me' 
-                ? 'bg-primary text-white' 
-                : 'bg-gray-100'
+                ? 'bg-navy text-white' 
+                : 'bg-gray-lighter'
             }`}>
               <p className="text-sm">{msg.content}</p>
               <span className="text-xs opacity-70">
                 {new Date(msg.timestamp).toLocaleTimeString()}
               </span>
             </div>
+            {msg.sender === 'me' && (
+              <DentalHubAvatar
+                userId={msg.senderId}
+                name={msg.senderName}
+                size="sm"
+                theme="simple"
+                className="ml-2 self-end"
+              />
+            )}
           </div>
         ))}
       </div>

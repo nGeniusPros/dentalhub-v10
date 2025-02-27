@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Download, Calendar, Users, DollarSign, Clock, CheckCircle } from 'lucide-react';
+import { Icon } from '../components/ui/icon-strategy';
 // Note: StatsCard is not used in this component but is available if needed
 
 // Types to represent data that would come from API/database
@@ -239,7 +239,7 @@ const DailyHuddleDashboard = () => {
       <div className="space-y-8">
         <div className="flex items-center">
           <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-primary mr-4">
-            <ArrowLeft className="w-4 h-4 mr-1" />
+            <Icon name="ArrowLeft" className="w-4 h-4 mr-1" />
             <span>Back</span>
           </Link>
           <h1 className="text-2xl font-bold">Daily Huddle Dashboard</h1>
@@ -260,7 +260,7 @@ const DailyHuddleDashboard = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/dashboard" className="flex items-center text-gray-600 hover:text-primary mr-4">
-            <ArrowLeft className="w-4 h-4 mr-1" />
+            <Icon name="ArrowLeft" className="w-4 h-4 mr-1" />
             <span>Back</span>
           </Link>
           <h1 className="text-2xl font-bold bg-gradient-to-r from-navy to-purple text-transparent bg-clip-text">
@@ -269,11 +269,11 @@ const DailyHuddleDashboard = () => {
         </div>
         <div className="flex gap-3">
           <button className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50">
-            <Calendar className="w-4 h-4 mr-2" />
+            <Icon name="Calendar" className="w-4 h-4 mr-2" />
             <span>{formatDate(data?.date || '')}</span>
           </button>
           <button className="flex items-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
-            <Download className="w-4 h-4 mr-2" />
+            <Icon name="Download" className="w-4 h-4 mr-2" />
             <span>Print Huddle Notes</span>
           </button>
         </div>
@@ -333,7 +333,7 @@ const DailyHuddleDashboard = () => {
         <div className="mt-4 bg-blue-50 border-l-4 border-blue-400 p-3">
           <div className="flex">
             <div className="flex-shrink-0">
-              <Calendar className="h-5 w-5 text-blue-400" />
+              <Icon name="Calendar" className="h-5 w-5 text-blue-400" />
             </div>
             <div className="ml-3">
               <p className="text-sm text-blue-700">
@@ -355,7 +355,7 @@ const DailyHuddleDashboard = () => {
       >
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-medium">Department Progress</h3>
-          <Users className="w-5 h-5 text-gray-500" />
+          <Icon name="Users" className="w-5 h-5 text-gray-500" />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -398,7 +398,7 @@ const DailyHuddleDashboard = () => {
       >
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-medium">Provider Dashboard</h3>
-          <DollarSign className="w-5 h-5 text-gray-500" />
+          <Icon name="DollarSign" className="w-5 h-5 text-gray-500" />
         </div>
 
         <div className="overflow-x-auto">
@@ -448,7 +448,7 @@ const DailyHuddleDashboard = () => {
       >
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-medium">Upcoming Appointments</h3>
-          <Clock className="w-5 h-5 text-gray-500" />
+          <Icon name="Clock" className="w-5 h-5 text-gray-500" />
         </div>
 
         <div className="overflow-x-auto">
@@ -476,7 +476,7 @@ const DailyHuddleDashboard = () => {
                   <td className="px-4 py-3 text-sm text-center">
                     {appointment.preApproved ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        <CheckCircle className="w-3 h-3 mr-1" />
+                        <Icon name="CheckCircle" className="w-3 h-3 mr-1" />
                         Approved
                       </span>
                     ) : (

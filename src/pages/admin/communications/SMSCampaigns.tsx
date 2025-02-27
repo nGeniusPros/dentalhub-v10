@@ -16,14 +16,14 @@ const SMSCampaigns = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-navy via-purple to-turquoise text-transparent bg-clip-text">
+          <h1 className="text-2xl font-bold bg-gradient-nature text-transparent bg-clip-text">
             NGenius Dental Hub
           </h1>
           <p className="text-gray-600">Powered by: Ngenius Pros</p>
         </div>
         <Button 
           onClick={() => setShowCreateDialog(true)}
-          className="bg-gradient-to-r from-navy to-purple text-white"
+          variant="gradient-nature"
         >
           <Icons.Plus className="w-4 h-4 mr-2" />
           Create Campaign

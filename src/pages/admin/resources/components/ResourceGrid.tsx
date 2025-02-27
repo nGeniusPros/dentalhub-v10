@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import { Icon } from '../../../../components/ui/icon-strategy';
 import { Button } from '../../../../components/ui/button';
 import { cn } from '../../../../lib/utils';
 
@@ -70,8 +70,8 @@ export const ResourceGrid: React.FC<ResourceGridProps> = ({
               resource.type === 'document' && "bg-blue-100 text-blue-600",
               resource.type === 'form' && "bg-green-100 text-green-600"
             )}>
-              {resource.type === 'document' && <Icons.FileText className="w-5 h-5" />}
-              {resource.type === 'form' && <Icons.ClipboardList className="w-5 h-5" />}
+              {resource.type === 'document' && <Icon name="FileText" className="w-5 h-5" />}
+              {resource.type === 'form' && <Icon name="ClipboardList" className="w-5 h-5" />}
             </div>
             <div>
               <h3 className="font-medium text-gray-900">{resource.title}</h3>
@@ -104,11 +104,11 @@ export const ResourceGrid: React.FC<ResourceGridProps> = ({
 
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1">
-                <Icons.Eye className="w-4 h-4 mr-2" />
+                <Icon name="Eye" className="w-4 h-4 mr-2" />
                 View
               </Button>
               <Button variant="outline" className="flex-1">
-                <Icons.Download className="w-4 h-4 mr-2" />
+                <Icon name="Download" className="w-4 h-4 mr-2" />
                 Download
               </Button>
             </div>

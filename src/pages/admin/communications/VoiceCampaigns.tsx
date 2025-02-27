@@ -6,30 +6,20 @@ import { VoiceCampaignList } from './components/voice/VoiceCampaignList';
 import { CreateCampaignDialog } from './components/voice/CreateCampaignDialog';
 import { AIAgentSettings } from './components/voice/AIAgentSettings';
 import { VoiceAnalytics } from './components/voice/VoiceAnalytics';
-import { TermsDialog } from './components/voice/TermsDialog';
 import { useSettings } from '../../../contexts/SettingsContext';
 import { VoiceCampaignStats } from './components/voice/VoiceCampaignStats';
 
 const VoiceCampaigns = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [showTermsDialog, setShowTermsDialog] = useState(false);
   const [showAgentSettings, setShowAgentSettings] = useState(false);
   const { state } = useSettings();
-
-  // Check if terms have been accepted
-  React.useEffect(() => {
-    const termsAccepted = localStorage.getItem('voiceTermsAccepted');
-    if (!termsAccepted) {
-      setShowTermsDialog(true);
-    }
-  }, []);
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Voice Campaigns</h1>
+          <h1 className="text-2xl font-bold bg-gradient-gold text-transparent bg-clip-text">Voice Campaigns</h1>
           <p className="text-gray-500">Manage outbound calls and AI voice agent settings</p>
         </div>
         <div className="flex gap-3">
@@ -40,7 +30,7 @@ const VoiceCampaigns = () => {
             <Icons.Settings className="w-4 h-4 mr-2" />
             AI Agent Settings
           </Button>
-          <Button onClick={() => setShowCreateDialog(true)}>
+          <Button variant="gradient-gold" onClick={() => setShowCreateDialog(true)}>
             <Icons.Plus className="w-4 h-4 mr-2" />
             Create Campaign
           </Button>
@@ -68,15 +58,6 @@ const VoiceCampaigns = () => {
       <AIAgentSettings
         open={showAgentSettings}
         onClose={() => setShowAgentSettings(false)}
-      />
-
-      {/* Terms and Conditions Dialog */}
-      <TermsDialog
-        open={showTermsDialog}
-        onClose={() => {
-          setShowTermsDialog(false);
-          localStorage.setItem('voiceTermsAccepted', 'true');
-        }}
       />
     </div>
   );

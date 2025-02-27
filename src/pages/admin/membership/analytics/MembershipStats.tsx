@@ -10,28 +10,29 @@ export const MembershipStats = () => {
         value="1,234"
         change={8}
         icon="Users"
-        variant="primary"
+        variant="nature"
+        isGlowing={true}
       />
       <StatsCard
         title="Monthly Revenue"
         value="$45,678"
         change={12}
         icon="DollarSign"
-        variant="secondary"
+        variant="gold"
       />
       <StatsCard
         title="Retention Rate"
         value="94%"
         change={3}
         icon="UserCheck"
-        variant="accent1"
+        variant="corporate"
       />
       <StatsCard
         title="Points Redeemed"
         value="125K"
         change={15}
         icon="Award"
-        variant="accent2"
+        variant="tropical"
       />
     </div>
   );
