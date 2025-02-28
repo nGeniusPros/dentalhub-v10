@@ -1,10 +1,21 @@
 import * as React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import { CommunicationProvider } from './contexts/CommunicationContext';
 import { AppRoutes } from './routes/index';
+
+// Create router with future flags to address warnings
+const router = createBrowserRouter(
+  [{ path: "*", element: <AppRoutes /> }],
+  {
+    future: {
+      v7_startTransition: true,
+      v7_relativeSplatPath: true
+    }
+  }
+);
 
 const App: React.FC = () => {
   return (
@@ -12,9 +23,7 @@ const App: React.FC = () => {
       <ThemeProvider>
         <NotificationProvider>
           <CommunicationProvider>
-            <BrowserRouter>
-              <AppRoutes />
-            </BrowserRouter>
+            <RouterProvider router={router} />
           </CommunicationProvider>
         </NotificationProvider>
       </ThemeProvider>

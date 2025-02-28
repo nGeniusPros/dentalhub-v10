@@ -5,6 +5,9 @@ import type { KPIAnalysis } from '../../ai/data-analysis/data-analysis.agent';
 import type { LabCaseAnalysis } from '../../ai/lab-case-manager/lab-case-manager.agent';
 import { DentalHubAvatar } from '../ui/DentalHubAvatar';
 import { useAuthContext } from '../../contexts/AuthContext';
+import { AIResponseFeedback } from './AIResponseFeedback';
+import { useAIFeedback } from '../../hooks/useAIFeedback';
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * AI Consultant Chat Component
@@ -26,15 +29,18 @@ export const AIConsultantChat: React.FC = () => {
   };
   
   type ChatMessage = {
+    id: string;
     type: 'user' | 'ai';
     content: string;
     timestamp: Date;
     sections?: ChatSection[];
+    feedbackSubmitted?: boolean;
   };
   
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   
   const { askOrchestrator, loading, error, response } = useOrchestrator();
+  const { submitFeedback } = useAIFeedback();
   const { user } = useAuthContext();
   const endOfMessagesRef = useRef<HTMLDivElement>(null);
   
@@ -58,10 +64,12 @@ export const AIConsultantChat: React.FC = () => {
       setChatHistory(prev => [
         ...prev,
         {
+          id: uuidv4(),
           type: 'ai',
           content: response.answer,
           timestamp: new Date(),
-          sections: response.sections
+          sections: response.sections,
+          feedbackSubmitted: false
         }
       ]);
     }
@@ -77,6 +85,7 @@ export const AIConsultantChat: React.FC = () => {
     setChatHistory(prev => [
       ...prev,
       {
+        id: uuidv4(),
         type: 'user',
         content: question,
         timestamp: new Date()
@@ -98,6 +107,44 @@ export const AIConsultantChat: React.FC = () => {
       e.preventDefault();
       handleAsk();
     }
+  };
+
+  /**
+   * Handle AI response feedback submission
+   */
+  const handleFeedbackSubmit = (messageId: string, feedbackData: {
+    wasHelpful?: boolean;
+    feedbackType: 'thumbs' | 'rating' | 'correction' | 'comment';
+    feedbackText?: string;
+  }) => {
+    // Find the message in chat history
+    const message = chatHistory.find(msg => msg.id === messageId);
+    if (!message) return;
+
+    // Find the previous user message (the query)
+    const messageIndex = chatHistory.findIndex(msg => msg.id === messageId);
+    const queryMessage = messageIndex > 0 ? chatHistory[messageIndex - 1] : null;
+    
+    // Submit feedback to Supabase
+    submitFeedback({
+      queryId: queryMessage?.id || 'unknown',
+      responseId: messageId,
+      userRole: user?.role || 'user',
+      agentType: 'consultant',
+      wasHelpful: feedbackData.wasHelpful,
+      feedbackType: feedbackData.feedbackType,
+      feedbackText: feedbackData.feedbackText,
+      modelVersion: 'v1.0' // This would come from the AI service in a production environment
+    });
+    
+    // Mark the message as having received feedback
+    setChatHistory(prev => 
+      prev.map(msg => 
+        msg.id === messageId 
+          ? { ...msg, feedbackSubmitted: true }
+          : msg
+      )
+    );
   };
 
   /**
@@ -266,6 +313,17 @@ export const AIConsultantChat: React.FC = () => {
                       </div>
                     ))}
                   </div>
+                )}
+                
+                {/* Add feedback component for AI messages */}
+                {msg.type === 'ai' && !msg.feedbackSubmitted && (
+                  <AIResponseFeedback
+                    queryId={chatHistory.length > 1 ? chatHistory[index-1].id : 'unknown'}
+                    responseId={msg.id}
+                    agentType="consultant"
+                    onFeedbackSubmit={(data) => handleFeedbackSubmit(msg.id, data)}
+                    userRole={user?.role || 'user'}
+                  />
                 )}
                 
                 <div className={`text-xs text-gray-500 mt-1 ${msg.type === 'user' ? 'text-right' : 'text-left'}`}>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Button } from '../../../components/ui/button';
+import { DentalChart } from '../../../lib/dental-icons';
 
 export const RevenueAnalytics = () => {
   const revenueData = [
@@ -28,9 +29,12 @@ export const RevenueAnalytics = () => {
       className="bg-white rounded-xl shadow-lg border border-gray-200 p-6"
     >
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-lg font-semibold text-gray-900">Revenue Analytics</h2>
-          <p className="text-sm text-gray-500">Financial performance overview</p>
+        <div className="flex items-center space-x-2">
+          <DentalChart className="w-6 h-6 text-navy" />
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">Revenue Analytics</h2>
+            <p className="text-sm text-gray-500">Financial performance overview</p>
+          </div>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm">
@@ -47,7 +51,10 @@ export const RevenueAnalytics = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Revenue Trend */}
         <div className="h-[300px]">
-          <h3 className="text-sm font-medium text-gray-700 mb-4">Revenue Trend</h3>
+          <div className="flex items-center space-x-2 mb-4">
+            <Icons.TrendingUp className="w-4 h-4 text-navy" />
+            <h3 className="text-sm font-medium text-gray-700">Revenue Trend</h3>
+          </div>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={revenueData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(203, 213, 225, 0.3)" />
@@ -85,7 +92,10 @@ export const RevenueAnalytics = () => {
 
         {/* Revenue by Service */}
         <div className="h-[300px]">
-          <h3 className="text-sm font-medium text-gray-700 mb-4">Revenue by Service</h3>
+          <div className="flex items-center space-x-2 mb-4">
+            <Icons.PieChart className="w-4 h-4 text-navy" />
+            <h3 className="text-sm font-medium text-gray-700">Revenue by Service</h3>
+          </div>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -109,7 +119,10 @@ export const RevenueAnalytics = () => {
       </div>
 
       <div className="mt-6">
-        <h3 className="text-sm font-medium text-gray-700 mb-4">Monthly Comparison</h3>
+        <div className="flex items-center space-x-2 mb-4">
+          <Icons.BarChart className="w-4 h-4 text-navy" />
+          <h3 className="text-sm font-medium text-gray-700">Monthly Comparison</h3>
+        </div>
         <div className="h-[200px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={revenueData}>

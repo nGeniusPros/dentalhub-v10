@@ -49,12 +49,17 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-lighter">
-      <div className="flex w-full max-w-4xl bg-white rounded-xl shadow-glow overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-gold/5 via-white to-gray-lighter">
+      <motion.div 
+        className="flex w-full max-w-4xl bg-white rounded-xl shadow-glow overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         {/* Illustration Section */}
-        <div className="hidden md:flex md:w-1/2 bg-gold items-center justify-center p-8">
+        <div className="hidden md:flex md:w-1/2 bg-gold/10 items-center justify-center p-8">
           <img 
-            src="/illustrations/auth/v2-forgot-password-light.png" 
+            src="/illustrations/auth/v2-forgot-password-light-border.png" 
             alt="Forgot Password" 
             className="max-w-full max-h-80 object-contain"
           />
@@ -99,22 +104,27 @@ const ForgotPassword = () => {
             
             <motion.button 
               type="submit" 
-              className="mt-4 p-3 bg-gold text-white rounded-lg hover:bg-gold-light transition-colors"
-              disabled={loading}
+              className="w-full bg-gold text-navy shadow hover:bg-gold-light p-3 rounded-lg flex justify-center items-center transition-colors"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              disabled={loading}
             >
-              {loading ? 'Sending...' : 'Send Reset Instructions'}
+              {loading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-navy" />
+              ) : (
+                'Send Reset Instructions'
+              )}
             </motion.button>
             
             <div className="mt-4 text-center">
-              <Link to="/login" className="text-navy hover:underline text-sm">
-                Back to Login
+              <Link to="/login" className="text-gold hover:text-gold-light flex items-center justify-center gap-1">
+                <Icons.ArrowLeft size={16} />
+                <span>Back to Login</span>
               </Link>
             </div>
           </form>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

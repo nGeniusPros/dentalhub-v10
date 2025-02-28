@@ -14,6 +14,11 @@ export default defineConfig({
     include: ["@supabase/supabase-js"],
     exclude: ['lucide-react'],
   },
+  define: {
+    // Ensure environment variables are properly handled
+    // This is only for backward compatibility with process.env references
+    'process.env': {}
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,

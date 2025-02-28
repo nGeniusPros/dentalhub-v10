@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { supabase } from '../../config/auth';
@@ -65,12 +65,17 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gray-lighter">
-      <div className="flex w-full max-w-4xl bg-white rounded-xl shadow-glow overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-green/5 via-white to-gray-lighter">
+      <motion.div 
+        className="flex w-full max-w-4xl bg-white rounded-xl shadow-glow overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         {/* Illustration Section */}
-        <div className="hidden md:flex md:w-1/2 bg-green items-center justify-center p-8">
+        <div className="hidden md:flex md:w-1/2 bg-green/10 items-center justify-center p-8">
           <img 
-            src="/illustrations/auth/v2-reset-password-light.png" 
+            src="/illustrations/auth/v2-reset-password-light-border.png" 
             alt="Reset Password" 
             className="max-w-full max-h-80 object-contain"
           />
@@ -115,11 +120,11 @@ const ResetPassword = () => {
             
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-darker mb-1">
-                Confirm New Password
+                Confirm Password
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Icons.Lock size={18} className="text-gray-dark" />
+                  <Icons.ShieldCheck size={18} className="text-gray-dark" />
                 </div>
                 <input
                   id="confirmPassword"
@@ -134,16 +139,27 @@ const ResetPassword = () => {
             
             <motion.button 
               type="submit" 
-              className="mt-4 p-3 bg-green text-white rounded-lg hover:bg-green-light transition-colors"
-              disabled={loading}
+              className="w-full bg-green text-white shadow hover:bg-green-light p-3 rounded-lg flex justify-center items-center transition-colors mt-2"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              disabled={loading}
             >
-              {loading ? 'Resetting Password...' : 'Reset Password'}
+              {loading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+              ) : (
+                'Reset Password'
+              )}
             </motion.button>
+            
+            <div className="mt-4 text-center">
+              <Link to="/login" className="text-green hover:text-green-light flex items-center justify-center gap-1">
+                <Icons.ArrowLeft size={16} />
+                <span>Back to Login</span>
+              </Link>
+            </div>
           </form>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../config/auth';
 import { useAuth } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
+import * as Icons from 'lucide-react';
 
 const AdminLogin = () => {
   const { isLoading: authLoading } = useAuth();
@@ -49,7 +50,7 @@ const AdminLogin = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1B2B85]" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-navy" />
       </div>
     );
   }
@@ -63,27 +64,11 @@ const AdminLogin = () => {
         transition={{ duration: 0.5 }}
       >
         {/* Illustration Section */}
-        <div className="hidden md:flex md:w-1/2 bg-gradient-corporate items-center justify-center p-8 text-white relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy-light to-navy-lighter opacity-80"></div>
-          <div className="absolute inset-0 opacity-20">
-            {[...Array(5)].map((_, i) => (
-              <div 
-                key={i} 
-                className="absolute rounded-full bg-white/10"
-                style={{
-                  width: `${Math.random() * 100 + 50}px`,
-                  height: `${Math.random() * 100 + 50}px`,
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  animation: `pulse ${Math.random() * 10 + 10}s infinite`,
-                }}
-              />
-            ))}
-          </div>
+        <div className="hidden md:flex md:w-1/2 bg-navy/10 items-center justify-center p-8">
           <img 
-            src="/illustrations/auth/v2-login-dark.png" 
+            src="/illustrations/auth/v2-login-light-border.png" 
             alt="Admin Login" 
-            className="max-w-full max-h-80 object-contain relative z-10"
+            className="max-w-full max-h-80 object-contain"
           />
         </div>
         
@@ -105,45 +90,59 @@ const AdminLogin = () => {
               <label htmlFor="email" className="block text-sm font-medium text-gray-darker mb-1">
                 Email
               </label>
-              <input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Enter your email"
-                className="w-full p-3 border border-gray-light rounded-lg focus:ring-2 focus:ring-navy focus:border-transparent"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Icons.Mail size={18} className="text-gray-dark" />
+                </div>
+                <input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="Enter your email"
+                  className="w-full pl-10 p-3 border border-gray-light rounded-lg focus:ring-2 focus:ring-navy focus:border-transparent"
+                />
+              </div>
             </div>
             
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-darker mb-1">
                 Password
               </label>
-              <input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Enter your password"
-                className="w-full p-3 border border-gray-light rounded-lg focus:ring-2 focus:ring-navy focus:border-transparent"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Icons.Lock size={18} className="text-gray-dark" />
+                </div>
+                <input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  className="w-full pl-10 p-3 border border-gray-light rounded-lg focus:ring-2 focus:ring-navy focus:border-transparent"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end">
+              <Link to="/forgot-password" className="text-sm text-navy hover:text-navy-light">
+                Forgot password?
+              </Link>
             </div>
             
             <motion.button 
               type="submit" 
-              className="mt-4 p-3 bg-gradient-corporate text-white rounded-lg transition-all shadow hover:shadow-lg"
-              disabled={loading}
+              className="w-full bg-navy text-white shadow hover:bg-navy-light p-3 rounded-lg flex justify-center items-center transition-colors"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              disabled={loading}
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" />
+              ) : (
+                'Sign In'
+              )}
             </motion.button>
-            
-            <div className="mt-4 text-center">
-              <a href="#" className="text-navy hover:underline text-sm">
-                Forgot password?
-              </a>
-            </div>
           </form>
         </div>
       </motion.div>

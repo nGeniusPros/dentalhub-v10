@@ -4,7 +4,7 @@ const quickAccessSection: NavSection = {
     category: "Quick Access",
     items: [
       { icon: "DollarSign", label: "Practice Revenue", path: "/dashboard/revenue-dashboard" },
-      { icon: "BarChart2", label: "Monthly Revenue Report", path: "/dashboard/monthly-report" },
+      { icon: "LineChart", label: "Monthly Revenue Report", path: "/dashboard/monthly-report" },
       { icon: "Users2", label: "Active Patients", path: "/dashboard/active-patients" },
       { icon: "Activity", label: "Treatment Plan Success", path: "/dashboard/treatment-success" },
       { icon: "Star", label: "Patient Satisfaction", path: "/dashboard/patient-satisfaction" },
@@ -65,7 +65,9 @@ const communicationsSection: NavSection = {
 const systemSection: NavSection = {
     category: "System",
     items: [
-      { icon: "Building2", label: "Contact Manager", path: "/admin-dashboard/contact-manager" },
+      { icon: "BrainCircuit", label: "AI Feedback", path: "/admin-dashboard/ai-feedback" },
+      { icon: "BarChart2", label: "AI Analytics", path: "/admin-dashboard/ai-analytics" },
+      { icon: "Building", label: "Contact Manager", path: "/admin-dashboard/contact-manager" },
       { icon: "Settings", label: "Settings", path: "/admin-dashboard/settings" },
     ],
   };

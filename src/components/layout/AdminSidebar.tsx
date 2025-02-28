@@ -50,55 +50,69 @@ const adminMenuItems: MenuItem[] = [
   },
   {
     id: '7',
+    label: 'AI Feedback',
+    icon: 'BrainCircuit',
+    path: '/admin-dashboard/ai-feedback',
+    group: 'Management'
+  },
+  {
+    id: '8',
+    label: 'AI Feedback Analytics',
+    icon: 'BarChart2',
+    path: '/admin-dashboard/ai-feedback-analytics',
+    group: 'Management'
+  },
+  {
+    id: '9',
     label: 'Email Campaigns',
     icon: 'Mail',
     path: '/admin-dashboard/email-campaigns',
     group: 'Marketing'
   },
   {
-    id: '8',
+    id: '10',
     label: 'Voice Agent',
     icon: 'Phone',
     path: '/admin-dashboard/voice-agent',
     group: 'Marketing'
   },
   {
-    id: '9',
+    id: '11',
     label: 'Reputation',
     icon: 'Star',
     path: '/admin-dashboard/reputation',
     group: 'Marketing'
   },
   {
-    id: '10',
+    id: '12',
     label: 'Learning Center',
     icon: 'GraduationCap',
     path: '/admin-dashboard/learning',
     group: 'Resources'
   },
   {
-    id: '11',
+    id: '13',
     label: 'Resources',
     icon: 'BookOpen',
     path: '/admin-dashboard/resources',
     group: 'Resources'
   },
   {
-    id: '12',
+    id: '14',
     label: 'Marketplace',
     icon: 'Store',
     path: '/admin-dashboard/marketplace',
     group: 'Resources'
   },
   {
-    id: '13',
+    id: '15',
     label: 'Knowledge Base',
     icon: 'BookMarked',
     path: '/admin-dashboard/knowledge-base',
     group: 'Resources'
   },
   {
-    id: '14',
+    id: '16',
     label: 'Settings',
     icon: 'Settings',
     path: '/admin-dashboard/settings',

@@ -24,14 +24,14 @@ export const KPIOverview = () => {
         title="Treatment Acceptance"
         value="78%"
         change={5}
-        icon="CheckCircle"
+        icon="Tooth"
         variant="gold"
       />
       <StatsCard
         title="Appointment Fill Rate"
         value="94%"
         change={3}
-        icon="Calendar"
+        icon="DentalCalendar"
         variant="tropical"
       />
       <StatsCard
@@ -60,7 +60,7 @@ export const KPIOverview = () => {
         title="Staff Productivity"
         value="94%"
         change={6}
-        icon="TrendingUp"
+        icon="DentistChair"
         variant="ocean"
       />
     </div>

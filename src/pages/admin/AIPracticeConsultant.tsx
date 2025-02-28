@@ -550,6 +550,26 @@ const AIPracticeConsultant = () => {
     setSelectedQuestion(newQuestion);
   };
 
+  // Function to direct questions to specific agents based on topic
+  const handleTopicInteraction = (topic: string) => {
+    switch(topic) {
+      case 'production':
+        setSelectedQuestion("What's our total production this month compared to last?");
+        break;
+      case 'trends':
+        setSelectedQuestion("Show me the trends in our hygiene department performance");
+        break;
+      case 'growth':
+        setSelectedQuestion("How can we improve our new patient acquisition?");
+        break;
+      default:
+        setSelectedQuestion("How can I improve my practice performance?");
+    }
+  };
+
+  // Filter out the head agent from the SUB_AGENTS array
+  const specializedAgents = SUB_AGENTS.filter(agent => agent.id !== 'head-orchestrator');
+
   return (
     <div className="space-y-6 p-6">
       <h1 className="text-2xl font-bold text-gray-800">AI Dental Practice Consultant</h1>
@@ -557,39 +577,64 @@ const AIPracticeConsultant = () => {
         Ask questions and get intelligent insights from our multi-agent AI system designed specifically for dental practices.
       </p>
 
-      {/* Interactive 3D Scene to engage practice owners */}
+      {/* Section 1: PracticeInsightScene - Interactive Visualization */}
       <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4 text-gray-800 flex items-center">
+          <span className="bg-gradient-tropical text-white p-2 rounded-lg mr-2 inline-flex">
+            <Icons.BarChart size={20} />
+          </span>
+          Practice Insights
+        </h2>
         <PracticeInsightScene 
-          // Using fallback visualization instead of broken Spline scene
-          onInteract={() => {
-            setSelectedQuestion("How can I improve my practice performance?");
-          }} 
+          onInteract={handleTopicInteraction} 
         />
       </div>
+      
+      <div className="border-t border-gray-200 my-8 pt-6"></div>
 
-      {/* Chat interface with the Head Brain Consultant */}
-      <div className="mb-8">
-        <LocalHeadOrchestratorChat
-          selectedQuestion={selectedQuestion}
-          title="Head Brain Consultant"
-          description="Ask any practice question to our AI orchestrator"
-        />
-      </div>
-
-      {/* Specialized Consultant Agents section */}
-      <h2 className="text-xl font-bold mt-8 text-gray-800">Specialized Consultant Agents</h2>
-      <p className="text-gray-600 mb-4">
-        Our AI system has specialized agents for different aspects of your dental practice.
-        Click on any question to ask the Head Brain Consultant, which will delegate to the appropriate agent.
-      </p>
-
-      <ErrorBoundary>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {SUB_AGENTS.map((agent) => (
-            <AgentCard key={agent.id} agent={agent} onAsk={handleAsk} />
-          ))}
+      {/* Section 2: Head Brain Consultant as the main interface */}
+      <div>
+        <h2 className="text-xl font-bold mb-4 text-gray-800 flex items-center">
+          <span className="bg-gradient-corporate text-white p-2 rounded-lg mr-2 inline-flex">
+            <Icons.Brain size={20} />
+          </span>
+          Head Brain Consultant
+        </h2>
+        <p className="text-gray-600 mb-4">
+          Ask any practice question to our AI orchestrator, which will coordinate with specialized agents for comprehensive insights.
+        </p>
+        <div className="mb-8">
+          <LocalHeadOrchestratorChat
+            selectedQuestion={selectedQuestion}
+            title="Head Brain Consultant"
+            description="Ask any practice question to our AI orchestrator"
+          />
         </div>
-      </ErrorBoundary>
+      </div>
+      
+      <div className="border-t border-gray-200 my-8 pt-6"></div>
+
+      {/* Section 3: Specialized Consultant Agents grid */}
+      <div>
+        <h2 className="text-xl font-bold mt-8 mb-4 text-gray-800 flex items-center">
+          <span className="bg-gradient-royal text-white p-2 rounded-lg mr-2 inline-flex">
+            <Icons.Users size={20} />
+          </span>
+          Specialized Consultant Agents
+        </h2>
+        <p className="text-gray-600 mb-4">
+          Our AI system has specialized agents for different aspects of your dental practice.
+          Click on any agent to engage with a specific consultant or ask a question to the Head Brain Consultant above.
+        </p>
+
+        <ErrorBoundary>
+          <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {specializedAgents.map((agent) => (
+              <AgentCard key={agent.id} agent={agent} onAsk={handleAsk} />
+            ))}
+          </div>
+        </ErrorBoundary>
+      </div>
     </div>
   );
 };

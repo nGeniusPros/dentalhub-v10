@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import LandingPage from '../pages/LandingPage';
 import Dashboard from '../pages/Dashboard';
 import RevenueDashboard from '../pages/RevenueDashboard';
@@ -39,6 +39,8 @@ import ResourcesDashboard from '../pages/admin/resources/ResourcesDashboard';
 import AdminAppointmentsDashboard from '../pages/admin/appointments';
 import StaffAppointmentsDashboard from '../pages/staff/appointments';
 import GradientTester from '../pages/test/GradientTester';
+import AIFeedbackDashboard from '../components/admin/AIFeedbackDashboard';
+import AIFeedbackAnalytics from '../components/admin/AIFeedbackAnalytics';
 
 export const AppRoutes = () => {
   return (
@@ -48,6 +50,7 @@ export const AppRoutes = () => {
       
       {/* Login routes */}
       <Route path="/login">
+        <Route index element={<Navigate to="/login/admin" replace />} />
         <Route path="patient" element={<PatientLogin />} />
         <Route path="staff" element={<StaffLogin />} />
         <Route path="admin" element={<AdminLogin />} />
@@ -70,6 +73,8 @@ export const AppRoutes = () => {
       <Route path="/admin-dashboard" element={<DashboardLayout role="admin" />}>
         <Route index element={<AdminDashboard />} />
         <Route path="ai-consultant" element={<AIPracticeConsultant />} />
+        <Route path="ai-feedback" element={<AIFeedbackDashboard />} />
+        <Route path="ai-analytics" element={<AIFeedbackAnalytics />} />
         <Route path="knowledge-base" element={<KnowledgeBasePage />} />
         <Route path="hr" element={<HRDashboard />} />
         <Route path="insurance" element={<InsuranceARDashboard />} />

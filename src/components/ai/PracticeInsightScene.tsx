@@ -6,7 +6,7 @@ import { SplineScene } from '../ui/splite';
 interface PracticeInsightSceneProps {
   className?: string;
   splineScene?: string;
-  onInteract?: () => void;
+  onInteract?: (topic: string) => void;
 }
 
 const PracticeInsightScene: React.FC<PracticeInsightSceneProps> = ({
@@ -67,7 +67,7 @@ const PracticeInsightScene: React.FC<PracticeInsightSceneProps> = ({
       </div>
       
       <p className="text-navy-default text-center max-w-md">
-        Interact with our AI Consultant to discover insights about your practice's performance and potential areas for growth.
+        Click on any insight card above to consult with our AI about that specific area of your practice.
       </p>
     </div>
   );
@@ -94,23 +94,6 @@ const PracticeInsightScene: React.FC<PracticeInsightSceneProps> = ({
           interactive={true}
         />
       )}
-
-      <div className="bg-gradient-corporate p-4 text-white">
-        <h3 className="text-lg font-bold mb-2 text-gold-default">Improve Your Practice Performance</h3>
-        <p className="text-sm mb-4">
-          Our AI-powered insights can help identify opportunities for growth and optimization in your practice.
-        </p>
-        <div className="flex justify-end">
-          <button
-            onClick={onInteract}
-            className="px-4 py-2 bg-gold-default text-navy-default rounded-lg text-sm font-medium 
-                     hover:bg-gold-light transition-colors flex items-center gap-2"
-          >
-            Get Started
-            <span>→</span>
-          </button>
-        </div>
-      </div>
     </motion.div>
   );
 };

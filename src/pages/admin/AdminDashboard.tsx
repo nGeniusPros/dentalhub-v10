@@ -10,6 +10,7 @@ import { MarketingMetrics } from './sections/MarketingMetrics';
 import { TreatmentAnalytics } from './sections/TreatmentAnalytics';
 import { AppointmentOverview } from './sections/AppointmentOverview';
 import { HygieneAnalytics } from './sections/HygieneAnalytics';
+import { ActivityOverview } from './sections/ActivityOverview';
 
 const AdminDashboard = () => {
   const [showChat, setShowChat] = useState(false);
@@ -23,6 +24,8 @@ const AdminDashboard = () => {
         <RevenueAnalytics />
         <PatientMetrics />
       </div>
+
+      <ActivityOverview />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <StaffPerformance />
@@ -69,6 +72,22 @@ const AdminDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Chat toggle button */}
+      <div className="fixed bottom-4 right-4">
+        <Button 
+          variant="gradient-ocean"
+          size="icon"
+          className="rounded-full w-12 h-12 shadow-lg"
+          onClick={() => setShowChat(!showChat)}
+        >
+          {showChat ? (
+            <Icons.X className="w-5 h-5" />
+          ) : (
+            <Icons.MessageSquare className="w-5 h-5" />
+          )}
+        </Button>
+      </div>
     </div>
   );
 };
