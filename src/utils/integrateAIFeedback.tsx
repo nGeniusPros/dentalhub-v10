@@ -162,7 +162,7 @@ export function useAIResponseTracking(agentType: string) {
  *   
  *   return (
  *     <div>
- *       {/* AI content */}
+ *       <div>Your AI content goes here</div>
  *       <AIResponseFeedback 
  *         responseId={responseId} 
  *         agentType="assistant" 

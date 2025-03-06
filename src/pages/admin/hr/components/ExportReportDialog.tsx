@@ -33,18 +33,22 @@ export const ExportReportDialog: React.FC<ExportReportDialogProps> = ({
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Export Report</h2>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button type="button" variant="ghost" size="sm" onClick={onClose}>
               <Icons.X className="w-5 h-5" />
             </Button>
           </div>
         </div>
 
-        <div className="p-6 space-y-4">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          onExport(format, options);
+        }} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="report-export-format" className="block text-sm font-medium text-gray-700 mb-1">
               Export Format
             </label>
             <select
+              id="report-export-format"
               value={format}
               onChange={(e) => setFormat(e.target.value)}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg"
@@ -56,12 +60,13 @@ export const ExportReportDialog: React.FC<ExportReportDialogProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <p id="include-options-label" className="block text-sm font-medium text-gray-700 mb-2">
               Include
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2">
+            </p>
+            <div className="space-y-2" role="group" aria-labelledby="include-options-label">
+              <label htmlFor="include-charts" className="flex items-center gap-2">
                 <input
+                  id="include-charts"
                   type="checkbox"
                   checked={options.includeCharts}
                   onChange={(e) => setOptions(prev => ({
@@ -72,8 +77,9 @@ export const ExportReportDialog: React.FC<ExportReportDialogProps> = ({
                 />
                 <span className="text-sm">Charts and Graphs</span>
               </label>
-              <label className="flex items-center gap-2">
+              <label htmlFor="include-tables" className="flex items-center gap-2">
                 <input
+                  id="include-tables"
                   type="checkbox"
                   checked={options.includeTables}
                   onChange={(e) => setOptions(prev => ({
@@ -88,10 +94,11 @@ export const ExportReportDialog: React.FC<ExportReportDialogProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="report-date-range" className="block text-sm font-medium text-gray-700 mb-1">
               Date Range
             </label>
             <select
+              id="report-date-range"
               value={options.dateRange}
               onChange={(e) => setOptions(prev => ({
                 ...prev,
@@ -106,13 +113,13 @@ export const ExportReportDialog: React.FC<ExportReportDialogProps> = ({
               <option value="custom">Custom Range</option>
             </select>
           </div>
-        </div>
+        </form>
 
         <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
-          <Button variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={() => onExport(format, options)}>
+          <Button type="submit">
             <Icons.Download className="w-4 h-4 mr-2" />
             Export
           </Button>

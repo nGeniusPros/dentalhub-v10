@@ -834,8 +834,6 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
                     </div>
 
                     <div>
-                      <label Continuing the EmployeeForm.tsx content exactly where it left off:
-
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Date Received
                       </label>
@@ -907,6 +905,7 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
                   Drag and drop files here, or click to browse
                 </p>
                 <input
+                  id="document-upload"
                   type="file"
                   multiple
                   className="hidden"
@@ -927,7 +926,13 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({
                     });
                   }}
                 />
-                <Button type="button" variant="outline">Browse Files</Button>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => document.getElementById('document-upload')?.click()}
+                >
+                  Browse Files
+                </Button>
               </div>
             </div>
 

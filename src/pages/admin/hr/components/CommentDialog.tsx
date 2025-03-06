@@ -44,13 +44,16 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6">
+          <label htmlFor="comment-textarea" className="sr-only">Enter your comment</label>
           <textarea
+            id="comment-textarea"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             className="w-full px-3 py-2 border border-gray-200 rounded-lg"
             rows={4}
             placeholder="Enter your comment..."
             required
+            aria-label="Comment text"
           />
 
           <div className="flex justify-end gap-3 mt-4">

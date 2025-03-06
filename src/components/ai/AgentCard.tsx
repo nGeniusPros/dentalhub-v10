@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { AgentHeadOrchestratorChat } from '../../pages/admin/AIPracticeConsultant';
+import { AIResponseFeedback } from '../ai';
+import { AGENT_TYPES, FEEDBACK_CONTEXTS, USER_ROLES } from '../../constants/ai-agents';
+import { v4 as uuidv4 } from 'uuid';
 
 interface AgentCardProps {
   agent: {
@@ -15,9 +18,18 @@ interface AgentCardProps {
 
 const AgentCard: React.FC<AgentCardProps> = ({ agent, onAsk }) => {
   const [isHovered, setIsHovered] = useState(false);
+  // Generate a unique ID for this AI response session
+  const responseId = useMemo(() => uuidv4(), []);
+  // Track if a response has been received to show feedback UI
+  const [hasReceivedResponse, setHasReceivedResponse] = useState(false);
 
   const handleAsk = (question: string) => {
     onAsk(question);
+  };
+
+  // Callback function to be called after receiving a response
+  const onResponseReceived = () => {
+    setHasReceivedResponse(true);
   };
 
   // Limit questions display to maximum 3 for consistency
@@ -91,7 +103,24 @@ const AgentCard: React.FC<AgentCardProps> = ({ agent, onAsk }) => {
       </div>
       
       <div className="mt-auto p-3 border-t border-gray-100">
-        <AgentHeadOrchestratorChat selectedQuestion={agent.id} title={agent.title} description={agent.description} />
+        <AgentHeadOrchestratorChat 
+          selectedQuestion={agent.id} 
+          title={agent.title} 
+          description={agent.description}
+          responseId={responseId} 
+        />
+        
+        {/* Add feedback UI with comment icon */}
+        <div className="mt-2 border-t border-gray-100 pt-2">
+          <AIResponseFeedback
+            responseId={responseId}
+            agentType={AGENT_TYPES.ASSISTANT}
+            feedbackContext={FEEDBACK_CONTEXTS.ADMINISTRATIVE}
+            userRole={USER_ROLES.DENTIST}
+            compact={true}
+            showCommentField={true}
+          />
+        </div>
       </div>
     </motion.div>
   );

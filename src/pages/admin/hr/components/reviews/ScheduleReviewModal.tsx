@@ -76,10 +76,11 @@ export const ScheduleReviewModal: React.FC<ScheduleReviewModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="employee-name" className="block text-sm font-medium text-gray-700 mb-1">
               Employee Name
             </label>
             <input
+              id="employee-name"
               type="text"
               value={formData.employee}
               onChange={(e) => setFormData({ ...formData, employee: e.target.value })}
@@ -89,10 +90,11 @@ export const ScheduleReviewModal: React.FC<ScheduleReviewModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="employee-position" className="block text-sm font-medium text-gray-700 mb-1">
               Position
             </label>
             <input
+              id="employee-position"
               type="text"
               value={formData.position}
               onChange={(e) => setFormData({ ...formData, position: e.target.value })}
@@ -102,10 +104,11 @@ export const ScheduleReviewModal: React.FC<ScheduleReviewModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="review-date" className="block text-sm font-medium text-gray-700 mb-1">
               Review Date
             </label>
             <input
+              id="review-date"
               type="date"
               value={formData.reviewDate}
               onChange={(e) => setFormData({ ...formData, reviewDate: e.target.value })}
@@ -115,10 +118,11 @@ export const ScheduleReviewModal: React.FC<ScheduleReviewModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="last-review-date" className="block text-sm font-medium text-gray-700 mb-1">
               Last Review Date
             </label>
             <input
+              id="last-review-date"
               type="date"
               value={formData.lastReview}
               onChange={(e) => setFormData({ ...formData, lastReview: e.target.value })}

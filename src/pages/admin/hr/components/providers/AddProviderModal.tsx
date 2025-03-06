@@ -113,7 +113,7 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({
         <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Add New Provider</h2>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button type="button" variant="ghost" size="sm" onClick={onClose} aria-label="Close dialog">
               <Icons.X className="w-5 h-5" />
             </Button>
           </div>
@@ -122,10 +122,11 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="provider-name" className="block text-sm font-medium text-gray-700 mb-1">
                 Provider Name
               </label>
               <input
+                id="provider-name"
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -135,10 +136,11 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="provider-license" className="block text-sm font-medium text-gray-700 mb-1">
                 License Number
               </label>
               <input
+                id="provider-license"
                 type="text"
                 value={formData.license}
                 onChange={(e) => setFormData({ ...formData, license: e.target.value })}
@@ -148,10 +150,11 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="provider-email" className="block text-sm font-medium text-gray-700 mb-1">
                 Email
               </label>
               <input
+                id="provider-email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -161,10 +164,11 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="provider-phone" className="block text-sm font-medium text-gray-700 mb-1">
                 Phone
               </label>
               <input
+                id="provider-phone"
                 type="tel"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -174,10 +178,11 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="provider-specialty" className="block text-sm font-medium text-gray-700 mb-1">
                 Specialty
               </label>
               <input
+                id="provider-specialty"
                 type="text"
                 value={formData.specialty}
                 onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
@@ -187,10 +192,11 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="provider-start-date" className="block text-sm font-medium text-gray-700 mb-1">
                 Start Date
               </label>
               <input
+                id="provider-start-date"
                 type="date"
                 value={formData.startDate}
                 onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
@@ -203,8 +209,13 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({
           {/* Documents Section */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium">Required Documents</h3>
-              <Button type="button" onClick={addDocument}>
+              <h3 id="documents-section-heading" className="text-lg font-medium">Required Documents</h3>
+              <Button 
+                type="button" 
+                onClick={addDocument} 
+                aria-labelledby="documents-section-heading"
+                aria-label="Add new document"
+              >
                 <Icons.Plus className="w-4 h-4 mr-2" />
                 Add Document
               </Button>
@@ -212,13 +223,14 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({
 
             <div className="space-y-4">
               {formData.documents.map((doc, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                <div key={index} className="p-4 bg-gray-50 rounded-lg" role="group" aria-label={`Document ${index + 1}`}>
                   <div className="grid grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor={`doc-type-${index}`} className="block text-sm font-medium text-gray-700 mb-1">
                         Document Type
                       </label>
                       <select
+                        id={`doc-type-${index}`}
                         value={doc.type}
                         onChange={(e) => {
                           const newDocs = [...formData.documents];
@@ -236,10 +248,11 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor={`doc-number-${index}`} className="block text-sm font-medium text-gray-700 mb-1">
                         Document Number
                       </label>
                       <input
+                        id={`doc-number-${index}`}
                         type="text"
                         value={doc.number}
                         onChange={(e) => {
@@ -253,10 +266,11 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label htmlFor={`doc-expiration-${index}`} className="block text-sm font-medium text-gray-700 mb-1">
                         Expiration Date
                       </label>
                       <input
+                        id={`doc-expiration-${index}`}
                         type="date"
                         value={doc.expirationDate}
                         onChange={(e) => {
@@ -298,6 +312,7 @@ export const AddProviderModal: React.FC<AddProviderModalProps> = ({
                       size="sm"
                       onClick={() => removeDocument(index)}
                       className="text-red-600 hover:text-red-700"
+                      aria-label={`Remove document ${index + 1}`}
                     >
                       <Icons.Trash2 className="w-4 h-4" />
                     </Button>

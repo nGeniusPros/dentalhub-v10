@@ -5,9 +5,16 @@ import type { KPIAnalysis } from '../../ai/data-analysis/data-analysis.agent';
 import type { LabCaseAnalysis } from '../../ai/lab-case-manager/lab-case-manager.agent';
 import { DentalHubAvatar } from '../ui/DentalHubAvatar';
 import { useAuthContext } from '../../contexts/AuthContext';
-import { AIResponseFeedback } from './AIResponseFeedback';
+import AIResponseFeedback from './AIResponseFeedback';
 import { useAIFeedback } from '../../hooks/useAIFeedback';
+import { useAIConsultant } from '../../hooks/use-ai-consultant';
+import type { AIConsultantPrompt } from '../../lib/types/ai';
+import { motion, AnimatePresence } from 'framer-motion';
+import * as Icons from 'lucide-react';
+import { Button } from '../ui/Button';
 import { v4 as uuidv4 } from 'uuid';
+import { withAIFeedback } from '../../utils/integrateAIFeedback';
+import { AGENT_TYPES, FEEDBACK_CONTEXTS, USER_ROLES } from '../../constants/ai-agents';
 
 /**
  * AI Consultant Chat Component
@@ -379,6 +386,400 @@ export const AIConsultantChat: React.FC = () => {
         <div className="text-xs text-gray-500 mt-1">
           Press Enter to submit, Shift+Enter for new line
         </div>
+      </div>
+    </div>
+  );
+};
+
+// Export the AIConsultantChat component as default
+export default AIConsultantChat;
+
+/**
+ * AI SDR Agent Chat Component
+ * Provides a chat interface for interacting with the AI Sales Development Rep
+ */
+export const AISDRAgentChat: React.FC<{ selectedQuestion?: string }> = ({ selectedQuestion }) => {
+  const [question, setQuestion] = useState('');
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
+  const { generateInsight, loading, error } = useAIConsultant();
+  // Generate a unique ID for this AI response session
+  const responseId = React.useMemo(() => uuidv4(), []);
+
+  useEffect(() => {
+    if (selectedQuestion) {
+      setQuestion(selectedQuestion);
+    }
+  }, [selectedQuestion]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!question.trim()) return;
+
+    // Add user message
+    setMessages((prev) => [...prev, { role: 'user', content: question }]);
+
+    // Customize the metrics for an SDR context
+    const prompt: AIConsultantPrompt = {
+      metrics: {
+        monthlyRevenue: 150000,
+        patientCount: 350,
+        appointmentFillRate: 85,
+        treatmentAcceptance: 72,
+      },
+      focusArea: 'sales', 
+      question,
+      responseId, // Include responseId for tracking
+    };
+
+    const insight = await generateInsight(prompt);
+    if (insight) {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: insight.description },
+      ]);
+    }
+    setQuestion('');
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-glow transition-shadow h-[600px] flex flex-col">
+      <div className="p-4 border-b border-gray-light bg-gradient-to-r from-navy to-navy-light text-white rounded-t-xl">
+        <div className="flex items-center gap-3">
+          <img 
+            src="/avatars/avatar style 2/avatar-4.png" 
+            alt="SDR Agent" 
+            className="w-10 h-10 object-cover rounded-full bg-white p-1"
+          />
+          <div>
+            <h3 className="font-semibold">SDR Agent</h3>
+            <p className="text-sm opacity-80">
+              Ask me anything about lead generation & sales outreach
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <AnimatePresence>
+          {messages.map((msg, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              <div
+                className={`max-w-[80%] p-3 rounded-lg ${
+                  msg.role === 'user'
+                    ? 'bg-navy text-white ml-4'
+                    : 'bg-gray-lighter text-gray-darker mr-4'
+                }`}
+              >
+                {msg.content}
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-light">
+        <div className="relative">
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Ask the SDR agent about leads, sales, etc..."
+            className="w-full px-4 py-2 pr-12 border border-gray-light rounded-lg focus:ring-2 focus:ring-navy focus:border-transparent"
+            disabled={loading}
+          />
+          <Button
+            type="submit"
+            disabled={loading}
+            className="absolute right-2 top-1/2 -translate-y-1/2 !p-1 hover:bg-gray-lighter"
+          >
+            {loading ? (
+              <Icons.Loader2 className="w-5 h-5 animate-spin text-navy" />
+            ) : (
+              <Icons.Send className="w-5 h-5 text-navy" />
+            )}
+          </Button>
+        </div>
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+      </form>
+      
+      {/* Add feedback UI at the bottom of agent */}
+      <div className="px-4 pb-4">
+        <AIResponseFeedback
+          responseId={responseId}
+          agentType={AGENT_TYPES.ASSISTANT}
+          feedbackContext={FEEDBACK_CONTEXTS.ADMINISTRATIVE}
+          userRole={USER_ROLES.DENTIST}
+        />
+      </div>
+    </div>
+  );
+};
+
+/**
+ * AI Marketing Manager Chat Component
+ * Provides a chat interface for interacting with the AI Marketing Manager
+ */
+export const AIMarketingManagerChat: React.FC<{ selectedQuestion?: string }> = ({
+  selectedQuestion,
+}) => {
+  const [question, setQuestion] = useState('');
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>(
+    []
+  );
+  const { generateInsight, loading, error } = useAIConsultant();
+  // Generate a unique ID for this AI response session
+  const responseId = React.useMemo(() => uuidv4(), []);
+
+  useEffect(() => {
+    if (selectedQuestion) {
+      setQuestion(selectedQuestion);
+    }
+  }, [selectedQuestion]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!question.trim()) return;
+
+    setMessages((prev) => [...prev, { role: 'user', content: question }]);
+
+    // Example marketing-focused prompt with required metrics
+    const prompt: AIConsultantPrompt = {
+      metrics: {
+        monthlyRevenue: 200000,
+        patientCount: 450,
+        appointmentFillRate: 82,
+        treatmentAcceptance: 75,
+      },
+      focusArea: 'marketing',
+      question,
+      responseId, // Include responseId for tracking
+    };
+
+    const insight = await generateInsight(prompt);
+    if (insight) {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: insight.description },
+      ]);
+    }
+    setQuestion('');
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-glow transition-shadow h-[600px] flex flex-col">
+      <div className="p-4 border-b border-gray-light bg-gradient-to-r from-turquoise to-light-turquoise text-navy rounded-t-xl">
+        <div className="flex items-center gap-3">
+          <img 
+            src="/avatars/avatar style 2/avatar-7.png" 
+            alt="Marketing Manager Agent" 
+            className="w-10 h-10 object-cover rounded-full bg-white p-1"
+          />
+          <div>
+            <h3 className="font-semibold">Marketing Manager Agent</h3>
+            <p className="text-sm opacity-80">
+              Ask about campaigns, ROI, brand awareness, etc.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <AnimatePresence>
+          {messages.map((msg, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className={`flex ${
+                msg.role === 'user' ? 'justify-end' : 'justify-start'
+              }`}
+            >
+              <div
+                className={`max-w-[80%] p-3 rounded-lg ${
+                  msg.role === 'user'
+                    ? 'bg-turquoise text-navy ml-4'
+                    : 'bg-gray-lighter text-gray-darker mr-4'
+                }`}
+              >
+                {msg.content}
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-light">
+        <div className="relative">
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Ask about marketing strategies..."
+            className="w-full px-4 py-2 pr-12 border border-gray-light rounded-lg focus:ring-2 focus:ring-turquoise focus:border-transparent"
+            disabled={loading}
+          />
+          <Button
+            type="submit"
+            disabled={loading}
+            className="absolute right-2 top-1/2 -translate-y-1/2 !p-1 hover:bg-gray-lighter"
+          >
+            {loading ? (
+              <Icons.Loader2 className="w-5 h-5 animate-spin text-turquoise" />
+            ) : (
+              <Icons.Send className="w-5 h-5 text-turquoise" />
+            )}
+          </Button>
+        </div>
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+      </form>
+      
+      {/* Add feedback UI at the bottom of agent */}
+      <div className="px-4 pb-4">
+        <AIResponseFeedback
+          responseId={responseId}
+          agentType={AGENT_TYPES.ASSISTANT}
+          feedbackContext={FEEDBACK_CONTEXTS.ADMINISTRATIVE}
+          userRole={USER_ROLES.DENTIST}
+        />
+      </div>
+    </div>
+  );
+};
+
+/**
+ * AI Social Media Manager Chat Component
+ * Provides a chat interface for interacting with the AI Social Media Manager
+ */
+export const AISocialMediaManagerChat: React.FC<{ selectedQuestion?: string }> = ({
+  selectedQuestion,
+}) => {
+  const [question, setQuestion] = useState('');
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>(
+    []
+  );
+  const { generateInsight, loading, error } = useAIConsultant();
+  // Generate a unique ID for this AI response session
+  const responseId = React.useMemo(() => uuidv4(), []);
+
+  useEffect(() => {
+    if (selectedQuestion) {
+      setQuestion(selectedQuestion);
+    }
+  }, [selectedQuestion]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!question.trim()) return;
+
+    setMessages((prev) => [...prev, { role: 'user', content: question }]);
+
+    // Example social-media-focused prompt with required metrics
+    const prompt: AIConsultantPrompt = {
+      metrics: {
+        monthlyRevenue: 175000,
+        patientCount: 400,
+        appointmentFillRate: 78,
+        treatmentAcceptance: 68,
+      },
+      focusArea: 'social_media',
+      question,
+      responseId, // Include responseId for tracking
+    };
+
+    const insight = await generateInsight(prompt);
+    if (insight) {
+      setMessages((prev) => [
+        ...prev,
+        { role: 'assistant', content: insight.description },
+      ]);
+    }
+    setQuestion('');
+  };
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-glow transition-shadow h-[600px] flex flex-col">
+      <div className="p-4 border-b border-gray-light bg-gradient-to-r from-purple to-light-purple text-white rounded-t-xl">
+        <div className="flex items-center gap-3">
+          <img 
+            src="/avatars/avatar style 2/avatar-10.png" 
+            alt="Social Media Manager Agent" 
+            className="w-10 h-10 object-cover rounded-full bg-white p-1"
+          />
+          <div>
+            <h3 className="font-semibold">Social Media Manager Agent</h3>
+            <p className="text-sm opacity-80">
+              Ask me anything about social media campaigns, analytics, engagement...
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <AnimatePresence>
+          {messages.map((msg, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className={`flex ${
+                msg.role === 'user' ? 'justify-end' : 'justify-start'
+              }`}
+            >
+              <div
+                className={`max-w-[80%] p-3 rounded-lg ${
+                  msg.role === 'user'
+                    ? 'bg-purple text-white ml-4'
+                    : 'bg-gray-lighter text-gray-darker mr-4'
+                }`}
+              >
+                {msg.content}
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+
+      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-light">
+        <div className="relative">
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Ask about social media marketing..."
+            className="w-full px-4 py-2 pr-12 border border-gray-light rounded-lg focus:ring-2 focus:ring-purple focus:border-transparent"
+            disabled={loading}
+          />
+          <Button
+            type="submit"
+            disabled={loading}
+            className="absolute right-2 top-1/2 -translate-y-1/2 !p-1 hover:bg-gray-lighter"
+          >
+            {loading ? (
+              <Icons.Loader2 className="w-5 h-5 animate-spin text-purple" />
+            ) : (
+              <Icons.Send className="w-5 h-5 text-purple" />
+            )}
+          </Button>
+        </div>
+        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+      </form>
+      
+      {/* Add feedback UI at the bottom of agent */}
+      <div className="px-4 pb-4">
+        <AIResponseFeedback
+          responseId={responseId}
+          agentType={AGENT_TYPES.ASSISTANT}
+          feedbackContext={FEEDBACK_CONTEXTS.ADMINISTRATIVE}
+          userRole={USER_ROLES.DENTIST}
+        />
       </div>
     </div>
   );

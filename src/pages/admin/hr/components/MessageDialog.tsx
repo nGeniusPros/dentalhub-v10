@@ -55,10 +55,11 @@ export const MessageDialog: React.FC<MessageDialogProps> = ({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="message-subject" className="block text-sm font-medium text-gray-700 mb-1">
               Subject
             </label>
             <input
+              id="message-subject"
               type="text"
               value={message.subject}
               onChange={(e) => setMessage(prev => ({ ...prev, subject: e.target.value }))}
@@ -68,10 +69,11 @@ export const MessageDialog: React.FC<MessageDialogProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="message-content" className="block text-sm font-medium text-gray-700 mb-1">
               Message
             </label>
             <textarea
+              id="message-content"
               value={message.content}
               onChange={(e) => setMessage(prev => ({ ...prev, content: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg"
@@ -81,10 +83,11 @@ export const MessageDialog: React.FC<MessageDialogProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="message-priority" className="block text-sm font-medium text-gray-700 mb-1">
               Priority
             </label>
             <select
+              id="message-priority"
               value={message.priority}
               onChange={(e) => setMessage(prev => ({ ...prev, priority: e.target.value }))}
               className="w-full px-3 py-2 border border-gray-200 rounded-lg"
@@ -96,8 +99,9 @@ export const MessageDialog: React.FC<MessageDialogProps> = ({
             </select>
           </div>
 
-          <label className="flex items-center gap-2">
+          <label htmlFor="send-copy" className="flex items-center gap-2">
             <input
+              id="send-copy"
               type="checkbox"
               checked={message.sendCopy}
               onChange={(e) => setMessage(prev => ({ ...prev, sendCopy: e.target.checked }))}

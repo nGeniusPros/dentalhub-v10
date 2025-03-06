@@ -54,10 +54,11 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Export Format */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="export-format" className="block text-sm font-medium text-gray-700 mb-2">
               Export Format
             </label>
             <select
+              id="export-format"
               value={format}
               onChange={(e) => setFormat(e.target.value)}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg"
@@ -70,13 +71,14 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
 
           {/* Sections to Export */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <p className="block text-sm font-medium text-gray-700 mb-2" id="sections-group-label">
               Sections to Export
-            </label>
-            <div className="space-y-2">
+            </p>
+            <div className="space-y-2" role="group" aria-labelledby="sections-group-label">
               {Object.entries(options.sections).map(([key, value]) => (
-                <label key={key} className="flex items-center gap-2">
+                <label key={key} className="flex items-center gap-2" htmlFor={`section-${key}`}>
                   <input
+                    id={`section-${key}`}
                     type="checkbox"
                     checked={value}
                     onChange={(e) => setOptions(prev => ({
@@ -96,10 +98,11 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
 
           {/* Date Range */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="date-range" className="block text-sm font-medium text-gray-700 mb-2">
               Date Range
             </label>
             <select
+              id="date-range"
               value={options.dateRange}
               onChange={(e) => setOptions(prev => ({ ...prev, dateRange: e.target.value }))}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg"
@@ -113,34 +116,31 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({
           </div>
 
           {/* Additional Options */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+          <div className="space-y-2">
+            <p className="block text-sm font-medium text-gray-700 mb-2" id="additional-options-label">
               Additional Options
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center gap-2">
+            </p>
+            <div role="group" aria-labelledby="additional-options-label">
+              <label htmlFor="include-personal-info" className="flex items-center gap-2">
                 <input
+                  id="include-personal-info"
                   type="checkbox"
                   checked={options.includePersonalInfo}
-                  onChange={(e) => setOptions(prev => ({
-                    ...prev,
-                    includePersonalInfo: e.target.checked
-                  }))}
+                  onChange={(e) => setOptions(prev => ({ ...prev, includePersonalInfo: e.target.checked }))}
                   className="rounded border-gray-300"
                 />
-                <span className="text-sm">Include Personal Information</span>
+                <span className="text-sm">Include personal information</span>
               </label>
-              <label className="flex items-center gap-2">
+              
+              <label htmlFor="include-sensitive-data" className="flex items-center gap-2 mt-2">
                 <input
+                  id="include-sensitive-data"
                   type="checkbox"
                   checked={options.includeSensitiveData}
-                  onChange={(e) => setOptions(prev => ({
-                    ...prev,
-                    includeSensitiveData: e.target.checked
-                  }))}
+                  onChange={(e) => setOptions(prev => ({ ...prev, includeSensitiveData: e.target.checked }))}
                   className="rounded border-gray-300"
                 />
-                <span className="text-sm">Include Sensitive Data</span>
+                <span className="text-sm">Include sensitive data</span>
               </label>
             </div>
           </div>

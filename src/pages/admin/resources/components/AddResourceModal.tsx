@@ -234,12 +234,31 @@ export const AddResourceModal: React.FC<AddResourceModalProps> = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 File
               </label>
-              <input
-                type="file"
-                onChange={(e) => setResource({ ...resource, file: e.target.files?.[0] || null })}
-                className="w-full"
-                required={resource.type === 'internal'}
-              />
+              <div className="flex flex-col items-center p-4 border-2 border-dashed border-gray-200 rounded-lg">
+                <Icons.Upload className="w-8 h-8 text-gray-400 mb-2" />
+                <p className="text-sm text-gray-500 mb-2">
+                  Click to browse or drag and drop
+                </p>
+                <input
+                  id="resource-file-upload"
+                  type="file"
+                  onChange={(e) => setResource({ ...resource, file: e.target.files?.[0] || null })}
+                  className="hidden"
+                  required={resource.type === 'internal'}
+                />
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  onClick={() => document.getElementById('resource-file-upload')?.click()}
+                >
+                  Select File
+                </Button>
+                {resource.file && (
+                  <div className="mt-2 text-sm text-gray-600">
+                    Selected: {resource.file.name}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

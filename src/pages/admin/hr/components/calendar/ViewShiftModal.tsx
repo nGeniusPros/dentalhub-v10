@@ -43,7 +43,7 @@ export const ViewShiftModal: React.FC<ViewShiftModalProps> = ({
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">View Shift</h2>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button type="button" variant="ghost" size="sm" onClick={onClose} aria-label="Close dialog">
               <Icons.X className="w-5 h-5" />
             </Button>
           </div>
@@ -52,10 +52,11 @@ export const ViewShiftModal: React.FC<ViewShiftModalProps> = ({
         {isEditing ? (
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="edit-employee-name" className="block text-sm font-medium text-gray-700 mb-1">
                 Employee Name
               </label>
               <input
+                id="edit-employee-name"
                 type="text"
                 value={editedShift.employeeName}
                 onChange={(e) => setEditedShift({ ...editedShift, employeeName: e.target.value })}
@@ -65,10 +66,11 @@ export const ViewShiftModal: React.FC<ViewShiftModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="edit-employee-role" className="block text-sm font-medium text-gray-700 mb-1">
                 Role
               </label>
               <input
+                id="edit-employee-role"
                 type="text"
                 value={editedShift.role}
                 onChange={(e) => setEditedShift({ ...editedShift, role: e.target.value })}
@@ -79,10 +81,11 @@ export const ViewShiftModal: React.FC<ViewShiftModalProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="edit-shift-start-time" className="block text-sm font-medium text-gray-700 mb-1">
                   Start Time
                 </label>
                 <input
+                  id="edit-shift-start-time"
                   type="time"
                   value={editedShift.startTime}
                   onChange={(e) => setEditedShift({ ...editedShift, startTime: e.target.value })}
@@ -91,10 +94,11 @@ export const ViewShiftModal: React.FC<ViewShiftModalProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="edit-shift-end-time" className="block text-sm font-medium text-gray-700 mb-1">
                   End Time
                 </label>
                 <input
+                  id="edit-shift-end-time"
                   type="time"
                   value={editedShift.endTime}
                   onChange={(e) => setEditedShift({ ...editedShift, endTime: e.target.value })}
@@ -105,10 +109,11 @@ export const ViewShiftModal: React.FC<ViewShiftModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="edit-shift-date" className="block text-sm font-medium text-gray-700 mb-1">
                 Date
               </label>
               <input
+                id="edit-shift-date"
                 type="date"
                 value={editedShift.date}
                 onChange={(e) => setEditedShift({ ...editedShift, date: e.target.value })}
@@ -148,33 +153,41 @@ export const ViewShiftModal: React.FC<ViewShiftModalProps> = ({
             </div>
 
             <div>
-              <p className="text-sm text-gray-500 mb-2">Status</p>
-              <div className="flex gap-2">
+              <p id="status-options-label" className="text-sm text-gray-500 mb-2">Status</p>
+              <div className="flex gap-2" role="group" aria-labelledby="status-options-label">
                 <Button
+                  type="button"
                   size="sm"
                   variant={shift.status === 'scheduled' ? 'default' : 'outline'}
                   onClick={() => handleStatusChange('scheduled')}
+                  aria-pressed={shift.status === 'scheduled'}
                 >
                   Scheduled
                 </Button>
                 <Button
+                  type="button"
                   size="sm"
                   variant={shift.status === 'checked-in' ? 'default' : 'outline'}
                   onClick={() => handleStatusChange('checked-in')}
+                  aria-pressed={shift.status === 'checked-in'}
                 >
                   Check In
                 </Button>
                 <Button
+                  type="button"
                   size="sm"
                   variant={shift.status === 'checked-out' ? 'default' : 'outline'}
                   onClick={() => handleStatusChange('checked-out')}
+                  aria-pressed={shift.status === 'checked-out'}
                 >
                   Check Out
                 </Button>
                 <Button
+                  type="button"
                   size="sm"
                   variant={shift.status === 'absent' ? 'default' : 'outline'}
                   onClick={() => handleStatusChange('absent')}
+                  aria-pressed={shift.status === 'absent'}
                 >
                   Absent
                 </Button>
@@ -183,16 +196,20 @@ export const ViewShiftModal: React.FC<ViewShiftModalProps> = ({
 
             <div className="flex justify-end gap-3 pt-4">
               <Button
+                type="button"
                 variant="outline"
                 onClick={() => setIsEditing(true)}
+                aria-label="Edit shift details"
               >
                 <Icons.Edit2 className="w-4 h-4 mr-2" />
                 Edit
               </Button>
               <Button
+                type="button"
                 variant="outline"
                 className="text-red-600 hover:text-red-700"
                 onClick={() => onDelete(shift.id)}
+                aria-label="Delete shift"
               >
                 <Icons.Trash2 className="w-4 h-4 mr-2" />
                 Delete

@@ -342,7 +342,7 @@ export const PostJobModal: React.FC<PostJobModalProps> = ({
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">
+            <Button type="submit" variant="primary">
               Post Job
             </Button>
           </div>

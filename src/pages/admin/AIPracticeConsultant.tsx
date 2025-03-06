@@ -1,6 +1,6 @@
 // NOTE: This file now removes all 3D/Spline integrations for a simpler UI design
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { Button } from '../../components/ui/button';
@@ -10,6 +10,16 @@ import ConversationStarter from '../../components/ai/ConversationStarter';
 import AgentCard from '../../components/ai/AgentCard';
 import { DentalHubAvatar } from '../../components/ui/DentalHubAvatar';
 import PracticeInsightScene from '../../components/ai/PracticeInsightScene';
+import { 
+  AIFeedbackDashboard, 
+  AIConsultantChat, 
+  AIResponseFeedback,
+  AISDRAgentChat, 
+  AIMarketingManagerChat, 
+  AISocialMediaManagerChat 
+} from '../../components/ai';
+import { v4 as uuidv4 } from 'uuid';
+import { AGENT_TYPES, FEEDBACK_CONTEXTS, USER_ROLES } from '../../constants/ai-agents';
 
 // We keep the ErrorBoundary to catch rendering errors in this page
 class ErrorBoundary extends React.Component<{ fallback?: React.ReactNode; children?: React.ReactNode }, { hasError: boolean }> {
@@ -38,6 +48,8 @@ class ErrorBoundary extends React.Component<{ fallback?: React.ReactNode; childr
 export function LocalHeadOrchestratorChat({ selectedQuestion, title, description }: { selectedQuestion?: string, title?: string, description?: string }) {
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
   const { generateInsight, loading, error } = useAIConsultant();
+  // Generate a unique ID for this AI response session
+  const responseId = useMemo(() => uuidv4(), []);
 
   const [question, setQuestion] = useState(selectedQuestion || '');
 
@@ -64,6 +76,7 @@ export function LocalHeadOrchestratorChat({ selectedQuestion, title, description
       focusArea: 'head-orchestrator',
       question: question,
       dateRange: { start: "2023-01-01", end: "2023-12-31" },
+      responseId: responseId, // Include responseId for tracking
     };
 
     try {
@@ -170,14 +183,44 @@ export function LocalHeadOrchestratorChat({ selectedQuestion, title, description
           </button>
         </div>
       </form>
+
+      {/* Add feedback UI for agent responses */}
+      {messages.length > 0 && !loading && (
+        <div className="px-2 py-1 border-t border-gray-200">
+          <AIResponseFeedback
+            responseId={responseId}
+            agentType={AGENT_TYPES.ASSISTANT}
+            feedbackContext={FEEDBACK_CONTEXTS.ADMINISTRATIVE}
+            userRole={USER_ROLES.DENTIST}
+            compact={true}
+            showCommentField={true}
+          />
+        </div>
+      )}
     </div>
   );
 }
 
 // Special chat component for agent cards with smaller height
-export function AgentHeadOrchestratorChat({ selectedQuestion, title, description }: { selectedQuestion?: string, title?: string, description?: string }) {
+export function AgentHeadOrchestratorChat({ 
+  selectedQuestion, 
+  title, 
+  description, 
+  responseId: externalResponseId,
+  onResponseReceived
+}: { 
+  selectedQuestion?: string, 
+  title?: string, 
+  description?: string, 
+  responseId?: string,
+  onResponseReceived?: () => void
+}) {
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
   const { generateInsight, loading, error } = useAIConsultant();
+  // Use external responseId if provided, otherwise generate a new one
+  const responseId = React.useMemo(() => externalResponseId || uuidv4(), [externalResponseId]);
+  // Track if we have received at least one response
+  const [hasReceivedResponse, setHasReceivedResponse] = useState(false);
 
   const [question, setQuestion] = useState(selectedQuestion || '');
 
@@ -204,11 +247,14 @@ export function AgentHeadOrchestratorChat({ selectedQuestion, title, description
       focusArea: 'head-orchestrator',
       question: question,
       dateRange: { start: "2023-01-01", end: "2023-12-31" },
+      responseId: responseId, // Include responseId for tracking
     };
 
     try {
       const result = await generateInsight(prompt);
       setMessages((prev) => [...prev, { role: 'assistant', content: result }]);
+      setHasReceivedResponse(true);
+      onResponseReceived?.();
     } catch (err) {
       console.error(err);
     } finally {
@@ -295,149 +341,23 @@ export function AgentHeadOrchestratorChat({ selectedQuestion, title, description
           </button>
         </div>
       </form>
+      
+      {/* Add feedback UI for agent responses */}
+      {messages.length > 0 && !loading && hasReceivedResponse && (
+        <div className="px-2 py-1 border-t border-gray-200">
+          <AIResponseFeedback
+            responseId={responseId}
+            agentType={AGENT_TYPES.ASSISTANT}
+            feedbackContext={FEEDBACK_CONTEXTS.ADMINISTRATIVE}
+            userRole={USER_ROLES.DENTIST}
+            compact={true}
+            showCommentField={true}
+          />
+        </div>
+      )}
     </div>
   );
 }
-
-const allQuestions = [
-  "Show me the production per hour for last month",
-  "What's our hygiene productivity trend over the past quarter?",
-  "Compare treatment acceptance rates between January and March",
-  "Analyze schedule optimization percentage for Q1 2024",
-  "Show me last month's production numbers",
-  "Pull up today's schedule",
-  "Get the collection rate for this quarter",
-  "How many new patients did we have this month?",
-  "Show me hygiene production for each hygienist",
-  "What's our current accounts receivable?",
-  "Get me the treatment acceptance rate for Dr. Smith",
-  "Compare our performance to last year",
-  "Are we meeting our production goals?",
-  "Why is revenue down this month?",
-  "Show me trends in patient cancellations",
-  "Which procedures are most profitable?",
-  "How efficient is our hygiene department?",
-  "What's causing our schedule gaps?",
-  "How can we increase production?",
-  "What should we do about cancellations?",
-  "Give me ideas to improve case acceptance",
-  "Help me optimize the schedule",
-  "How can we reduce no-shows?",
-  "What's the best way to handle insurance delays?",
-  "How can we grow our new patient numbers?",
-  "Create training for treatment presentation",
-  "Help me coach the front desk on scheduling",
-  "Give me talking points for the morning huddle",
-  "How should we implement these changes?",
-  "Train my team on handling payment discussions",
-  "Create a guide for insurance verification",
-  "Help me motivate my hygiene team",
-  "What's the most profitable way to schedule next week?",
-  "Help me fill tomorrow's openings",
-  "How should I organize the hygiene schedule?",
-  "Optimize Dr. Johnson's column",
-  "What procedures should we prioritize?",
-  "Balance the workload between providers",
-  "Find the best time for a crown prep",
-  "The schedule is empty next week - what should we do?",
-  "Production is down - analyze the issue and tell me how to fix it",
-  "We're not meeting goals - give me a complete plan to improve",
-  "Help me make this month more profitable",
-  "Our hygiene department is struggling - analyze and create a solution"
-];
-
-const dataRetrievalQuestions = [
-  "Show me last month's production numbers",
-  "Pull up today's schedule",
-  "Get the collection rate for this quarter",
-  "How many new patients did we have this month?",
-  "Show me hygiene production for each hygienist",
-  "What's our current accounts receivable?",
-  "Get me the treatment acceptance rate for Dr. Smith"
-];
-
-const analysisQuestions = [
-  "Compare our performance to last year",
-  "Are we meeting our production goals?",
-  "Why is revenue down this month?",
-  "Show me trends in patient cancellations",
-  "Which procedures are most profitable?",
-  "How efficient is our hygiene department?",
-  "What's causing our schedule gaps?"
-];
-
-const recommendationQuestions = [
-  "How can we increase production?",
-  "What should we do about cancellations?",
-  "Give me ideas to improve case acceptance",
-  "Help me optimize the schedule",
-  "How can we reduce no-shows?",
-  "What's the best way to handle insurance delays?",
-  "How can we grow our new patient numbers?"
-];
-
-const coachingQuestions = [
-  "Create training for treatment presentation",
-  "Help me coach the front desk on scheduling",
-  "Give me talking points for the morning huddle",
-  "How should we implement these changes?",
-  "Train my team on handling payment discussions",
-  "Create a guide for insurance verification",
-  "Help me motivate my hygiene team"
-];
-
-const profitabilitySchedulingQuestions = [
-  "What's the most profitable way to schedule next week?",
-  "Help me fill tomorrow's openings",
-  "How should I organize the hygiene schedule?",
-  "Optimize Dr. Johnson's column",
-  "What procedures should we prioritize?",
-  "Balance the workload between providers",
-  "Find the best time for a crown prep"
-];
-
-const commonCombinationQuestions = [
-  "The schedule is empty next week - what should we do?",
-  "Production is down - analyze the issue and tell me how to fix it",
-  "We're not meeting goals - give me a complete plan to improve",
-  "Help me make this month more profitable",
-  "Our hygiene department is struggling - analyze and create a solution"
-];
-
-const quickQuestionsPracticeGrowth = [
-  "What are the key metrics for growth?",
-  "How to increase case acceptance?",
-  "Best marketing strategies?",
-  "Building referral programs?"
-];
-
-const quickQuestionsPatientExperience = [
-  "Improving satisfaction scores?",
-  "Reducing wait times?",
-  "Handling complaints?",
-  "Better waiting room experience?"
-];
-
-const quickQuestionsOperations = [
-  "Optimizing scheduling?",
-  "Reducing no-shows?",
-  "Front desk efficiency?",
-  "Inventory management?"
-];
-
-const quickQuestionsStaffTraining = [
-  "Improving retention?",
-  "Training new staff?",
-  "Team meetings?",
-  "Performance reviews?"
-];
-
-const quickQuestionsFinancialGrowth = [
-  "Increasing revenue?",
-  "Insurance collections?",
-  "Membership programs?",
-  "Fee scheduling?"
-];
 
 // Main orchestrator and specialized agents
 const SUB_AGENTS = [
@@ -446,28 +366,60 @@ const SUB_AGENTS = [
     title: 'Head Brain Consultant',
     description: 'Coordinates between specialized agents for complete practice insights.',
     image: '/illustrations/characters-with-objects/1.png',
-    questions: allQuestions.slice(0, 7),
+    questions: [
+      "Show me the production per hour for last month",
+      "What's our hygiene productivity trend over the past quarter?",
+      "Compare treatment acceptance rates between January and March",
+      "Analyze schedule optimization percentage for Q1 2024",
+      "Show me last month's production numbers",
+      "Pull up today's schedule",
+      "Get the collection rate for this quarter"
+    ],
   },
   {
     id: 'data-retrieval',
     title: 'Data Retrieval Agent',
     description: 'Fetches raw data: production, schedules, AR, etc.',
     image: '/illustrations/characters-with-objects/2.png',
-    questions: dataRetrievalQuestions,
+    questions: [
+      "Show me last month's production numbers",
+      "Pull up today's schedule",
+      "Get the collection rate for this quarter",
+      "How many new patients did we have this month?",
+      "Show me hygiene production for each hygienist",
+      "What's our current accounts receivable?",
+      "Get me the treatment acceptance rate for Dr. Smith"
+    ],
   },
   {
     id: 'data-analysis',
     title: 'Data Analysis Agent',
     description: 'Analyzes KPI trends, identifies patterns and correlations.',
     image: '/illustrations/characters-with-objects/3.png',
-    questions: analysisQuestions,
+    questions: [
+      "Compare our performance to last year",
+      "Are we meeting our production goals?",
+      "Why is revenue down this month?",
+      "Show me trends in patient cancellations",
+      "Which procedures are most profitable?",
+      "How efficient is our hygiene department?",
+      "What's causing our schedule gaps?"
+    ],
   },
   {
     id: 'recommendation',
     title: 'Recommendation Agent',
     description: 'Provides actionable recommendations based on practice data.',
     image: '/illustrations/characters-with-objects/4.png',
-    questions: recommendationQuestions,
+    questions: [
+      "How can we increase production?",
+      "What should we do about cancellations?",
+      "Give me ideas to improve case acceptance",
+      "Help me optimize the schedule",
+      "How can we reduce no-shows?",
+      "What's the best way to handle insurance delays?",
+      "How can we grow our new patient numbers?"
+    ],
   },
   {
     id: 'lab-case-manager',
@@ -487,61 +439,108 @@ const SUB_AGENTS = [
     title: 'Procedure Code Agent',
     description: 'Optimizes code utilization and compliance.',
     image: '/illustrations/characters-with-objects/6.png',
-    questions: recommendationQuestions,
+    questions: [
+      "How can we improve our coding for periodontal procedures?",
+      "What codes should we use for this complex restoration?",
+      "Are we missing any billable procedures?",
+      "Help me understand the difference between D2740 and D2750",
+      "What's the proper code for this implant restoration?"
+    ],
   },
   {
     id: 'supplies-manager',
     title: 'Supplies Manager Agent',
     description: 'Manages inventory and supply chain optimization.',
     image: '/illustrations/characters-with-objects/7.png',
-    questions: quickQuestionsFinancialGrowth,
+    questions: [
+      "What supplies are running low?",
+      "How can we optimize our inventory costs?",
+      "Compare prices between our current suppliers",
+      "Set up automatic reordering for critical items",
+      "What's our monthly spend on disposables?"
+    ],
   },
   {
     id: 'profitability-appointment',
     title: 'Profitability Appointment Agent',
     description: 'Optimizes scheduling for maximum revenue.',
     image: '/illustrations/characters-with-objects/8.png',
-    questions: profitabilitySchedulingQuestions,
+    questions: [
+      "What's the most profitable way to schedule next week?",
+      "Help me fill tomorrow's openings",
+      "How should I organize the hygiene schedule?",
+      "Optimize Dr. Johnson's column",
+      "What procedures should we prioritize?",
+      "Balance the workload between providers",
+      "Find the best time for a crown prep"
+    ],
   },
   {
     id: 'marketing-roi',
     title: 'Marketing ROI Agent',
     description: 'Evaluates campaign performance and ROI.',
     image: '/illustrations/characters-with-objects/9.png',
-    questions: quickQuestionsPracticeGrowth,
+    questions: [
+      "What are the key metrics for growth?",
+      "How to increase case acceptance?",
+      "Best marketing strategies?",
+      "Building referral programs?",
+      "Which marketing channels have the best ROI?"
+    ],
   },
   {
     id: 'hygiene-analytics',
     title: 'Hygiene Analytics Agent',
     description: 'Monitors hygiene department performance.',
     image: '/illustrations/characters-with-objects/10.png',
-    questions: analysisQuestions,
+    questions: [
+      "What's our hygiene production per hour?",
+      "How does our periodontal therapy acceptance compare to benchmarks?",
+      "Are we diagnosing enough perio cases?",
+      "How many patients are overdue for hygiene?",
+      "What's our hygienist productivity by provider?"
+    ],
   },
   {
     id: 'patient-demographics',
     title: 'Patient Demographics Agent',
     description: 'Analyzes patient population and trends.',
     image: '/illustrations/characters-with-objects/11.png',
-    questions: quickQuestionsPatientExperience,
+    questions: [
+      "Improving satisfaction scores?",
+      "Reducing wait times?",
+      "Handling complaints?",
+      "Better waiting room experience?",
+      "What's our patient age distribution?"
+    ],
   },
   {
     id: 'operations-agent',
     title: 'Operations Agent',
     description: 'Analyzes operational efficiency.',
     image: '/illustrations/characters-with-objects/13.png',
-    questions: quickQuestionsOperations,
+    questions: [
+      "Optimizing scheduling?",
+      "Reducing no-shows?",
+      "Front desk efficiency?",
+      "Inventory management?",
+      "How can we improve our morning huddle?"
+    ],
   },
   {
     id: 'staff-training',
     title: 'Staff Training Agent',
     description: 'Manages staff development and performance.',
     image: '/illustrations/characters-with-objects/14.png',
-    questions: quickQuestionsStaffTraining,
+    questions: [
+      "Improving retention?",
+      "Training new staff?",
+      "Team meetings?",
+      "Performance reviews?",
+      "How to implement effective role-playing exercises?"
+    ],
   }
 ];
-
-// Clean up unused variables to fix ESLint warnings
-// (We're keeping these arrays as they may be referenced by other components)
 
 const AIPracticeConsultant = () => {
   const [selectedQuestion, setSelectedQuestion] = useState('');
@@ -630,8 +629,49 @@ const AIPracticeConsultant = () => {
         <ErrorBoundary>
           <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {specializedAgents.map((agent) => (
-              <AgentCard key={agent.id} agent={agent} onAsk={handleAsk} />
+              <AgentCard key={agent.id} agent={agent} onAsk={handleAsk}>
+                <AIResponseFeedback
+                  responseId={agent.id}
+                  agentType={AGENT_TYPES.ASSISTANT}
+                  feedbackContext={FEEDBACK_CONTEXTS.ADMINISTRATIVE}
+                  userRole={USER_ROLES.DENTIST}
+                  compact={true}
+                  showCommentField={true}
+                />
+              </AgentCard>
             ))}
+          </div>
+        </ErrorBoundary>
+      </div>
+
+      <div className="border-t border-gray-200 my-8 pt-6"></div>
+
+      {/* Section 4: AI Business Development Agents */}
+      <div>
+        <h2 className="text-xl font-bold mt-8 mb-4 text-gray-800 flex items-center">
+          <span className="bg-gradient-ocean text-white p-2 rounded-lg mr-2 inline-flex">
+            <Icons.TrendingUp size={20} />
+          </span>
+          Business Development Agents
+        </h2>
+        <p className="text-gray-600 mb-4">
+          Leverage our specialized AI agents for sales development, marketing management, and social media strategy to grow your practice.
+        </p>
+
+        <ErrorBoundary>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <div>
+              <h3 className="text-lg font-semibold text-navy mb-3">Sales Development Rep</h3>
+              <AISDRAgentChat />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-turquoise mb-3">Marketing Manager</h3>
+              <AIMarketingManagerChat />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-purple mb-3">Social Media Manager</h3>
+              <AISocialMediaManagerChat />
+            </div>
           </div>
         </ErrorBoundary>
       </div>

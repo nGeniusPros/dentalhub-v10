@@ -224,6 +224,15 @@ const FileUploader: React.FC<FileUploaderProps> = ({
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onClick={openFileSelector}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            openFileSelector();
+          }
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Click or drag files to upload"
       >
         {isUploading ? (
           <div className="py-4">

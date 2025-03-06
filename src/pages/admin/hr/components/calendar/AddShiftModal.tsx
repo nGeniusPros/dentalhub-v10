@@ -41,7 +41,7 @@ export const AddShiftModal: React.FC<AddShiftModalProps> = ({
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Add New Shift</h2>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button type="button" variant="ghost" size="sm" onClick={onClose} aria-label="Close dialog">
               <Icons.X className="w-5 h-5" />
             </Button>
           </div>
@@ -49,10 +49,11 @@ export const AddShiftModal: React.FC<AddShiftModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="employee-name" className="block text-sm font-medium text-gray-700 mb-1">
               Employee Name
             </label>
             <input
+              id="employee-name"
               type="text"
               value={shift.employeeName}
               onChange={(e) => setShift({ ...shift, employeeName: e.target.value })}
@@ -62,10 +63,11 @@ export const AddShiftModal: React.FC<AddShiftModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="employee-role" className="block text-sm font-medium text-gray-700 mb-1">
               Role
             </label>
             <input
+              id="employee-role"
               type="text"
               value={shift.role}
               onChange={(e) => setShift({ ...shift, role: e.target.value })}
@@ -76,10 +78,11 @@ export const AddShiftModal: React.FC<AddShiftModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="shift-start-time" className="block text-sm font-medium text-gray-700 mb-1">
                 Start Time
               </label>
               <input
+                id="shift-start-time"
                 type="time"
                 value={shift.startTime}
                 onChange={(e) => setShift({ ...shift, startTime: e.target.value })}
@@ -88,10 +91,11 @@ export const AddShiftModal: React.FC<AddShiftModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="shift-end-time" className="block text-sm font-medium text-gray-700 mb-1">
                 End Time
               </label>
               <input
+                id="shift-end-time"
                 type="time"
                 value={shift.endTime}
                 onChange={(e) => setShift({ ...shift, endTime: e.target.value })}
@@ -102,10 +106,11 @@ export const AddShiftModal: React.FC<AddShiftModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="shift-date" className="block text-sm font-medium text-gray-700 mb-1">
               Date
             </label>
             <input
+              id="shift-date"
               type="date"
               value={shift.date}
               onChange={(e) => setShift({ ...shift, date: e.target.value })}

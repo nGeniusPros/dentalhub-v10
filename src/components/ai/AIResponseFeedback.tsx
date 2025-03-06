@@ -19,6 +19,7 @@ interface AIResponseFeedbackProps {
   modelVersion?: string;
   className?: string;
   showCommentField?: boolean;
+  compact?: boolean;
   onFeedbackSubmit?: (feedback: AIFeedbackSubmission) => void;
 }
 
@@ -37,8 +38,18 @@ const AIResponseFeedback: React.FC<AIResponseFeedbackProps> = ({
   modelVersion = 'latest',
   className = '',
   showCommentField = true,
+  compact = false,
   onFeedbackSubmit
 }) => {
+  console.log('AIResponseFeedback rendered with props:', {
+    responseId,
+    agentType,
+    userRole,
+    feedbackContext,
+    showCommentField,
+    compact,
+  });
+
   const [feedbackGiven, setFeedbackGiven] = useState(false);
   const [isCommentVisible, setIsCommentVisible] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
@@ -128,26 +139,26 @@ const AIResponseFeedback: React.FC<AIResponseFeedbackProps> = ({
   return (
     <div className={`${className}`}>
       {!isCommentVisible ? (
-        <div className="flex items-center mt-2 space-x-4">
-          <p className="text-xs text-gray-500">Was this response helpful?</p>
+        <div className={`flex items-center ${compact ? 'mt-1' : 'mt-2'} ${compact ? 'space-x-2' : 'space-x-4'}`}>
+          <p className={`text-xs text-gray-500 ${compact ? 'text-[10px]' : ''}`}>Was this response helpful?</p>
           <div className="flex space-x-2">
             <button 
-              className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors"
+              className={`p-1 text-green-600 hover:bg-green-50 rounded transition-colors ${compact ? 'p-0.5' : ''}`}
               onClick={() => handleThumbsFeedback(true)}
               aria-label="Thumbs up"
               disabled={isSubmitting}
             >
-              <ThumbsUp size={16} />
+              <ThumbsUp size={compact ? 14 : 16} />
             </button>
             <button 
-              className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+              className={`p-1 text-red-600 hover:bg-red-50 rounded transition-colors ${compact ? 'p-0.5' : ''}`}
               onClick={() => handleThumbsFeedback(false)}
               aria-label="Thumbs down"
               disabled={isSubmitting}
             >
-              <ThumbsDown size={16} />
+              <ThumbsDown size={compact ? 14 : 16} />
             </button>
-            {showCommentField && (
+            {showCommentField && !compact && (
               <button 
                 className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
                 onClick={() => setIsCommentVisible(true)}

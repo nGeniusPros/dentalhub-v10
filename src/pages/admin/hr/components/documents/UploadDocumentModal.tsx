@@ -191,6 +191,16 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }
+            }}
+            tabIndex={0}
+            role="button"
+            aria-controls="document-file-upload"
+            aria-label="Drop files here or click to browse"
           >
             <input
               ref={fileInputRef}
@@ -198,10 +208,12 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
               multiple
               onChange={handleFileSelect}
               className="hidden"
+              id="document-file-upload"
               accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+              aria-label="Document file upload"
             />
             <div className="flex flex-col items-center">
-              <Icons.Upload className="w-12 h-12 text-gray-400 mb-4" />
+              <Icons.Upload className="w-12 h-12 text-gray-400 mb-4" aria-hidden="true" />
               <p className="text-sm text-gray-500 mb-2">
                 Drag and drop files here, or click to browse
               </p>
@@ -272,6 +284,7 @@ export const UploadDocumentModal: React.FC<UploadDocumentModalProps> = ({
             Cancel
           </Button>
           <Button
+            type="button"
             onClick={handleUpload}
             disabled={files.length === 0 || uploading}
           >

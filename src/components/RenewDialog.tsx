@@ -70,12 +70,25 @@ export const RenewDialog: React.FC<RenewDialogProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="file-upload">
               Upload Document
             </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+            <div 
+              className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer"
+              onClick={() => document.getElementById('file-upload')?.click()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  document.getElementById('file-upload')?.click();
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-controls="file-upload"
+              aria-label="Upload document - click or drag and drop"
+            >
               <div className="space-y-1 text-center">
-                <Icons.Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <Icons.Upload className="mx-auto h-12 w-12 text-gray-400" aria-hidden="true" />
                 <div className="flex text-sm text-gray-600">
                   <label
                     htmlFor="file-upload"
@@ -87,6 +100,7 @@ export const RenewDialog: React.FC<RenewDialogProps> = ({
                       name="file-upload"
                       type="file"
                       className="sr-only"
+                      aria-label="File upload input"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
@@ -119,10 +133,10 @@ export const RenewDialog: React.FC<RenewDialogProps> = ({
         </div>
 
         <div className="p-6 border-t border-gray-200 flex justify-end gap-3">
-          <Button variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={() => onRenew(details)}>
+          <Button type="button" onClick={() => onRenew(details)}>
             Renew Credential
           </Button>
         </div>

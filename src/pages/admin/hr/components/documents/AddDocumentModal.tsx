@@ -204,12 +204,25 @@ export const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
 
           {/* File Upload */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2" htmlFor="file-upload">
               Upload Document
             </label>
-            <div className="border-2 border-dashed border-gray-200 rounded-lg p-4">
+            <div 
+              className="border-2 border-dashed border-gray-200 rounded-lg p-4 cursor-pointer"
+              onClick={() => document.getElementById('file-upload')?.click()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  document.getElementById('file-upload')?.click();
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-controls="file-upload"
+              aria-label="Drop file here or click to browse files"
+            >
               <div className="flex flex-col items-center">
-                <Icons.Upload className="w-8 h-8 text-gray-400 mb-2" />
+                <Icons.Upload className="w-8 h-8 text-gray-400 mb-2" aria-hidden="true" />
                 <p className="text-sm text-gray-500 mb-2">
                   Drag and drop your file here, or click to browse
                 </p>
@@ -219,17 +232,21 @@ export const AddDocumentModal: React.FC<AddDocumentModalProps> = ({
                   className="hidden"
                   id="file-upload"
                   accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
+                  aria-label="File upload input"
                 />
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => document.getElementById('file-upload')?.click()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    document.getElementById('file-upload')?.click();
+                  }}
                 >
                   Browse Files
                 </Button>
                 {document.file && (
                   <div className="mt-4 flex items-center gap-2">
-                    <Icons.FileText className="w-4 h-4 text-gray-400" />
+                    <Icons.FileText className="w-4 h-4 text-gray-400" aria-hidden="true" />
                     <span className="text-sm">{document.file.name}</span>
                   </div>
                 )}

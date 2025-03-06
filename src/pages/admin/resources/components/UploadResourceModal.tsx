@@ -67,6 +67,16 @@ export const UploadResourceModal: React.FC<UploadResourceModalProps> = ({
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
+            role="button"
+            tabIndex={0}
+            onClick={() => document.getElementById('file-upload')?.click()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                document.getElementById('file-upload')?.click();
+              }
+            }}
+            aria-label="Click or drag files to upload"
           >
             <div className="flex flex-col items-center">
               <Icons.Upload className="w-12 h-12 text-gray-400 mb-4" />
