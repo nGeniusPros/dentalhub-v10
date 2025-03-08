@@ -11,7 +11,7 @@ import { useAIConsultant } from '../../hooks/use-ai-consultant';
 import type { AIConsultantPrompt } from '../../lib/types/ai';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as Icons from 'lucide-react';
-import { Button } from '../ui/Button';
+import { Button } from '../ui/button';
 import { v4 as uuidv4 } from 'uuid';
 import { withAIFeedback } from '../../utils/integrateAIFeedback';
 import { AGENT_TYPES, FEEDBACK_CONTEXTS, USER_ROLES } from '../../constants/ai-agents';
