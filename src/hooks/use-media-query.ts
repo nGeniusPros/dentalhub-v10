@@ -3,19 +3,27 @@
 import { useEffect, useState } from 'react'
 
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false)
+  // Initial state based on a default value to prevent initial false rendering
+  const [matches, setMatches] = useState(true) // Default to true for desktop view
   
   useEffect(() => {
+    // Check if window is available (client-side)
+    if (typeof window === "undefined") return;
+    
     const media = window.matchMedia(query)
-    if (media.matches !== matches) {
-      setMatches(media.matches)
+    // Set initial value
+    setMatches(media.matches)
+    
+    // Define listener that actually uses the MediaQueryList change event
+    const listener = (e: MediaQueryListEvent) => {
+      setMatches(e.matches)
     }
     
-    const listener = () => setMatches(media.matches)
-    window.addEventListener('resize', listener)
+    // Use the correct event listener for MediaQueryList
+    media.addEventListener('change', listener)
     
-    return () => window.removeEventListener('resize', listener)
-  }, [matches, query])
+    return () => media.removeEventListener('change', listener)
+  }, [query]) // Only depend on query
   
   return matches
 }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 import { Button } from '../../../components/ui/button';
@@ -7,67 +7,77 @@ import { FullscreenCalendar } from '../../../components/ui/fullscreen-calendar';
 
 const AdminAppointmentsDashboard = () => {
   const [selectedView, setSelectedView] = useState<'calendar' | 'list'>('calendar');
-  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const appointmentCalendarData = [
-    {
-      day: new Date("2025-02-26"), 
-      events: [
-        {
-          id: 1,
-          name: "John Smith - Cleaning",
-          time: "10:00 AM",
-          datetime: "2025-02-26T10:00",
-        },
-        {
-          id: 2,
-          name: "Sarah Johnson - Check-up",
-          time: "11:30 AM",
-          datetime: "2025-02-26T11:30",
-        },
-        {
-          id: 3,
-          name: "Michael Brown - Root Canal",
-          time: "2:00 PM",
-          datetime: "2025-02-26T14:00",
-        },
-      ],
-    },
-    {
-      day: new Date("2025-02-27"), 
-      events: [
-        {
-          id: 4,
-          name: "Emily Davis - Tooth Extraction",
-          time: "9:00 AM",
-          datetime: "2025-02-27T09:00",
-        },
-        {
-          id: 5,
-          name: "Robert Wilson - Denture Fitting",
-          time: "1:00 PM",
-          datetime: "2025-02-27T13:00",
-        },
-      ],
-    },
-    {
-      day: new Date("2025-02-28"), 
-      events: [
-        {
-          id: 6,
-          name: "Jessica Martinez - Crown Placement",
-          time: "11:00 AM",
-          datetime: "2025-02-28T11:00",
-        },
-        {
-          id: 7,
-          name: "Thomas Anderson - Teeth Whitening",
-          time: "3:30 PM",
-          datetime: "2025-02-28T15:30",
-        },
-      ],
-    },
-  ];
+  // Create calendar data with current month dates instead of hardcoded February 2025
+  // Use useMemo to keep data stable across renders
+  const appointmentCalendarData = useMemo(() => {
+    // Create appointments for current month, focusing on current week
+    const day1 = new Date();
+    const day2 = new Date();
+    day2.setDate(day2.getDate() + 1);
+    const day3 = new Date();
+    day3.setDate(day3.getDate() + 2);
+    
+    return [
+      {
+        day: day1,
+        events: [
+          {
+            id: 1,
+            name: "John Smith - Cleaning",
+            time: "10:00 AM",
+            datetime: `${day1.toISOString().split('T')[0]}T10:00`,
+          },
+          {
+            id: 2,
+            name: "Sarah Johnson - Check-up",
+            time: "11:30 AM",
+            datetime: `${day1.toISOString().split('T')[0]}T11:30`,
+          },
+          {
+            id: 3,
+            name: "Michael Brown - Root Canal",
+            time: "2:00 PM",
+            datetime: `${day1.toISOString().split('T')[0]}T14:00`,
+          },
+        ],
+      },
+      {
+        day: day2,
+        events: [
+          {
+            id: 4,
+            name: "Emily Davis - Tooth Extraction",
+            time: "9:00 AM",
+            datetime: `${day2.toISOString().split('T')[0]}T09:00`,
+          },
+          {
+            id: 5,
+            name: "Robert Wilson - Denture Fitting",
+            time: "1:00 PM",
+            datetime: `${day2.toISOString().split('T')[0]}T13:00`,
+          },
+        ],
+      },
+      {
+        day: day3,
+        events: [
+          {
+            id: 6,
+            name: "Jessica Martinez - Crown Placement",
+            time: "11:00 AM",
+            datetime: `${day3.toISOString().split('T')[0]}T11:00`,
+          },
+          {
+            id: 7,
+            name: "Thomas Anderson - Teeth Whitening",
+            time: "3:30 PM",
+            datetime: `${day3.toISOString().split('T')[0]}T15:30`,
+          },
+        ],
+      },
+    ];
+  }, []); // Empty dependency array ensures this only runs once
 
   const appointments = [
     {
@@ -188,7 +198,10 @@ const AdminAppointmentsDashboard = () => {
             </div>
             
             <div className="flex-1 overflow-hidden">
-              <FullscreenCalendar data={appointmentCalendarData} />
+              <FullscreenCalendar
+                key="appointment-calendar"
+                data={appointmentCalendarData}
+              />
             </div>
           </div>
         ) : (

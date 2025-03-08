@@ -39,8 +39,13 @@ import ResourcesDashboard from '../pages/admin/resources/ResourcesDashboard';
 import AdminAppointmentsDashboard from '../pages/admin/appointments';
 import StaffAppointmentsDashboard from '../pages/staff/appointments';
 import GradientTester from '../pages/test/GradientTester';
+import CalendarTest from '../pages/test/CalendarTest';
 import AIFeedbackDashboard from '../components/admin/AIFeedbackDashboard';
 import AIFeedbackAnalytics from '../components/admin/AIFeedbackAnalytics';
+import { ClaimsDashboard } from '../pages/claims/ClaimsDashboard';
+import NewClaimPage from '../pages/claims/NewClaimPage';
+import ClaimDetailsPage from '../pages/claims/ClaimDetailsPage';
+import ClaimsReportingPage from '../pages/claims/ClaimsReportingPage';
 
 export const AppRoutes = () => {
   return (
@@ -98,6 +103,16 @@ export const AppRoutes = () => {
         <Route path="marketplace" element={<Marketplace />} />
         <Route path="communications" element={<CommunicationsDashboard />} />
         <Route path="gradients" element={<GradientTester />} />
+        
+        {/* Claims routes */}
+        <Route path="claims" element={<Outlet />}>
+          <Route index element={<ClaimsDashboard />} />
+          <Route path="new" element={<NewClaimPage />} />
+          <Route path=":claimId" element={<ClaimDetailsPage />} />
+          <Route path="reporting" element={<ClaimsReportingPage />} />
+          {/* <Route path="batch" element={<BatchProcessingPage />} /> */}
+        </Route>
+        
         {/* Add other admin routes */}
       </Route>
 
@@ -118,6 +133,7 @@ export const AppRoutes = () => {
 
       {/* Testing routes */}
       <Route path="/test/gradients" element={<GradientTester />} />
+      <Route path="/test/calendar" element={<CalendarTest />} />
 
       {/* Fallback route */}
       <Route path="*" element={<Navigate to="/" replace />} />

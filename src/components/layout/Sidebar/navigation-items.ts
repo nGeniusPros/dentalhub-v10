@@ -68,6 +68,7 @@ const systemSection: NavSection = {
       { icon: "BrainCircuit", label: "AI Feedback", path: "/admin-dashboard/ai-feedback" },
       { icon: "BarChart2", label: "AI Analytics", path: "/admin-dashboard/ai-analytics" },
       { icon: "Building", label: "Contact Manager", path: "/admin-dashboard/contact-manager" },
+      { icon: "FileCheck", label: "Claims", path: "/admin-dashboard/claims" },
       { icon: "Settings", label: "Settings", path: "/admin-dashboard/settings" },
     ],
   };

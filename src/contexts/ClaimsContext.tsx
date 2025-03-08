@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
 import { 
   Claim, 
@@ -7,12 +7,12 @@ import {
   ERA,
   InsuranceVerificationResult,
   Attachment,
-  ValidationError,
   ClaimSubmissionResponse,
   ClaimUpdateResponse,
-  ClaimsSummaryData
+  ClaimsSummary,
+  ValidationError
 } from '../types/claims.types';
-import { validateClaim, validateClaimForSubmission } from '../utils/claims/validation';
+import { validateClaim } from '../utils/claims/validation';
 
 interface ClaimsContextType {
   claims: Claim[];
@@ -22,18 +22,15 @@ interface ClaimsContextType {
   fetchClaimById: (claimId: string) => Promise<Claim | null>;
   submitClaim: (claim: Claim) => Promise<ClaimSubmissionResponse>;
   updateClaim: (claimId: string, updates: Partial<Claim>) => Promise<ClaimUpdateResponse>;
-  deleteClaim: (claimId: string) => Promise<boolean>;
-  submitClaimToInsurance: (claimId: string) => Promise<ClaimSubmissionResponse>;
+  deleteClaim: (claimId: string) => Promise<{ success: boolean; message: string }>;
   fetchPendingERAs: () => Promise<ERA[]>;
-  processERA: (eraId: string) => Promise<boolean>;
-  fetchClaimsSummary: () => Promise<ClaimsSummaryData>;
+  processERA: (eraId: string) => Promise<void>;
+  fetchClaimsSummary: () => Promise<ClaimsSummary>;
   verifyInsurance: (patientId: string, insuranceId: string) => Promise<InsuranceVerificationResult>;
   uploadAttachment: (claimId: string, file: File, type: string) => Promise<Attachment>;
-  removeAttachment: (attachmentId: string) => Promise<boolean>;
-  validateClaimData: (claim: Claim) => ValidationError[];
+  removeAttachment: (attachmentId: string) => Promise<void>;
 }
 
-// Create context with a default undefined value
 const ClaimsContext = createContext<ClaimsContextType | undefined>(undefined);
 
 export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -41,16 +38,15 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // Fetch claims with optional status filter
+  /**
+   * Fetch claims based on status filter
+   */
   const fetchClaims = useCallback(async (filter: ClaimStatusFilter = 'all'): Promise<Claim[]> => {
     setLoading(true);
     setError(null);
     
     try {
-      let query = supabase.from('claims').select(`
-        *,
-        claim_attachments (*)
-      `);
+      let query = supabase.from('claims').select('*');
       
       if (filter !== 'all') {
         query = query.eq('status', filter);
@@ -60,16 +56,16 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       
       if (error) throw error;
       
-      // Transform database data to our frontend Claim type
-      const transformedClaims: Claim[] = data.map(claim => ({
+      // Transform data from snake_case to camelCase
+      const transformedData = data.map(claim => ({
         id: claim.id,
         patientId: claim.patient_id,
         patientName: claim.patient_name,
         providerId: claim.provider_id,
         providerName: claim.provider_name,
         serviceDate: claim.service_date,
-        procedureCodes: [], // These would be fetched separately in a real implementation
-        diagnosisCodes: [], // These would be fetched separately in a real implementation
+        totalFee: claim.total_fee,
+        status: claim.status,
         insuranceInfo: {
           payerId: claim.insurance_payer_id,
           payerName: claim.insurance_payer_name,
@@ -78,29 +74,19 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           subscriberId: claim.insurance_subscriber_id,
           groupNumber: claim.insurance_group_number
         },
-        totalFee: claim.total_fee,
-        status: claim.status as ClaimStatus,
-        createdAt: claim.created_at,
-        updatedAt: claim.updated_at,
         rejectionReason: claim.rejection_reason,
         paymentAmount: claim.payment_amount,
         adjustmentAmount: claim.adjustment_amount,
         patientResponsibility: claim.patient_responsibility,
         notes: claim.notes,
-        attachments: claim.claim_attachments ? claim.claim_attachments.map((att: any) => ({
-          id: att.id,
-          claimId: att.claim_id,
-          filename: att.filename,
-          type: att.file_type,
-          url: att.file_path,
-          contentType: att.content_type,
-          size: att.size,
-          uploadedAt: att.uploaded_at
-        })) : []
+        createdAt: claim.created_at,
+        updatedAt: claim.updated_at,
+        procedureCodes: [],
+        diagnosisCodes: []
       }));
       
-      setClaims(transformedClaims);
-      return transformedClaims;
+      setClaims(transformedData as Claim[]);
+      return transformedData as Claim[];
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       setError(errorMessage);
@@ -110,13 +96,15 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, []);
   
-  // Fetch a specific claim by ID, including attachments and events
+  /**
+   * Fetch a single claim by ID with related data
+   */
   const fetchClaimById = useCallback(async (claimId: string): Promise<Claim | null> => {
     setLoading(true);
     setError(null);
     
     try {
-      // Fetch the main claim
+      // Fetch main claim data
       const { data: claimData, error: claimError } = await supabase
         .from('claims')
         .select('*')
@@ -124,42 +112,41 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         .single();
       
       if (claimError) throw claimError;
-      if (!claimData) return null;
       
-      // Fetch associated procedure codes
-      const { data: procedureData, error: procedureError } = await supabase
+      // Fetch procedures
+      const { data: procedures, error: proceduresError } = await supabase
         .from('claim_procedures')
         .select('*')
         .eq('claim_id', claimId);
       
-      if (procedureError) throw procedureError;
+      if (proceduresError) throw proceduresError;
       
-      // Fetch associated diagnosis codes
-      const { data: diagnosisData, error: diagnosisError } = await supabase
+      // Fetch diagnoses
+      const { data: diagnoses, error: diagnosesError } = await supabase
         .from('claim_diagnosis')
         .select('*')
         .eq('claim_id', claimId);
       
-      if (diagnosisError) throw diagnosisError;
+      if (diagnosesError) throw diagnosesError;
       
       // Fetch attachments
-      const { data: attachmentData, error: attachmentError } = await supabase
+      const { data: attachments, error: attachmentsError } = await supabase
         .from('claim_attachments')
         .select('*')
         .eq('claim_id', claimId);
       
-      if (attachmentError) throw attachmentError;
+      if (attachmentsError) throw attachmentsError;
       
       // Fetch events
-      const { data: eventData, error: eventError } = await supabase
+      const { data: events, error: eventsError } = await supabase
         .from('claim_events')
         .select('*')
         .eq('claim_id', claimId)
         .order('timestamp', { ascending: false });
       
-      if (eventError) throw eventError;
+      if (eventsError) throw eventsError;
       
-      // Transform data to our frontend types
+      // Transform and combine data
       const claim: Claim = {
         id: claimData.id,
         patientId: claimData.patient_id,
@@ -167,8 +154,24 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         providerId: claimData.provider_id,
         providerName: claimData.provider_name,
         serviceDate: claimData.service_date,
-        procedureCodes: procedureData ? procedureData.map((proc: any) => ({
-          id: proc.id,
+        totalFee: claimData.total_fee,
+        status: claimData.status,
+        insuranceInfo: {
+          payerId: claimData.insurance_payer_id,
+          payerName: claimData.insurance_payer_name,
+          planId: claimData.insurance_plan_id,
+          planName: claimData.insurance_plan_name,
+          subscriberId: claimData.insurance_subscriber_id,
+          groupNumber: claimData.insurance_group_number
+        },
+        rejectionReason: claimData.rejection_reason,
+        paymentAmount: claimData.payment_amount,
+        adjustmentAmount: claimData.adjustment_amount,
+        patientResponsibility: claimData.patient_responsibility,
+        notes: claimData.notes,
+        createdAt: claimData.created_at,
+        updatedAt: claimData.updated_at,
+        procedureCodes: procedures.map(proc => ({
           code: proc.code,
           description: proc.description,
           fee: proc.fee,
@@ -176,48 +179,28 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           tooth: proc.tooth,
           surface: proc.surface,
           quadrant: proc.quadrant
-        })) : [],
-        diagnosisCodes: diagnosisData ? diagnosisData.map((diag: any) => ({
-          id: diag.id,
+        })),
+        diagnosisCodes: diagnoses.map(diag => ({
           code: diag.code,
           description: diag.description
-        })) : [],
-        insuranceInfo: {
-          payerId: claimData.insurance_payer_id,
-          payerName: claimData.insurance_payer_name,
-          planId: claimData.insurance_plan_id,
-          planName: claimData.insurance_plan_name,
-          subscriberId: claimData.insurance_subscriber_id,
-          groupNumber: claimData.insurance_group_number,
-          relationToSubscriber: claimData.relationship_to_subscriber
-        },
-        totalFee: claimData.total_fee,
-        status: claimData.status as ClaimStatus,
-        createdAt: claimData.created_at,
-        updatedAt: claimData.updated_at,
-        rejectionReason: claimData.rejection_reason,
-        paymentAmount: claimData.payment_amount,
-        adjustmentAmount: claimData.adjustment_amount,
-        patientResponsibility: claimData.patient_responsibility,
-        notes: claimData.notes,
-        attachments: attachmentData ? attachmentData.map((att: any) => ({
+        })),
+        attachments: attachments.map(att => ({
           id: att.id,
           claimId: att.claim_id,
           filename: att.filename,
           type: att.file_type,
           url: att.file_path,
-          contentType: att.content_type,
+          uploadedAt: att.uploaded_at,
           size: att.size,
-          uploadedAt: att.uploaded_at
-        })) : [],
-        events: eventData ? eventData.map((evt: any) => ({
-          id: evt.id,
-          timestamp: evt.timestamp,
-          title: evt.title,
-          description: evt.description,
-          status: evt.status as ClaimStatus,
-          userId: evt.user_id
-        })) : []
+          contentType: att.content_type
+        })),
+        events: events.map(event => ({
+          timestamp: event.timestamp,
+          title: event.title,
+          description: event.description,
+          status: event.status,
+          userId: event.user_id
+        }))
       };
       
       return claim;
@@ -230,58 +213,57 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, []);
   
-  // Submit a new claim
+  /**
+   * Submit a new claim
+   */
   const submitClaim = useCallback(async (claim: Claim): Promise<ClaimSubmissionResponse> => {
     setLoading(true);
     setError(null);
     
     try {
-      // Validate the claim data
+      // Validate claim data
       const validationErrors = validateClaim(claim);
       if (validationErrors.length > 0) {
         return {
           success: false,
           message: 'Validation failed',
-          validationErrors
+          errors: validationErrors
         };
       }
       
-      // Start a transaction
-      const { error: transactionError } = await supabase.rpc('begin_transaction');
-      if (transactionError) throw new Error(transactionError.message);
+      // Begin transaction
+      const { error: txError } = await supabase.rpc('begin_transaction');
+      if (txError) throw txError;
       
       try {
-        // Insert the main claim record
+        // Insert main claim data
         const { data: claimData, error: claimError } = await supabase
           .from('claims')
           .insert({
             patient_id: claim.patientId,
-            patient_name: claim.patientName,
             provider_id: claim.providerId,
-            provider_name: claim.providerName,
             service_date: claim.serviceDate,
             total_fee: claim.totalFee,
-            status: claim.status,
+            status: ClaimStatus.DRAFT,
             insurance_payer_id: claim.insuranceInfo.payerId,
             insurance_payer_name: claim.insuranceInfo.payerName,
             insurance_plan_id: claim.insuranceInfo.planId,
             insurance_plan_name: claim.insuranceInfo.planName,
             insurance_subscriber_id: claim.insuranceInfo.subscriberId,
             insurance_group_number: claim.insuranceInfo.groupNumber,
-            relationship_to_subscriber: claim.insuranceInfo.relationToSubscriber,
             notes: claim.notes
           })
           .select()
           .single();
         
-        if (claimError) throw new Error(claimError.message);
+        if (claimError) throw claimError;
         
-        const newClaimId = claimData.id;
+        const claimId = claimData.id;
         
-        // Insert procedure codes
-        if (claim.procedureCodes && claim.procedureCodes.length > 0) {
-          const procedureRecords = claim.procedureCodes.map(proc => ({
-            claim_id: newClaimId,
+        // Insert procedures
+        if (claim.procedureCodes.length > 0) {
+          const procedureData = claim.procedureCodes.map(proc => ({
+            claim_id: claimId,
             code: proc.code,
             description: proc.description,
             fee: proc.fee,
@@ -291,45 +273,44 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             quadrant: proc.quadrant
           }));
           
-          const { error: procedureError } = await supabase
+          const { error: procError } = await supabase
             .from('claim_procedures')
-            .insert(procedureRecords);
+            .insert(procedureData);
           
-          if (procedureError) throw new Error(procedureError.message);
+          if (procError) throw procError;
         }
         
-        // Insert diagnosis codes
-        if (claim.diagnosisCodes && claim.diagnosisCodes.length > 0) {
-          const diagnosisRecords = claim.diagnosisCodes.map(diag => ({
-            claim_id: newClaimId,
+        // Insert diagnoses
+        if (claim.diagnosisCodes.length > 0) {
+          const diagnosisData = claim.diagnosisCodes.map(diag => ({
+            claim_id: claimId,
             code: diag.code,
             description: diag.description
           }));
           
-          const { error: diagnosisError } = await supabase
+          const { error: diagError } = await supabase
             .from('claim_diagnosis')
-            .insert(diagnosisRecords);
+            .insert(diagnosisData);
           
-          if (diagnosisError) throw new Error(diagnosisError.message);
+          if (diagError) throw diagError;
         }
         
-        // Add a claim event
-        const { error: eventError } = await supabase
+        // Add initial claim event
+        await supabase
           .from('claim_events')
           .insert({
-            claim_id: newClaimId,
+            claim_id: claimId,
             title: 'Claim Created',
-            description: 'Initial claim created in draft status',
-            status: ClaimStatus.DRAFT
+            description: 'Claim was created as a draft',
+            status: ClaimStatus.DRAFT,
+            user_id: null // TODO: Get from auth context
           });
         
-        if (eventError) throw new Error(eventError.message);
-        
-        // Commit the transaction
+        // Commit transaction
         await supabase.rpc('commit_transaction');
         
-        // Fetch the newly created claim with all related data
-        const newClaim = await fetchClaimById(newClaimId);
+        // Fetch the complete claim with all related data
+        const newClaim = await fetchClaimById(claimId);
         
         return {
           success: true,
@@ -337,7 +318,7 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           claim: newClaim || undefined
         };
       } catch (error) {
-        // Rollback in case of error
+        // Rollback transaction
         await supabase.rpc('rollback_transaction');
         throw error;
       }
@@ -353,76 +334,55 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, [fetchClaimById]);
   
-  // Update an existing claim
+  /**
+   * Update an existing claim
+   */
   const updateClaim = useCallback(async (claimId: string, updates: Partial<Claim>): Promise<ClaimUpdateResponse> => {
     setLoading(true);
     setError(null);
     
     try {
-      // Fetch the current claim to validate the full data
-      const currentClaim = await fetchClaimById(claimId);
-      if (!currentClaim) {
-        return {
-          success: false,
-          message: 'Claim not found'
-        };
-      }
-      
-      // Merge updates with current claim data
-      const updatedClaim: Claim = {
-        ...currentClaim,
-        ...updates,
-        insuranceInfo: {
-          ...currentClaim.insuranceInfo,
-          ...(updates.insuranceInfo || {})
-        }
-      };
-      
-      // Validate the updated claim
-      const validationErrors = validateClaim(updatedClaim);
-      if (validationErrors.length > 0) {
-        return {
-          success: false,
-          message: 'Validation failed',
-          claim: currentClaim
-        };
-      }
-      
-      // Begin a transaction
-      const { error: transactionError } = await supabase.rpc('begin_transaction');
-      if (transactionError) throw new Error(transactionError.message);
+      // Begin transaction
+      const { error: txError } = await supabase.rpc('begin_transaction');
+      if (txError) throw txError;
       
       try {
+        // Prepare updates in snake_case format
+        const claimUpdates: Record<string, any> = {
+          updated_at: new Date().toISOString()
+        };
+        
+        // Map camelCase properties to snake_case for the database
+        if (updates.patientId) claimUpdates.patient_id = updates.patientId;
+        if (updates.providerId) claimUpdates.provider_id = updates.providerId;
+        if (updates.serviceDate) claimUpdates.service_date = updates.serviceDate;
+        if (updates.totalFee) claimUpdates.total_fee = updates.totalFee;
+        if (updates.status) claimUpdates.status = updates.status;
+        if (updates.notes) claimUpdates.notes = updates.notes;
+        if (updates.rejectionReason) claimUpdates.rejection_reason = updates.rejectionReason;
+        if (updates.paymentAmount) claimUpdates.payment_amount = updates.paymentAmount;
+        if (updates.adjustmentAmount) claimUpdates.adjustment_amount = updates.adjustmentAmount;
+        if (updates.patientResponsibility) claimUpdates.patient_responsibility = updates.patientResponsibility;
+        
+        // Insurance info updates
+        if (updates.insuranceInfo) {
+          if (updates.insuranceInfo.payerId) claimUpdates.insurance_payer_id = updates.insuranceInfo.payerId;
+          if (updates.insuranceInfo.payerName) claimUpdates.insurance_payer_name = updates.insuranceInfo.payerName;
+          if (updates.insuranceInfo.planId) claimUpdates.insurance_plan_id = updates.insuranceInfo.planId;
+          if (updates.insuranceInfo.planName) claimUpdates.insurance_plan_name = updates.insuranceInfo.planName;
+          if (updates.insuranceInfo.subscriberId) claimUpdates.insurance_subscriber_id = updates.insuranceInfo.subscriberId;
+          if (updates.insuranceInfo.groupNumber) claimUpdates.insurance_group_number = updates.insuranceInfo.groupNumber;
+        }
+        
         // Update the main claim record
         const { error: updateError } = await supabase
           .from('claims')
-          .update({
-            patient_id: updatedClaim.patientId,
-            patient_name: updatedClaim.patientName,
-            provider_id: updatedClaim.providerId,
-            provider_name: updatedClaim.providerName,
-            service_date: updatedClaim.serviceDate,
-            total_fee: updatedClaim.totalFee,
-            status: updatedClaim.status,
-            insurance_payer_id: updatedClaim.insuranceInfo.payerId,
-            insurance_payer_name: updatedClaim.insuranceInfo.payerName,
-            insurance_plan_id: updatedClaim.insuranceInfo.planId,
-            insurance_plan_name: updatedClaim.insuranceInfo.planName,
-            insurance_subscriber_id: updatedClaim.insuranceInfo.subscriberId,
-            insurance_group_number: updatedClaim.insuranceInfo.groupNumber,
-            relationship_to_subscriber: updatedClaim.insuranceInfo.relationToSubscriber,
-            rejection_reason: updatedClaim.rejectionReason,
-            payment_amount: updatedClaim.paymentAmount,
-            adjustment_amount: updatedClaim.adjustmentAmount,
-            patient_responsibility: updatedClaim.patientResponsibility,
-            notes: updatedClaim.notes,
-            updated_at: new Date().toISOString()
-          })
+          .update(claimUpdates)
           .eq('id', claimId);
         
-        if (updateError) throw new Error(updateError.message);
+        if (updateError) throw updateError;
         
-        // If procedure codes were updated, replace them
+        // Update procedures if provided
         if (updates.procedureCodes) {
           // Delete existing procedures
           const { error: deleteError } = await supabase
@@ -430,11 +390,11 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             .delete()
             .eq('claim_id', claimId);
           
-          if (deleteError) throw new Error(deleteError.message);
+          if (deleteError) throw deleteError;
           
           // Insert new procedures
-          if (updatedClaim.procedureCodes.length > 0) {
-            const procedureRecords = updatedClaim.procedureCodes.map(proc => ({
+          if (updates.procedureCodes.length > 0) {
+            const procedureData = updates.procedureCodes.map(proc => ({
               claim_id: claimId,
               code: proc.code,
               description: proc.description,
@@ -447,13 +407,13 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             
             const { error: insertError } = await supabase
               .from('claim_procedures')
-              .insert(procedureRecords);
+              .insert(procedureData);
             
-            if (insertError) throw new Error(insertError.message);
+            if (insertError) throw insertError;
           }
         }
         
-        // If diagnosis codes were updated, replace them
+        // Update diagnoses if provided
         if (updates.diagnosisCodes) {
           // Delete existing diagnoses
           const { error: deleteError } = await supabase
@@ -461,11 +421,11 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             .delete()
             .eq('claim_id', claimId);
           
-          if (deleteError) throw new Error(deleteError.message);
+          if (deleteError) throw deleteError;
           
           // Insert new diagnoses
-          if (updatedClaim.diagnosisCodes.length > 0) {
-            const diagnosisRecords = updatedClaim.diagnosisCodes.map(diag => ({
+          if (updates.diagnosisCodes.length > 0) {
+            const diagnosisData = updates.diagnosisCodes.map(diag => ({
               claim_id: claimId,
               code: diag.code,
               description: diag.description
@@ -473,50 +433,38 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             
             const { error: insertError } = await supabase
               .from('claim_diagnosis')
-              .insert(diagnosisRecords);
+              .insert(diagnosisData);
             
-            if (insertError) throw new Error(insertError.message);
+            if (insertError) throw insertError;
           }
         }
         
-        // Add a claim event for the update
-        if (currentClaim.status !== updatedClaim.status) {
-          const { error: eventError } = await supabase
+        // Add claim event for status change
+        if (updates.status) {
+          await supabase
             .from('claim_events')
             .insert({
               claim_id: claimId,
-              title: `Status Changed to ${updatedClaim.status}`,
-              description: `Claim status updated from ${currentClaim.status} to ${updatedClaim.status}`,
-              status: updatedClaim.status
+              title: `Status Changed to ${updates.status}`,
+              description: `Claim status was updated to ${updates.status}`,
+              status: updates.status,
+              user_id: null // TODO: Get from auth context
             });
-          
-          if (eventError) throw new Error(eventError.message);
-        } else {
-          const { error: eventError } = await supabase
-            .from('claim_events')
-            .insert({
-              claim_id: claimId,
-              title: 'Claim Updated',
-              description: 'Claim information was updated',
-              status: updatedClaim.status
-            });
-          
-          if (eventError) throw new Error(eventError.message);
         }
         
-        // Commit the transaction
+        // Commit transaction
         await supabase.rpc('commit_transaction');
         
         // Fetch the updated claim with all related data
-        const refreshedClaim = await fetchClaimById(claimId);
+        const updatedClaim = await fetchClaimById(claimId);
         
         return {
           success: true,
           message: 'Claim updated successfully',
-          claim: refreshedClaim || undefined
+          claim: updatedClaim || undefined
         };
       } catch (error) {
-        // Rollback in case of error
+        // Rollback transaction
         await supabase.rpc('rollback_transaction');
         throw error;
       }
@@ -532,91 +480,93 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, [fetchClaimById]);
   
-  // Delete a claim
-  const deleteClaim = useCallback(async (claimId: string): Promise<boolean> => {
+  /**
+   * Delete a claim
+   */
+  const deleteClaim = useCallback(async (claimId: string): Promise<{ success: boolean; message: string }> => {
     setLoading(true);
     setError(null);
     
     try {
-      const { error } = await supabase
+      // Check if claim exists
+      const { data, error: fetchError } = await supabase
         .from('claims')
-        .delete()
-        .eq('id', claimId);
+        .select('status')
+        .eq('id', claimId)
+        .single();
       
-      if (error) throw error;
+      if (fetchError) throw fetchError;
       
-      // Update local state
-      setClaims(prev => prev.filter(claim => claim.id !== claimId));
-      
-      return true;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
-      setError(errorMessage);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-  
-  // Submit a claim to insurance (change status and add event)
-  const submitClaimToInsurance = useCallback(async (claimId: string): Promise<ClaimSubmissionResponse> => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Fetch the current claim
-      const claim = await fetchClaimById(claimId);
-      if (!claim) {
+      // Only allow deletion of draft claims
+      if (data.status !== ClaimStatus.DRAFT) {
         return {
           success: false,
-          message: 'Claim not found'
+          message: 'Only draft claims can be deleted'
         };
       }
       
-      // Validate the claim for submission
-      const validationErrors = validateClaimForSubmission(claim);
-      if (validationErrors.length > 0) {
+      // Begin transaction
+      const { error: txError } = await supabase.rpc('begin_transaction');
+      if (txError) throw txError;
+      
+      try {
+        // Delete related records first (cascade delete not always reliable with Supabase)
+        
+        // Delete procedures
+        const { error: procError } = await supabase
+          .from('claim_procedures')
+          .delete()
+          .eq('claim_id', claimId);
+        
+        if (procError) throw procError;
+        
+        // Delete diagnoses
+        const { error: diagError } = await supabase
+          .from('claim_diagnosis')
+          .delete()
+          .eq('claim_id', claimId);
+        
+        if (diagError) throw diagError;
+        
+        // Delete attachments
+        const { error: attachError } = await supabase
+          .from('claim_attachments')
+          .delete()
+          .eq('claim_id', claimId);
+        
+        if (attachError) throw attachError;
+        
+        // Delete events
+        const { error: eventError } = await supabase
+          .from('claim_events')
+          .delete()
+          .eq('claim_id', claimId);
+        
+        if (eventError) throw eventError;
+        
+        // Finally delete the claim itself
+        const { error: deleteError } = await supabase
+          .from('claims')
+          .delete()
+          .eq('id', claimId);
+        
+        if (deleteError) throw deleteError;
+        
+        // Commit transaction
+        await supabase.rpc('commit_transaction');
+        
+        // Update the local state
+        setClaims(prevClaims => prevClaims.filter(claim => claim.id !== claimId));
+        
         return {
-          success: false,
-          message: 'Validation failed',
-          validationErrors
+          success: true,
+          message: 'Claim deleted successfully'
         };
+      } catch (error) {
+        // Rollback transaction
+        await supabase.rpc('rollback_transaction');
+        throw error;
       }
-      
-      // In a real implementation, this would integrate with an electronic claims service
-      // For this example, we'll simulate submission by updating the status
-      
-      // Update the claim status to SUBMITTED
-      const { error: updateError } = await supabase
-        .from('claims')
-        .update({
-          status: ClaimStatus.SUBMITTED,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', claimId);
-      
-      if (updateError) throw updateError;
-      
-      // Add a claim event
-      const { error: eventError } = await supabase
-        .from('claim_events')
-        .insert({
-          claim_id: claimId,
-          title: 'Claim Submitted to Insurance',
-          description: `Claim was electronically submitted to ${claim.insuranceInfo.payerName || claim.insuranceInfo.payerId}`,
-          status: ClaimStatus.SUBMITTED
-        });
-      
-      if (eventError) throw eventError;
-      
-      // Get the updated claim
-      const updatedClaim = await fetchClaimById(claimId);
-      
-      return {
-        success: true,
-        message: 'Claim submitted successfully',
-        claim: updatedClaim || undefined
-      };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       setError(errorMessage);
@@ -627,9 +577,11 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     } finally {
       setLoading(false);
     }
-  }, [fetchClaimById]);
+  }, []);
   
-  // Fetch pending Electronic Remittance Advice (ERA) files
+  /**
+   * Fetch pending ERAs
+   */
   const fetchPendingERAs = useCallback(async (): Promise<ERA[]> => {
     setLoading(true);
     setError(null);
@@ -643,7 +595,8 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       
       if (error) throw error;
       
-      return data.map((era: any) => ({
+      // Transform data
+      const transformedData = data.map(era => ({
         id: era.id,
         payerId: era.payer_id,
         payerName: era.payer_name,
@@ -652,9 +605,10 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         receivedDate: era.received_date,
         totalPayment: era.total_payment,
         claimCount: era.claim_count,
-        processedAt: era.processed_at,
-        createdAt: era.created_at
+        processedAt: era.processed_at
       }));
+      
+      return transformedData as ERA[];
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       setError(errorMessage);
@@ -664,77 +618,62 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, []);
   
-  // Process an ERA
-  const processERA = useCallback(async (eraId: string): Promise<boolean> => {
+  /**
+   * Process an ERA and update claims
+   */
+  const processERA = useCallback(async (eraId: string): Promise<void> => {
     setLoading(true);
     setError(null);
     
     try {
-      // In a real implementation, this would process payments from the ERA
-      // For this example, we'll simulate by updating the ERA status
-      
-      // Mark the ERA as processed
-      const { error } = await supabase
-        .from('electronic_remittance_advice')
-        .update({
-          processed_at: new Date().toISOString()
-        })
-        .eq('id', eraId);
+      // Call the server-side function that processes the ERA
+      const { error } = await supabase.rpc('process_era', { era_id: eraId });
       
       if (error) throw error;
-      
-      return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       setError(errorMessage);
-      return false;
+      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
   
-  // Fetch claims summary data
-  const fetchClaimsSummary = useCallback(async (): Promise<ClaimsSummaryData> => {
+  /**
+   * Fetch claims summary statistics
+   */
+  const fetchClaimsSummary = useCallback(async (): Promise<ClaimsSummary> => {
     setLoading(true);
     setError(null);
     
     try {
-      // In a real implementation, this would use database aggregation
-      // For this example, we'll fetch all claims and count manually
-      
-      const { data, error } = await supabase
-        .from('claims')
-        .select('status');
+      const { data, error } = await supabase.rpc('get_claims_summary');
       
       if (error) throw error;
       
-      const statusCounts = data.reduce((counts: Record<string, number>, claim: any) => {
-        counts[claim.status] = (counts[claim.status] || 0) + 1;
-        return counts;
-      }, {});
-      
-      const summary: ClaimsSummaryData = {
-        total: data.length,
-        draft: statusCounts[ClaimStatus.DRAFT] || 0,
-        pending: statusCounts[ClaimStatus.PENDING] || 0,
-        submitted: statusCounts[ClaimStatus.SUBMITTED] || 0,
-        accepted: statusCounts[ClaimStatus.ACCEPTED] || 0,
-        rejected: statusCounts[ClaimStatus.REJECTED] || 0,
-        paid: statusCounts[ClaimStatus.PAID] || 0
+      // Format the result with all required properties
+      return {
+        total: data.total,
+        draft: data.draft || 0,
+        pending: data.pending || 0,
+        submitted: data.submitted || 0,
+        accepted: data.accepted || 0,
+        approved: data.accepted || 0, // Alias for accepted
+        rejected: data.rejected || 0,
+        paid: data.paid || 0
       };
-      
-      return summary;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       setError(errorMessage);
       
-      // Return empty summary data
+      // Return default empty summary
       return {
         total: 0,
         draft: 0,
         pending: 0,
         submitted: 0,
         accepted: 0,
+        approved: 0,
         rejected: 0,
         paid: 0
       };
@@ -743,86 +682,95 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, []);
   
-  // Verify insurance eligibility
+  /**
+   * Verify insurance eligibility
+   */
   const verifyInsurance = useCallback(async (patientId: string, insuranceId: string): Promise<InsuranceVerificationResult> => {
     setLoading(true);
     setError(null);
     
     try {
-      // In a real implementation, this would call an eligibility verification service
-      // For this example, we'll return mock data
+      // Call verification API
+      // This would typically be an external API call, but for simplicity,
+      // we're using a supabase function here
+      const { data, error } = await supabase.rpc('verify_insurance_eligibility', {
+        patient_id: patientId,
+        insurance_id: insuranceId
+      });
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (error) throw error;
       
-      // In a real implementation, would fetch from an API and store in the database
-      const mockResult: InsuranceVerificationResult = {
-        patientId,
-        insuranceId,
-        verificationDate: new Date().toISOString(),
-        eligible: true,
-        coverageStart: '2025-01-01',
-        coverageEnd: '2025-12-31',
-        planName: 'Delta Dental Premier',
-        planType: 'PPO',
-        subscriberId: 'SUB12345',
-        groupNumber: 'GRP98765',
+      // Transform returned data
+      const result: InsuranceVerificationResult = {
+        patientId: data.patient_id,
+        insuranceId: data.insurance_id,
+        verificationDate: data.verification_date,
+        eligible: data.eligible,
+        coverageStart: data.coverage_start,
+        coverageEnd: data.coverage_end,
+        planName: data.plan_name,
+        planType: data.plan_type,
+        subscriberId: data.subscriber_id,
+        groupNumber: data.group_number,
         deductible: {
-          individual: 50,
-          family: 150,
-          remaining: 25
+          individual: data.deductible_individual,
+          family: data.deductible_family,
+          remaining: data.deductible_remaining
         },
-        remainingBenefit: 1250,
+        remainingBenefit: data.remaining_benefit,
         coveragePercentages: {
-          preventive: 100,
-          basic: 80,
-          major: 50,
-          orthodontic: 50
+          preventive: data.preventive_coverage,
+          basic: data.basic_coverage,
+          major: data.major_coverage,
+          orthodontic: data.orthodontic_coverage
         },
         waitingPeriods: {
-          major: '6 months',
-          orthodontic: '12 months'
+          basic: data.basic_waiting,
+          major: data.major_waiting,
+          orthodontic: data.orthodontic_waiting
         },
-        verificationNotes: 'Patient has met preventive and basic services waiting periods. Major services waiting period ends 07/01/2025.'
+        verificationNotes: data.verification_notes
       };
       
-      return mockResult;
+      return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       setError(errorMessage);
-      throw new Error(errorMessage);
+      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
   
-  // Upload an attachment to a claim
+  /**
+   * Upload an attachment for a claim
+   */
   const uploadAttachment = useCallback(async (claimId: string, file: File, type: string): Promise<Attachment> => {
     setLoading(true);
     setError(null);
     
     try {
-      // Generate a unique file path
+      // Create a unique file path
       const timestamp = Date.now();
       const fileExt = file.name.split('.').pop();
-      const filePath = `claims/${claimId}/${timestamp}-${file.name}`;
+      const filePath = `claims/${claimId}/attachments/${timestamp}.${fileExt}`;
       
-      // Upload file to Supabase Storage
+      // Upload the file to storage
       const { error: uploadError } = await supabase.storage
-        .from('attachments')
+        .from('claim-attachments')
         .upload(filePath, file);
       
       if (uploadError) throw uploadError;
       
       // Get the public URL
       const { data: urlData } = supabase.storage
-        .from('attachments')
+        .from('claim-attachments')
         .getPublicUrl(filePath);
       
       const publicUrl = urlData.publicUrl;
       
-      // Add record to claim_attachments table
-      const { data, error } = await supabase
+      // Save the attachment record in the database
+      const { data, error: dbError } = await supabase
         .from('claim_attachments')
         .insert({
           claim_id: claimId,
@@ -830,64 +778,60 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
           file_path: publicUrl,
           file_type: type,
           content_type: file.type,
-          size: file.size
+          size: file.size,
+          uploaded_at: new Date().toISOString()
         })
         .select()
         .single();
       
-      if (error) throw error;
+      if (dbError) throw dbError;
       
-      // Add a claim event
-      await supabase
-        .from('claim_events')
-        .insert({
-          claim_id: claimId,
-          title: 'Attachment Added',
-          description: `Added ${type} attachment: ${file.name}`,
-          status: ClaimStatus.DRAFT // Use the current claim status in a real implementation
-        });
-      
+      // Transform to Attachment type
       const attachment: Attachment = {
         id: data.id,
         claimId: data.claim_id,
         filename: data.filename,
         type: data.file_type,
         url: data.file_path,
-        contentType: data.content_type,
+        uploadedAt: data.uploaded_at,
         size: data.size,
-        uploadedAt: data.uploaded_at
+        contentType: data.content_type
       };
       
       return attachment;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       setError(errorMessage);
-      throw new Error(errorMessage);
+      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
   
-  // Remove an attachment from a claim
-  const removeAttachment = useCallback(async (attachmentId: string): Promise<boolean> => {
+  /**
+   * Remove an attachment
+   */
+  const removeAttachment = useCallback(async (attachmentId: string): Promise<void> => {
     setLoading(true);
     setError(null);
     
     try {
-      // Get the attachment record first
-      const { data: attachmentData, error: fetchError } = await supabase
+      // Get the attachment record first to find the file path
+      const { data, error: fetchError } = await supabase
         .from('claim_attachments')
-        .select('*')
+        .select('file_path')
         .eq('id', attachmentId)
         .single();
       
       if (fetchError) throw fetchError;
       
+      // Extract the storage path from the public URL
+      const urlParts = data.file_path.split('/');
+      const storagePath = urlParts.slice(urlParts.indexOf('claim-attachments') + 1).join('/');
+      
       // Delete from storage
-      // Extract the path from the URL
-      const storagePath = attachmentData.file_path.split('/').slice(-3).join('/');
       const { error: storageError } = await supabase.storage
-        .from('attachments')
+        .from('claim-attachments')
         .remove([storagePath]);
       
       if (storageError) throw storageError;
@@ -899,34 +843,17 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         .eq('id', attachmentId);
       
       if (dbError) throw dbError;
-      
-      // Add a claim event
-      await supabase
-        .from('claim_events')
-        .insert({
-          claim_id: attachmentData.claim_id,
-          title: 'Attachment Removed',
-          description: `Removed ${attachmentData.file_type} attachment: ${attachmentData.filename}`,
-          status: ClaimStatus.DRAFT // Use the current claim status in a real implementation
-        });
-      
-      return true;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
       setError(errorMessage);
-      return false;
+      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
   
-  // Validate claim data using the validation utility
-  const validateClaimData = useCallback((claim: Claim): ValidationError[] => {
-    return validateClaim(claim);
-  }, []);
-  
-  // Memoized context value
-  const contextValue = {
+  // Export context value
+  const value = {
     claims,
     loading,
     error,
@@ -935,24 +862,21 @@ export const ClaimsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     submitClaim,
     updateClaim,
     deleteClaim,
-    submitClaimToInsurance,
     fetchPendingERAs,
     processERA,
     fetchClaimsSummary,
     verifyInsurance,
     uploadAttachment,
-    removeAttachment,
-    validateClaimData
+    removeAttachment
   };
   
   return (
-    <ClaimsContext.Provider value={contextValue}>
+    <ClaimsContext.Provider value={value}>
       {children}
     </ClaimsContext.Provider>
   );
 };
 
-// Custom hook to use the ClaimsContext
 export const useClaimsContext = () => {
   const context = useContext(ClaimsContext);
   if (context === undefined) {

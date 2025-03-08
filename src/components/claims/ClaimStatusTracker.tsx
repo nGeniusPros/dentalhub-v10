@@ -1,96 +1,89 @@
 import React from 'react';
 import { Badge, Timeline } from 'flowbite-react';
+import { HiCheck, HiClock, HiDocumentText, HiExclamation, HiPaperAirplane, HiCash } from 'react-icons/hi';
 import { ClaimStatus, ClaimEvent } from '../../types/claims.types';
-import { HiCheck, HiClock, HiDocumentText, HiExclamation, HiCurrencyDollar, HiPaperAirplane } from 'react-icons/hi';
+import { formatDate } from '../../utils/dateUtils';
 
 interface ClaimStatusTrackerProps {
   status: ClaimStatus;
   events: ClaimEvent[];
 }
 
-const ClaimStatusTracker: React.FC<ClaimStatusTrackerProps> = ({ status, events }) => {
+/**
+ * Component for tracking the status of a claim with detailed event history
+ */
+export const ClaimStatusTracker: React.FC<ClaimStatusTrackerProps> = ({ status, events }) => {
+  /**
+   * Get the appropriate color for a claim status
+   */
   const getStatusColor = (status: ClaimStatus): string => {
     switch(status) {
-      case ClaimStatus.DRAFT:
-        return 'gray';
-      case ClaimStatus.PENDING:
-        return 'yellow';
-      case ClaimStatus.SUBMITTED:
-        return 'blue';
-      case ClaimStatus.ACCEPTED:
-        return 'info';
-      case ClaimStatus.REJECTED:
-        return 'red';
-      case ClaimStatus.PAID:
-        return 'green';
-      default:
-        return 'gray';
-    }
-  };
-  
-  const getStatusIcon = (status: ClaimStatus) => {
-    switch(status) {
-      case ClaimStatus.DRAFT:
-        return HiDocumentText;
-      case ClaimStatus.PENDING:
-        return HiClock;
-      case ClaimStatus.SUBMITTED:
-        return HiPaperAirplane;
-      case ClaimStatus.ACCEPTED:
-        return HiCheck;
-      case ClaimStatus.REJECTED:
-        return HiExclamation;
-      case ClaimStatus.PAID:
-        return HiCurrencyDollar;
-      default:
-        return HiDocumentText;
+      case ClaimStatus.DRAFT: return 'gray';
+      case ClaimStatus.PENDING: return 'yellow';
+      case ClaimStatus.SUBMITTED: return 'blue';
+      case ClaimStatus.ACCEPTED: return 'green';
+      case ClaimStatus.REJECTED: return 'red';
+      case ClaimStatus.PAID: return 'success';
+      default: return 'gray';
     }
   };
 
-  // Sort events by timestamp in descending order (newest first)
+  /**
+   * Get the appropriate icon for a claim status
+   */
+  const getStatusIcon = (status: ClaimStatus) => {
+    switch(status) {
+      case ClaimStatus.DRAFT: return <HiDocumentText className="w-5 h-5" />;
+      case ClaimStatus.PENDING: return <HiClock className="w-5 h-5" />;
+      case ClaimStatus.SUBMITTED: return <HiPaperAirplane className="w-5 h-5" />;
+      case ClaimStatus.ACCEPTED: return <HiCheck className="w-5 h-5" />;
+      case ClaimStatus.REJECTED: return <HiExclamation className="w-5 h-5" />;
+      case ClaimStatus.PAID: return <HiCash className="w-5 h-5" />;
+      default: return <HiDocumentText className="w-5 h-5" />;
+    }
+  };
+  
+  // Sort events by timestamp in descending order
   const sortedEvents = [...events].sort((a, b) => 
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
   
   return (
     <div className="p-4">
-      <div className="flex items-center mb-6">
+      <div className="flex items-center mb-4">
         <h4 className="text-lg font-medium mr-3">Current Status:</h4>
-        <Badge color={getStatusColor(status)} className="px-3 py-1.5 text-sm">
+        <Badge 
+          color={getStatusColor(status)} 
+          className="px-3 py-1.5 flex items-center"
+          icon={() => getStatusIcon(status)}
+        >
           {status.charAt(0).toUpperCase() + status.slice(1)}
         </Badge>
       </div>
       
-      <div className="mt-4">
-        <h5 className="text-base font-medium mb-3">Claim History</h5>
-        
-        {events.length === 0 ? (
-          <p className="text-gray-500 text-sm">No claim history available</p>
-        ) : (
-          <Timeline>
-            {sortedEvents.map((event, index) => {
-              const StatusIcon = getStatusIcon(event.status);
-              
-              return (
-                <Timeline.Item key={event.id || index}>
-                  <Timeline.Point icon={StatusIcon} />
-                  <Timeline.Content>
-                    <Timeline.Time>
-                      {new Date(event.timestamp).toLocaleString()}
-                    </Timeline.Time>
-                    <Timeline.Title>{event.title}</Timeline.Title>
-                    <Timeline.Body className="text-sm text-gray-600">
-                      {event.description}
-                    </Timeline.Body>
-                  </Timeline.Content>
-                </Timeline.Item>
-              );
-            })}
-          </Timeline>
-        )}
-      </div>
+      {sortedEvents.length > 0 ? (
+        <Timeline>
+          {sortedEvents.map((event, index) => (
+            <Timeline.Item key={index}>
+              <Timeline.Point 
+                icon={() => getStatusIcon(event.status)}
+                className={`bg-${getStatusColor(event.status)}-100`}
+              />
+              <Timeline.Content>
+                <Timeline.Time>{formatDate(event.timestamp)}</Timeline.Time>
+                <Timeline.Title>{event.title}</Timeline.Title>
+                <Timeline.Body>
+                  <p className="text-gray-600">{event.description}</p>
+                </Timeline.Body>
+              </Timeline.Content>
+            </Timeline.Item>
+          ))}
+        </Timeline>
+      ) : (
+        <div className="text-center py-4 text-gray-500">
+          No events recorded for this claim
+        </div>
+      )}
     </div>
   );
 };
-
-export default ClaimStatusTracker;

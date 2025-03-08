@@ -1,25 +1,27 @@
-import { Claim, ValidationError, ClaimStatus } from '../../types/claims.types';
+import { Claim, ValidationError, ProcedureCode, ClaimStatus } from '../../types/claims.types';
 
 /**
- * Validates a claim for completeness and correctness.
- * Returns an array of validation errors, empty if validation passes.
+ * Validates a claim for completeness and correctness
+ * @param claim The claim to validate
+ * @returns Array of validation errors, empty if claim is valid
  */
 export const validateClaim = (claim: Claim): ValidationError[] => {
   const errors: ValidationError[] = [];
   
-  // Required fields validation
+  // Required patient information
   if (!claim.patientId) {
     errors.push({ field: 'patientId', message: 'Patient information is required' });
   }
   
+  // Required provider information
   if (!claim.providerId) {
     errors.push({ field: 'providerId', message: 'Provider information is required' });
   }
   
+  // Required service date
   if (!claim.serviceDate) {
     errors.push({ field: 'serviceDate', message: 'Service date is required' });
   } else {
-    // Validate date format and logic
     const serviceDate = new Date(claim.serviceDate);
     const today = new Date();
     
@@ -30,44 +32,17 @@ export const validateClaim = (claim: Claim): ValidationError[] => {
     }
   }
   
-  // Procedure codes validation
+  // Validate procedure codes
   if (!claim.procedureCodes || claim.procedureCodes.length === 0) {
     errors.push({ field: 'procedureCodes', message: 'At least one procedure code is required' });
   } else {
     // Validate each procedure code
-    claim.procedureCodes.forEach((proc, index) => {
-      if (!proc.code) {
-        errors.push({ field: `procedureCodes[${index}].code`, message: 'Procedure code is required' });
-      }
-      
-      if (!proc.description) {
-        errors.push({ field: `procedureCodes[${index}].description`, message: 'Procedure description is required' });
-      }
-      
-      if (proc.fee === undefined || proc.fee <= 0) {
-        errors.push({ field: `procedureCodes[${index}].fee`, message: 'Valid procedure fee is required' });
-      }
-      
-      if (!proc.date) {
-        errors.push({ field: `procedureCodes[${index}].date`, message: 'Procedure date is required' });
-      }
-      
-      // For dental procedures, validate tooth/surface/quadrant as appropriate
-      if (!proc.tooth && !proc.surface && !proc.quadrant) {
-        errors.push({ 
-          field: `procedureCodes[${index}]`, 
-          message: 'Tooth, surface, or quadrant information is required for dental procedures' 
-        });
-      }
+    claim.procedureCodes.forEach((procedure, index) => {
+      validateProcedureCode(procedure, index, errors);
     });
   }
   
-  // Diagnosis codes validation (required for insurance submission)
-  if (claim.status !== ClaimStatus.DRAFT && (!claim.diagnosisCodes || claim.diagnosisCodes.length === 0)) {
-    errors.push({ field: 'diagnosisCodes', message: 'At least one diagnosis code is required for claim submission' });
-  }
-  
-  // Insurance information validation
+  // Validate insurance information
   if (!claim.insuranceInfo) {
     errors.push({ field: 'insuranceInfo', message: 'Insurance information is required' });
   } else {
@@ -80,34 +55,25 @@ export const validateClaim = (claim: Claim): ValidationError[] => {
     }
   }
   
-  // Validate total fee matches sum of procedure fees
-  if (claim.procedureCodes && claim.procedureCodes.length > 0) {
-    const calculatedTotal = claim.procedureCodes.reduce((sum, proc) => sum + (proc.fee || 0), 0);
-    
-    if (Math.abs(calculatedTotal - claim.totalFee) > 0.01) { // Allow for small rounding differences
-      errors.push({ field: 'totalFee', message: `Total fee (${claim.totalFee}) does not match sum of procedure fees (${calculatedTotal.toFixed(2)})` });
+  // Validate total fee
+  if (claim.totalFee === undefined || claim.totalFee <= 0) {
+    errors.push({ field: 'totalFee', message: 'Total fee must be greater than zero' });
+  } else {
+    // Check if total fee matches sum of procedure fees
+    const calculatedTotal = claim.procedureCodes.reduce((sum, proc) => sum + proc.fee, 0);
+    if (Math.abs(calculatedTotal - claim.totalFee) > 0.01) { // Allow for rounding differences
+      errors.push({
+        field: 'totalFee',
+        message: `Total fee (${claim.totalFee.toFixed(2)}) does not match sum of procedure fees (${calculatedTotal.toFixed(2)})`
+      });
     }
   }
   
-  // Additional validations for various claim states
-  if (claim.status === ClaimStatus.SUBMITTED || claim.status === ClaimStatus.ACCEPTED) {
-    // For submitted claims, ensure all required fields for electronic submission are present
-    if (!claim.insuranceInfo.groupNumber) {
-      errors.push({ field: 'insuranceInfo.groupNumber', message: 'Group number is required for claim submission' });
-    }
-  }
-  
-  if (claim.status === ClaimStatus.REJECTED && !claim.rejectionReason) {
-    errors.push({ field: 'rejectionReason', message: 'Rejection reason is required for rejected claims' });
-  }
-  
-  if (claim.status === ClaimStatus.PAID) {
-    if (claim.paymentAmount === undefined || claim.paymentAmount <= 0) {
-      errors.push({ field: 'paymentAmount', message: 'Payment amount is required for paid claims' });
-    }
-    
-    if (claim.patientResponsibility === undefined) {
-      errors.push({ field: 'patientResponsibility', message: 'Patient responsibility amount is required for paid claims' });
+  // Additional validations for specific status transitions
+  if (claim.status === ClaimStatus.SUBMITTED) {
+    // Required diagnosis codes for submission
+    if (!claim.diagnosisCodes || claim.diagnosisCodes.length === 0) {
+      errors.push({ field: 'diagnosisCodes', message: 'At least one diagnosis code is required for submission' });
     }
   }
   
@@ -115,56 +81,89 @@ export const validateClaim = (claim: Claim): ValidationError[] => {
 };
 
 /**
- * Validates a claim specifically for insurance submission.
- * This includes additional checks required by clearinghouses and payers.
+ * Validates a single procedure code
+ * @param procedure The procedure code to validate
+ * @param index The index of the procedure in the array
+ * @param errors The errors array to add to
  */
-export const validateClaimForSubmission = (claim: Claim): ValidationError[] => {
-  // Start with basic validation
-  const errors = validateClaim(claim);
-  
-  // Additional validation specific to claim submission
-  
-  // Subscriber relationship validation
-  if (!claim.insuranceInfo.relationToSubscriber) {
-    errors.push({ 
-      field: 'insuranceInfo.relationToSubscriber', 
-      message: 'Relationship to subscriber is required for claim submission' 
-    });
+const validateProcedureCode = (procedure: ProcedureCode, index: number, errors: ValidationError[]): void => {
+  if (!procedure.code) {
+    errors.push({ field: `procedureCodes[${index}].code`, message: 'Procedure code is required' });
   }
   
-  // Ensure all procedures have properly formatted dates
-  claim.procedureCodes.forEach((proc, index) => {
-    if (proc.date) {
-      const procDate = new Date(proc.date);
-      if (isNaN(procDate.getTime())) {
-        errors.push({ 
-          field: `procedureCodes[${index}].date`, 
-          message: 'Procedure date must be in a valid format (YYYY-MM-DD)' 
-        });
-      }
+  if (!procedure.description) {
+    errors.push({ field: `procedureCodes[${index}].description`, message: 'Procedure description is required' });
+  }
+  
+  if (procedure.fee === undefined || procedure.fee < 0) {
+    errors.push({ field: `procedureCodes[${index}].fee`, message: 'Procedure fee must be non-negative' });
+  }
+  
+  if (!procedure.date) {
+    errors.push({ field: `procedureCodes[${index}].date`, message: 'Procedure date is required' });
+  } else {
+    const procedureDate = new Date(procedure.date);
+    const today = new Date();
+    
+    if (isNaN(procedureDate.getTime())) {
+      errors.push({ field: `procedureCodes[${index}].date`, message: 'Invalid procedure date format' });
+    } else if (procedureDate > today) {
+      errors.push({ field: `procedureCodes[${index}].date`, message: 'Procedure date cannot be in the future' });
     }
-  });
-  
-  // Ensure diagnosis codes are properly formatted (ICD-10 format)
-  if (claim.diagnosisCodes && claim.diagnosisCodes.length > 0) {
-    claim.diagnosisCodes.forEach((diag, index) => {
-      if (diag.code && !diag.code.match(/^[A-Z][0-9][0-9A-Z]\.?[0-9A-Z]{0,4}$/)) {
-        errors.push({ 
-          field: `diagnosisCodes[${index}].code`, 
-          message: 'Diagnosis code must be in valid ICD-10 format' 
-        });
-      }
-    });
   }
   
-  return errors;
+  // Validate tooth/surface/quadrant based on procedure type
+  // This would require more specific dental domain knowledge for accurate validation
+  // For example, restorative procedures require tooth and surface information
+  if (isDentalProcedureRequiringToothInfo(procedure.code) && !procedure.tooth) {
+    errors.push({ field: `procedureCodes[${index}].tooth`, message: 'Tooth number is required for this procedure' });
+  }
+  
+  if (isSurfaceProcedure(procedure.code) && !procedure.surface) {
+    errors.push({ field: `procedureCodes[${index}].surface`, message: 'Surface is required for this procedure' });
+  }
+  
+  if (isQuadrantProcedure(procedure.code) && !procedure.quadrant) {
+    errors.push({ field: `procedureCodes[${index}].quadrant`, message: 'Quadrant is required for this procedure' });
+  }
 };
 
 /**
- * Checks if a claim is ready for submission to insurance.
- * Returns true if the claim passes all validation checks, false otherwise.
+ * Determines if a procedure code requires tooth information
+ * This is a simplified example - in reality, this would check against a database of CDT codes
  */
-export const isClaimReadyForSubmission = (claim: Claim): boolean => {
-  const errors = validateClaimForSubmission(claim);
-  return errors.length === 0;
+const isDentalProcedureRequiringToothInfo = (code: string): boolean => {
+  // Restorative, endodontic, and many other procedures require tooth information
+  // This is just a simplified example - actual implementation would be more complex
+  const codePrefix = code.substring(0, 1);
+  return ['D2', 'D3', 'D7'].includes(codePrefix);
+};
+
+/**
+ * Determines if a procedure code requires surface information
+ * This is a simplified example - in reality, this would check against a database of CDT codes
+ */
+const isSurfaceProcedure = (code: string): boolean => {
+  // Many restorative procedures require surface information
+  // This is just a simplified example - actual implementation would be more complex
+  return code.startsWith('D2');
+};
+
+/**
+ * Determines if a procedure code requires quadrant information
+ * This is a simplified example - in reality, this would check against a database of CDT codes
+ */
+const isQuadrantProcedure = (code: string): boolean => {
+  // Periodontal procedures often require quadrant information
+  // This is just a simplified example - actual implementation would be more complex
+  return code.startsWith('D4');
+};
+
+/**
+ * Creates a validation alert component for a claim
+ * @param errors The validation errors to display
+ * @returns A React component that displays validation errors
+ */
+export const formatValidationErrors = (errors: ValidationError[]): string[] => {
+  return errors.map(error => error.message);
 };

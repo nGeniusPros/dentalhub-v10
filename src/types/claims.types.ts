@@ -1,7 +1,10 @@
 /**
- * Claims processing type definitions
+ * TypeScript interfaces for the claims processing system
  */
 
+/**
+ * Enum representing the possible status values for a claim
+ */
 export enum ClaimStatus {
   DRAFT = 'draft',
   PENDING = 'pending',
@@ -11,13 +14,16 @@ export enum ClaimStatus {
   PAID = 'paid'
 }
 
-export type ClaimStatusFilter = 'all' | ClaimStatus;
+/**
+ * Type for filtering claims by status
+ */
+export type ClaimStatusFilter = 'all' | ClaimStatus.DRAFT | ClaimStatus.PENDING | 
+  ClaimStatus.SUBMITTED | ClaimStatus.ACCEPTED | ClaimStatus.REJECTED | ClaimStatus.PAID;
 
 /**
- * Represents a dental procedure code with associated information
+ * Interface for dental procedure code information
  */
 export interface ProcedureCode {
-  id?: string;
   code: string;
   description: string;
   fee: number;
@@ -28,16 +34,15 @@ export interface ProcedureCode {
 }
 
 /**
- * Represents a medical diagnosis code
+ * Interface for diagnosis code information
  */
 export interface DiagnosisCode {
-  id?: string;
   code: string;
   description: string;
 }
 
 /**
- * Insurance information for a claim
+ * Interface for insurance information
  */
 export interface InsuranceInfo {
   payerId: string;
@@ -50,7 +55,7 @@ export interface InsuranceInfo {
 }
 
 /**
- * Represents a document attached to a claim
+ * Interface for claim attachment
  */
 export interface Attachment {
   id: string;
@@ -58,16 +63,15 @@ export interface Attachment {
   filename: string;
   type: string;
   url: string;
-  contentType: string;
-  size: number;
   uploadedAt: string;
+  size: number;
+  contentType?: string;
 }
 
 /**
- * Represents an event in the claim's lifecycle
+ * Interface for claim event history
  */
 export interface ClaimEvent {
-  id?: string;
   timestamp: string;
   title: string;
   description: string;
@@ -76,7 +80,7 @@ export interface ClaimEvent {
 }
 
 /**
- * The main claim data structure
+ * Interface for a dental insurance claim
  */
 export interface Claim {
   id: string;
@@ -102,7 +106,7 @@ export interface Claim {
 }
 
 /**
- * Validation error for claim data
+ * Interface for validation errors
  */
 export interface ValidationError {
   field: string;
@@ -110,7 +114,7 @@ export interface ValidationError {
 }
 
 /**
- * Electronic Remittance Advice (ERA) data structure
+ * Interface for Electronic Remittance Advice (ERA)
  */
 export interface ERA {
   id: string;
@@ -122,29 +126,27 @@ export interface ERA {
   totalPayment: number;
   claimCount: number;
   processedAt?: string;
-  createdAt: string;
   payments?: Payment[];
 }
 
 /**
- * Payment information from an ERA
+ * Interface for payment received through ERA
  */
 export interface Payment {
   id: string;
   eraId: string;
   claimId: string;
   patientId: string;
-  patientName?: string;
+  patientName: string;
   serviceDate: string;
   paymentAmount: number;
   adjustmentAmount: number;
   patientResponsibility: number;
   processedAt?: string;
-  createdAt?: string;
 }
 
 /**
- * Insurance verification result
+ * Interface for insurance verification result
  */
 export interface InsuranceVerificationResult {
   patientId: string;
@@ -178,72 +180,50 @@ export interface InsuranceVerificationResult {
 }
 
 /**
- * Response structure for claim submission operations
+ * Interface for claims dashboard summary data
  */
-export interface ClaimSubmissionResponse {
-  success: boolean;
-  message: string;
-  claim?: Claim;
-  validationErrors?: ValidationError[];
-}
-
-/**
- * Response structure for claim update operations
- */
-export interface ClaimUpdateResponse {
-  success: boolean;
-  message: string;
-  claim?: Claim;
-}
-
-/**
- * Response structure for generic claim operations
- */
-export interface ClaimOperationResponse {
-  success: boolean;
-  message: string;
-}
-
-/**
- * Summary statistics for claims by status
- */
-export interface ClaimsSummaryData {
+export interface ClaimsSummary {
   total: number;
   draft: number;
   pending: number;
   submitted: number;
   accepted: number;
+  approved: number; // Alias for accepted (for backward compatibility)
   rejected: number;
   paid: number;
 }
 
 /**
- * Report data for claims analytics
+ * Interface for claims analysis result from AI
  */
-export interface ClaimsReportData {
-  byStatus: {
-    status: ClaimStatus;
-    count: number;
+export interface ClaimsAnalysisResult {
+  rejectionRiskScore: number;
+  riskFactors: string[];
+  suggestions: string[];
+  similarClaims?: {
+    id: string;
+    status: string;
+    similarityScore: number;
   }[];
-  byMonth: {
-    month: string;
-    submitted: number;
-    paid: number;
-    rejected: number;
-  }[];
-  avgProcessingTime: {
-    payer: string;
-    days: number;
-  }[];
-  topRejectionReasons: {
-    reason: string;
-    count: number;
-  }[];
-  financialSummary: {
-    totalBilled: number;
-    totalPaid: number;
-    totalAdjusted: number;
-    totalPatientResponsibility: number;
-    averageReimbursementRate: number;
-  };
+}
+
+/**
+ * Interface for claim submission response
+ */
+export interface ClaimSubmissionResponse {
+  success: boolean;
+  message: string;
+  claim?: Claim;
+  trackingId?: string;
+  errors?: ValidationError[];
+}
+
+/**
+ * Interface for claim update response
+ */
+export interface ClaimUpdateResponse {
+  success: boolean;
+  message: string;
+  claim?: Claim;
+  errors?: ValidationError[];
 }

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Icon } from '../ui/icon-strategy';
 import { MenuGroup } from './Sidebar/MenuGroup';
-import { cn } from '../utils/cn';
-import type { MenuItem } from '../types';
+import { cn } from '../../utils/cn';
+import type { MenuItem } from '../../types';
 
 const adminMenuItems: MenuItem[] = [
   {
@@ -116,6 +116,13 @@ const adminMenuItems: MenuItem[] = [
     label: 'Settings',
     icon: 'Settings',
     path: '/admin-dashboard/settings',
+    group: 'System'
+  },
+  {
+    id: '17',
+    label: 'Claims Dashboard',
+    icon: 'FileCheck',
+    path: '/admin-dashboard/claims',
     group: 'System'
   }
 ];

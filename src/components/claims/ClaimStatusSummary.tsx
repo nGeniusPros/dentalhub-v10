@@ -1,64 +1,62 @@
 import React from 'react';
 import { Card } from 'flowbite-react';
+import { IconType } from 'react-icons';
+import { HiDocumentText } from 'react-icons/hi';
 
-interface ClaimStatusSummaryProps {
+export interface ClaimStatusSummaryProps {
   title: string;
   count: number;
   color?: string;
-  onClick?: () => void;
-  active?: boolean;
+  onClick: () => void;
+  active: boolean;
+  icon?: IconType;
 }
 
-const ClaimStatusSummary: React.FC<ClaimStatusSummaryProps> = ({
+/**
+ * Component for displaying claim status summary cards on the dashboard
+ */
+export const ClaimStatusSummary: React.FC<ClaimStatusSummaryProps> = ({
   title,
   count,
-  color = 'blue',
+  color = 'info',
   onClick,
-  active = false
+  active,
+  icon: Icon = HiDocumentText
 }) => {
-  const getColorClasses = () => {
-    switch (color) {
-      case 'green':
-        return {
-          bg: active ? 'bg-green-100' : 'bg-white hover:bg-green-50',
-          text: 'text-green-600',
-          border: active ? 'border-green-500' : 'border-gray-200'
-        };
-      case 'red':
-        return {
-          bg: active ? 'bg-red-100' : 'bg-white hover:bg-red-50',
-          text: 'text-red-600',
-          border: active ? 'border-red-500' : 'border-gray-200'
-        };
-      case 'yellow':
-        return {
-          bg: active ? 'bg-yellow-100' : 'bg-white hover:bg-yellow-50',
-          text: 'text-yellow-600',
-          border: active ? 'border-yellow-500' : 'border-gray-200'
-        };
-      case 'blue':
-      default:
-        return {
-          bg: active ? 'bg-blue-100' : 'bg-white hover:bg-blue-50',
-          text: 'text-blue-600',
-          border: active ? 'border-blue-500' : 'border-gray-200'
-        };
-    }
+  // Convert color name to Tailwind CSS classes
+  const getColorClasses = (colorName: string) => {
+    const colorMap: Record<string, { bg: string, text: string, border: string }> = {
+      gray: { bg: 'bg-gray-50', text: 'text-gray-700', border: 'border-gray-200' },
+      info: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
+      blue: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' },
+      green: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200' },
+      red: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200' },
+      yellow: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200' }
+    };
+    
+    return colorMap[colorName] || colorMap.info;
   };
-
-  const colors = getColorClasses();
-
+  
+  const { bg, text, border } = getColorClasses(color);
+  
   return (
     <Card
-      className={`${colors.bg} cursor-pointer transition-colors duration-200 border ${colors.border}`}
+      className={`cursor-pointer transition-colors duration-200 ${
+        active ? `${bg} ${border} border-2` : 'hover:bg-gray-50'
+      }`}
       onClick={onClick}
     >
-      <div className="flex flex-col items-center">
-        <h5 className="text-gray-700 font-medium text-sm">{title}</h5>
-        <p className={`text-3xl font-bold ${colors.text} mt-2`}>{count}</p>
+      <div className="flex items-center justify-between">
+        <div className="flex flex-col">
+          <span className="text-sm font-medium text-gray-500">{title}</span>
+          <span className={`text-2xl font-bold ${active ? text : 'text-gray-800'}`}>
+            {count}
+          </span>
+        </div>
+        <div className={`rounded-full p-2 ${bg}`}>
+          <Icon className={`h-5 w-5 ${text}`} />
+        </div>
       </div>
     </Card>
   );
 };
-
-export default ClaimStatusSummary;
