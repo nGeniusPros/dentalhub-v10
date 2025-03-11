@@ -1,9 +1,11 @@
 import { CampaignManager } from './campaign-manager';
-import { 
-  Prospect, 
-  CampaignType, 
+import { SdrAiService } from './sdr-ai-service';
+import {
+  Prospect,
+  CampaignType,
   EventType,
-  CampaignConfig
+  CampaignConfig,
+  ResponseResult
 } from './interfaces/campaign.interfaces';
 
 /**
@@ -15,8 +17,10 @@ import {
  */
 export class SdrAgent {
   private campaignManager: CampaignManager;
+  private aiService: SdrAiService;
   private messageQueue: Map<string, Array<{type: EventType, content: string, scheduledTime: Date}>>;
   private isProcessing: boolean = false;
+  private useAI: boolean = true;
 
   /**
    * Create a new SDR Agent instance
@@ -24,7 +28,13 @@ export class SdrAgent {
    */
   constructor(config: CampaignConfig = { enabled: true }) {
     this.campaignManager = new CampaignManager(config);
+    this.aiService = new SdrAiService();
     this.messageQueue = new Map();
+    
+    // Use AI by default unless explicitly disabled
+    this.useAI = config.enableAI !== false;
+    
+    console.log(`[SDR Agent] Initialized with AI ${this.useAI ? 'enabled' : 'disabled'}`);
   }
 
   /**
@@ -50,12 +60,52 @@ export class SdrAgent {
    * Process an incoming message from a prospect
    * @param prospectId ID of the sending prospect
    * @param message Content of the message
-   * @returns Response message
+   * @param forceAI Force using AI for response generation
+   * @returns Response message or null if processing failed
    */
-  processIncomingMessage(prospectId: string, message: string): string | null {
+  async processIncomingMessage(
+    prospectId: string,
+    message: string,
+    forceAI: boolean = false
+  ): Promise<string | null> {
     console.log(`[SDR Agent] Processing message from ${prospectId}: "${message}"`);
     
-    const response = this.campaignManager.processResponse(prospectId, message);
+    // Get the prospect record for context
+    const prospectRecord = this.campaignManager.prospects.get(prospectId);
+    if (!prospectRecord) {
+      console.error(`[SDR Agent] Cannot process message - prospect ${prospectId} not found`);
+      return null;
+    }
+    
+    // Try rule-based response first, unless AI is forced
+    let response: ResponseResult | null = null;
+    if (!forceAI) {
+      response = this.campaignManager.processResponse(prospectId, message);
+    }
+    
+    // If no rule-based response or AI is forced, use AI
+    if ((!response || response.action === 'default_reply') && (this.useAI || forceAI)) {
+      try {
+        console.log(`[SDR Agent] Using AI to generate response for ${prospectId}`);
+        response = await this.aiService.generateResponse(prospectId, message, prospectRecord);
+        
+        // Process actions from AI response
+        if (response.action === 'move_campaign' && response.targetCampaign) {
+          this.campaignManager.moveToNextCampaign(prospectId, response.targetCampaign);
+        } else if (response.action === 'book_appointment') {
+          this.campaignManager.bookAppointment(prospectId, message);
+        }
+      } catch (error) {
+        console.error(`[SDR Agent] AI response generation failed:`, error);
+        // Fall back to default response if AI fails
+        response = {
+          action: 'default_reply',
+          reply: "Thanks for your message! I'd be happy to tell you more about our Enhanced Dental PPO Coverage. Would you prefer a call tomorrow at 2pm, 3pm, or 4pm?"
+        };
+      }
+    }
+    
+    // If still no response, return null
     if (!response) {
       console.log(`[SDR Agent] No response generated for prospect ${prospectId}`);
       return null;

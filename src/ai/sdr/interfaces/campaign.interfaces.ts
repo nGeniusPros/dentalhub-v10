@@ -38,6 +38,7 @@ export interface CampaignConfig {
   customSchedule?: boolean;
   schedule?: WeeklySchedule;
   voiceId?: string;
+  enableAI?: boolean;  // Whether to use AI-assisted responses
 }
 
 // A prospect (lead) in the system
