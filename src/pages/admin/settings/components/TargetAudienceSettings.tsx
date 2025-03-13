@@ -61,14 +61,23 @@ const demographicSections: DemographicSection[] = [
 
 export const TargetAudienceSettings = () => {
   const { state, updateSettings } = useSettings();
-  const { settings } = state;
-
+  console.log('Settings context state:', state);
+  
+  // Define hooks before any conditional returns
   const [newValues, setNewValues] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState<{
     section: string;
     index: number;
     value: string;
   } | null>(null);
+  
+  const { settings } = state;
+
+  // Add error handling for when targetAudience doesn't exist
+  if (!settings || !settings.targetAudience) {
+    console.error('targetAudience is missing from settings state', settings);
+    return <div>Error: Settings data is missing required structure</div>;
+  }
 
   const handleAdd = (section: keyof Settings['targetAudience']['demographics']) => {
     if (!newValues[section]) return;
@@ -78,11 +87,17 @@ export const TargetAudienceSettings = () => {
       [section]: [...settings.targetAudience.demographics[section], newValues[section]]
     };
 
-    updateSettings({
+    const updatedSettings = {
+      ...settings,
       targetAudience: {
         ...settings.targetAudience,
         demographics: updatedDemographics
       }
+    };
+
+    updateSettings({
+      type: 'UPDATE_SETTINGS',
+      payload: updatedSettings
     });
 
     setNewValues(prev => ({ ...prev, [section]: '' }));
@@ -91,14 +106,20 @@ export const TargetAudienceSettings = () => {
   const handleRemove = (section: keyof Settings['targetAudience']['demographics'], index: number) => {
     const updatedDemographics = {
       ...settings.targetAudience.demographics,
-      [section]: settings.targetAudience.demographics[section].filter((_, i) => i !== index)
+      [section]: settings.targetAudience.demographics[section].filter((_, i: number) => i !== index)
     };
 
-    updateSettings({
+    const updatedSettings = {
+      ...settings,
       targetAudience: {
         ...settings.targetAudience,
         demographics: updatedDemographics
       }
+    };
+
+    updateSettings({
+      type: 'UPDATE_SETTINGS',
+      payload: updatedSettings
     });
   };
 
@@ -115,11 +136,17 @@ export const TargetAudienceSettings = () => {
       [section]: updatedValues
     };
 
-    updateSettings({
+    const updatedSettings = {
+      ...settings,
       targetAudience: {
         ...settings.targetAudience,
         demographics: updatedDemographics
       }
+    };
+
+    updateSettings({
+      type: 'UPDATE_SETTINGS',
+      payload: updatedSettings
     });
 
     setEditing(null);
@@ -160,6 +187,7 @@ export const TargetAudienceSettings = () => {
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-primary/10 rounded-lg">
+                {/* @ts-expect-error - Handle Lucide icons dynamically */}
                 {React.createElement(Icons[section.icon], {
                   className: "w-5 h-5 text-primary"
                 })}
@@ -176,11 +204,18 @@ export const TargetAudienceSettings = () => {
                       ...settings.targetAudience.demographics,
                       [section.key]: []
                     };
-                    updateSettings({
+                    
+                    const updatedSettings = {
+                      ...settings,
                       targetAudience: {
                         ...settings.targetAudience,
                         demographics: updatedDemographics
                       }
+                    };
+                    
+                    updateSettings({
+                      type: 'UPDATE_SETTINGS',
+                      payload: updatedSettings
                     });
                   }
                 }}
