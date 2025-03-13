@@ -32,3 +32,7 @@
     @apply bg-clip-text text-transparent bg-gradient-to-b from-foreground via-foreground/90 to-muted-foreground;
   }
 }
+
+.text-muted {
+  color: var(--muted-foreground);
+}

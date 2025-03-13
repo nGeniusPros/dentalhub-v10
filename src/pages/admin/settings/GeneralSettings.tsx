@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { useSettings } from '../../../contexts/SettingsContext';
 import { SecuritySettings } from './components/SecuritySettings';
@@ -15,39 +14,18 @@ import { NotificationToggle } from './components/NotificationToggle';
 
 const GeneralSettings = () => {
   const { state, updateSettings } = useSettings();
-  const { settings, loading } = state;
+  console.log('Settings:', state);
+  console.log('Settings General:', state?.general);
 
-  const handleNotificationUpdate = (key: keyof Settings['notifications'], value: boolean) => {
+  // Add a defensive check for state
+  if (!state || !state.general) {
+    return <div className="p-4">Loading settings...</div>;
+  }
+
+  const handleGeneralSettingsUpdate = (updates: Partial<typeof state.general>) => {
     updateSettings({
-      notifications: {
-        ...settings.notifications,
-        [key]: value
-      }
-    });
-  };
-
-  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        updateSettings({
-          branding: {
-            ...settings.branding,
-            logo: reader.result as string
-          }
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleGeneralSettingsUpdate = (updates: Partial<typeof settings.general>) => {
-    updateSettings({
-      general: {
-        ...settings.general,
-        ...updates
-      }
+      type: 'UPDATE_GENERAL_SETTINGS',
+      payload: updates
     });
   };
 
@@ -65,7 +43,6 @@ const GeneralSettings = () => {
         </Button>
       </div>
 
-      {/* Practice Information */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -79,7 +56,7 @@ const GeneralSettings = () => {
             </label>
             <input
               type="text"
-              value={settings.general.practiceName}
+              value={state.general?.practiceName}
               onChange={(e) => handleGeneralSettingsUpdate({ practiceName: e.target.value })}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
             />
@@ -90,7 +67,7 @@ const GeneralSettings = () => {
             </label>
             <input
               type="text"
-              value={settings.general.address}
+              value={state.general?.address}
               onChange={(e) => handleGeneralSettingsUpdate({ address: e.target.value })}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
             />
@@ -101,7 +78,7 @@ const GeneralSettings = () => {
             </label>
             <input
               type="text"
-              value={settings.general.phone}
+              value={state.general?.phone}
               onChange={(e) => handleGeneralSettingsUpdate({ phone: e.target.value })}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
             />
@@ -112,7 +89,7 @@ const GeneralSettings = () => {
             </label>
             <input
               type="email"
-              value={settings.general.email}
+              value={state.general?.email}
               onChange={(e) => handleGeneralSettingsUpdate({ email: e.target.value })}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
             />
@@ -120,13 +97,10 @@ const GeneralSettings = () => {
         </div>
       </motion.div>
 
-      {/* Branding */}
       <BrandingSettings />
 
-      {/* Target Audience */}
       <TargetAudienceSettings />
 
-      {/* Notifications */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -157,7 +131,6 @@ const GeneralSettings = () => {
         </div>
       </motion.div>
 
-      {/* Regional Settings */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -170,14 +143,21 @@ const GeneralSettings = () => {
               Timezone
             </label>
             <select
-              value={settings.general.timezone}
+              value={state.general?.timezone}
               onChange={(e) => handleGeneralSettingsUpdate({ timezone: e.target.value })}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
             >
-              <option value="America/New_York">Eastern Time (ET)</option>
-              <option value="America/Chicago">Central Time (CT)</option>
-              <option value="America/Denver">Mountain Time (MT)</option>
-              <option value="America/Los_Angeles">Pacific Time (PT)</option>
+              <option value="America/Los_Angeles">Pacific Time (US & Canada)</option>
+              <option value="America/Denver">Mountain Time (US & Canada)</option>
+              <option value="America/Chicago">Central Time (US & Canada)</option>
+              <option value="America/New_York">Eastern Time (US & Canada)</option>
+              <option value="America/Phoenix">Arizona</option>
+              <option value="America/Anchorage">Alaska</option>
+              <option value="Pacific/Honolulu">Hawaii</option>
+              <option value="Europe/London">London</option>
+              <option value="Europe/Paris">Paris</option>
+              <option value="Asia/Tokyo">Tokyo</option>
+              <option value="Australia/Sydney">Sydney</option>
             </select>
           </div>
           <div>
@@ -185,13 +165,14 @@ const GeneralSettings = () => {
               Date Format
             </label>
             <select
-              value={settings.general.dateFormat}
+              value={state.general?.dateFormat}
               onChange={(e) => handleGeneralSettingsUpdate({ dateFormat: e.target.value })}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
             >
-              <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-              <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-              <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+              <option value="MM/DD/YYYY">MM/DD/YYYY (US)</option>
+              <option value="DD/MM/YYYY">DD/MM/YYYY (European)</option>
+              <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
+              <option value="MMM DD, YYYY">MMM DD, YYYY (Written)</option>
             </select>
           </div>
           <div>
@@ -199,7 +180,7 @@ const GeneralSettings = () => {
               Currency
             </label>
             <select
-              value={settings.general.currency}
+              value={state.general?.currency}
               onChange={(e) => handleGeneralSettingsUpdate({ currency: e.target.value })}
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary"
             >
@@ -207,26 +188,25 @@ const GeneralSettings = () => {
               <option value="EUR">EUR (€)</option>
               <option value="GBP">GBP (£)</option>
               <option value="CAD">CAD ($)</option>
+              <option value="AUD">AUD ($)</option>
+              <option value="JPY">JPY (¥)</option>
+              <option value="CNY">CNY (¥)</option>
+              <option value="INR">INR (₹)</option>
+              <option value="MXN">MXN ($)</option>
             </select>
           </div>
         </div>
       </motion.div>
 
-      {/* Security Settings */}
       <SecuritySettings />
 
-      {/* Integrations */}
       <IntegrationsSettings />
 
-      {/* User Permissions */}
       <UserPermissions />
       
-      {/* Back Office Permissions */}
       <BackOfficePermissions />
       
-      {/* Patient Portal Permissions */}
       <PatientPermissions />
-      {/* Feature Management */}
       <FeatureSettings />
 
     </div>

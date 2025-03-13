@@ -114,11 +114,11 @@ export const Sidebar = ({ role = "staff" }: SidebarProps) => {
       </div>
 
       {/* User Section */}
-      <div className="mt-auto p-3 border-t border-gray-200/50 dark:border-gray-700/30">
-        <div className="p-4 border-t border-gray-200/20">
+      <div className="mt-auto py-2 px-3 border-t border-gray-200/50 dark:border-gray-700/30">
+        <div className="flex items-center justify-between">
           <div className={cn(
-            "flex items-center gap-3",
-            collapsed ? "justify-center" : "justify-start"
+            "flex items-center gap-2",
+            collapsed ? "justify-center w-full" : "justify-start"
           )}>
             <DentalHubAvatar
               index={role === 'admin' ? 0 : role === 'staff' ? 5 : 12}
@@ -133,15 +133,31 @@ export const Sidebar = ({ role = "staff" }: SidebarProps) => {
               </div>
             )}
           </div>
+          
+          {/* Theme Toggle */}
+          {!collapsed && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleTheme}
+              className="h-8 w-8 p-0"
+            >
+              {theme === "light" ? (
+                <Icon name="Moon" className="h-4 w-4" />
+              ) : (
+                <Icon name="Sun" className="h-4 w-4" />
+              )}
+            </Button>
+          )}
         </div>
-
-        {/* Theme Toggle */}
-        <div className="p-4 border-t border-gray-200/20">
+        
+        {/* Theme Toggle for collapsed state */}
+        {collapsed && (
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={toggleTheme}
-            className="w-full h-9"
+            className="w-full h-8 mt-2"
           >
             {theme === "light" ? (
               <Icon name="Moon" className="h-4 w-4" />
@@ -149,7 +165,7 @@ export const Sidebar = ({ role = "staff" }: SidebarProps) => {
               <Icon name="Sun" className="h-4 w-4" />
             )}
           </Button>
-        </div>
+        )}
       </div>
     </motion.div>
   );

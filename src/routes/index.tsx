@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import LandingPage from '../pages/LandingPage';
+import RecallGeniusLandingPage from '../pages/RecallGeniusLandingPage';
 import Dashboard from '../pages/Dashboard';
 import RevenueDashboard from '../pages/RevenueDashboard';
 import MonthlyRevenueReport from '../pages/MonthlyRevenueReport';
@@ -24,10 +25,13 @@ import Appointments from '../pages/patient/Appointments';
 import AIPracticeConsultant from '../pages/admin/AIPracticeConsultant';
 import KnowledgeBasePage from '../pages/admin/KnowledgeBasePage';
 import Patients from '../pages/admin/Patients';
+import Prospects from '../pages/admin/Prospects';
 import SMSCampaigns from '../pages/admin/communications/SMSCampaigns';
+import Campaigns from '../pages/admin/communications/Campaigns';
 import PasswordManager from '../pages/admin/settings/PasswordManager';
 import VendorManagement from '../pages/admin/settings/VendorManagement';
 import GeneralSettings from '../pages/admin/settings/GeneralSettings';
+import UserManagement from '../pages/admin/settings/UserManagement';
 import Marketplace from '../pages/admin/marketplace/Marketplace';
 import StaffManagement from '../pages/admin/hr/StaffManagement';
 import EmailDashboard from '../pages/admin/communications/EmailDashboard';
@@ -40,18 +44,21 @@ import AdminAppointmentsDashboard from '../pages/admin/appointments';
 import StaffAppointmentsDashboard from '../pages/staff/appointments';
 import GradientTester from '../pages/test/GradientTester';
 import CalendarTest from '../pages/test/CalendarTest';
+import RecallGeniusSimple from '../examples/RecallGeniusSimple';
 import AIFeedbackDashboard from '../components/admin/AIFeedbackDashboard';
 import AIFeedbackAnalytics from '../components/admin/AIFeedbackAnalytics';
 import { ClaimsDashboard } from '../pages/claims/ClaimsDashboard';
 import NewClaimPage from '../pages/claims/NewClaimPage';
 import ClaimDetailsPage from '../pages/claims/ClaimDetailsPage';
 import ClaimsReportingPage from '../pages/claims/ClaimsReportingPage';
+import CampaignDetails from '../pages/admin/communications/CampaignDetails';
 
 export const AppRoutes = () => {
   return (
     <Routes>
       {/* Public routes */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/recall" element={<RecallGeniusLandingPage />} />
       
       {/* Login routes */}
       <Route path="/login">
@@ -84,10 +91,13 @@ export const AppRoutes = () => {
         <Route path="hr" element={<HRDashboard />} />
         <Route path="insurance" element={<InsuranceARDashboard />} />
         <Route path="patients" element={<Patients />} />
+        <Route path="prospects" element={<Prospects />} />
         <Route path="staff" element={<StaffManagement />} />
         <Route path="membership-plans" element={<MembershipPlans />} />
         <Route path="appointments" element={<AdminAppointmentsDashboard />} />
         <Route path="sms-campaigns" element={<SMSCampaigns />} />
+        <Route path="campaigns" element={<Campaigns />} />
+        <Route path="campaigns/:campaignId" element={<CampaignDetails />} />
         <Route path="resources" element={<ResourcesDashboard />} />
         <Route path="email-dashboard" element={
           <EmailProvider>
@@ -99,6 +109,7 @@ export const AppRoutes = () => {
         <Route path="learning" element={<LearningDashboard />} />
         <Route path="settings" element={<GeneralSettings />} />
         <Route path="settings/passwords" element={<PasswordManager />} />
+        <Route path="settings/users" element={<UserManagement />} />
         <Route path="contact-manager" element={<VendorManagement />} />
         <Route path="marketplace" element={<Marketplace />} />
         <Route path="communications" element={<CommunicationsDashboard />} />
@@ -134,6 +145,8 @@ export const AppRoutes = () => {
       {/* Testing routes */}
       <Route path="/test/gradients" element={<GradientTester />} />
       <Route path="/test/calendar" element={<CalendarTest />} />
+      <Route path="/test/recall-genius" element={<RecallGeniusLandingPage />} />
+      <Route path="/test/recall-simple" element={<RecallGeniusSimple />} />
 
       {/* Fallback route */}
       <Route path="*" element={<Navigate to="/" replace />} />

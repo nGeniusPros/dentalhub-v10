@@ -1,7 +1,60 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import type { Settings, SettingsAction, SettingsState } from '../types/settings';
+import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import { SettingsState, SettingsAction } from '../pages/admin/settings/types/user';
 
+// Initial state
 const initialState: SettingsState = {
+  // Original properties
+  users: [
+    {
+      id: 'user-1',
+      fullName: 'Sample Provider',
+      email: 'provider@example.com',
+      role: 'Provider',
+      enabled: true,
+      dateCreated: new Date(),
+      availabilityHours: 40,
+      calendarIntegration: {
+        type: 'internal',
+        connected: true,
+      }
+    }
+  ],
+  twilioNumbers: [
+    {
+      id: 'number-1',
+      phoneNumber: '+1 (555) 123-4567',
+      friendlyName: 'Main Office',
+      isActive: true,
+      capabilities: {
+        sms: true,
+        voice: true,
+        mms: true
+      }
+    }
+  ],
+  calendarSettings: {
+    provider: 'internal',
+    enabled: true,
+    defaultDuration: 60,
+    bufferTime: 15
+  },
+  notificationSettings: {
+    emailNotifications: true,
+    smsNotifications: true,
+    reminderTime: 24
+  },
+  general: {
+    practiceName: '',
+    address: '',
+    phone: '',
+    email: '',
+    timezone: 'America/Los_Angeles',
+    dateFormat: 'MM/DD/YYYY',
+    currency: 'USD'
+  },
+  features: {},
+  
+  // Added to support settings.targetAudience structure
   settings: {
     general: {
       practiceName: '',
@@ -9,16 +62,15 @@ const initialState: SettingsState = {
       phone: '',
       email: '',
       website: '',
-      timezone: 'America/New_York',
+      timezone: 'America/Los_Angeles',
       dateFormat: 'MM/DD/YYYY',
       currency: 'USD'
     },
     branding: {
-      logo: '',
       colors: {
-        primary: '#1B2B5B',
-        secondary: '#40E0D0',
-        accent: '#C5A572'
+        primary: '#0047AB',
+        secondary: '#6A5ACD',
+        accent: '#40E0D0'
       },
       darkMode: false
     },
@@ -32,7 +84,7 @@ const initialState: SettingsState = {
     security: {
       twoFactorAuth: false,
       passwordExpiration: 90,
-      loginAttempts: 3,
+      loginAttempts: 5,
       sessionTimeout: 30,
       ipWhitelist: [],
       enforcePasswordPolicy: true,
@@ -46,113 +98,154 @@ const initialState: SettingsState = {
     },
     targetAudience: {
       demographics: {
-        ageRanges: ['25-34', '35-44', '45-54'],
-        householdTypes: ['Single', 'Family', 'Student', 'Renter', 'Homeowner'],
-        education: ['High School', 'Some College', 'Bachelor\'s Degree', 'Graduate Degree'],
-        occupations: ['Professional', 'Business Owner', 'Student', 'Retired'],
-        incomeRanges: ['$25k-$50k', '$50k-$75k', '$75k-$100k', '$100k+'],
-        locations: ['Urban', 'Suburban', 'Rural']
+        ageRanges: [],
+        householdTypes: [],
+        education: [],
+        occupations: [],
+        incomeRanges: [],
+        locations: []
       },
       interests: []
     },
     features: {}
-  },
-  loading: false,
-  error: null
+  }
 };
 
-const settingsReducer = (state: SettingsState, action: SettingsAction): SettingsState => {
+// Create the context
+type SettingsContextType = {
+  state: SettingsState;
+  updateSettings: (action: SettingsAction) => void;
+};
+
+const SettingsContext = createContext<SettingsContextType | undefined>(undefined);
+
+// Reducer function
+function settingsReducer(state: SettingsState, action: SettingsAction): SettingsState {
   switch (action.type) {
-    case 'SET_SETTINGS':
+    case 'SET_USERS':
       return {
         ...state,
-        settings: action.payload,
-        loading: false,
-        error: null
+        users: action.payload
       };
+
+    case 'ADD_USER':
+      return {
+        ...state,
+        users: [...state.users, action.payload]
+      };
+
+    case 'UPDATE_USER':
+      return {
+        ...state,
+        users: state.users.map(user => 
+          user.id === action.payload.id ? action.payload : user
+        )
+      };
+
+    case 'DELETE_USER':
+      return {
+        ...state,
+        users: state.users.filter(user => user.id !== action.payload)
+      };
+
+    case 'SET_TWILIO_NUMBERS':
+      return {
+        ...state,
+        twilioNumbers: action.payload
+      };
+
+    case 'UPDATE_TWILIO_NUMBER': {
+      // Check if the number already exists
+      const existingNumberIndex = state.twilioNumbers.findIndex(
+        num => num.id === action.payload.id
+      );
+
+      if (existingNumberIndex >= 0) {
+        // Update existing number
+        return {
+          ...state,
+          twilioNumbers: state.twilioNumbers.map(num =>
+            num.id === action.payload.id ? action.payload : num
+          )
+        };
+      } else {
+        // Add new number
+        return {
+          ...state,
+          twilioNumbers: [...state.twilioNumbers, action.payload]
+        };
+      }
+    }
+
+    case 'UPDATE_CALENDAR_SETTINGS':
+      return {
+        ...state,
+        calendarSettings: {
+          ...state.calendarSettings,
+          ...action.payload
+        }
+      };
+
+    case 'UPDATE_NOTIFICATION_SETTINGS':
+      return {
+        ...state,
+        notificationSettings: {
+          ...state.notificationSettings,
+          ...action.payload
+        }
+      };
+    case 'UPDATE_GENERAL_SETTINGS':
+      return {
+        ...state,
+        general: {
+          ...state.general,
+          ...action.payload
+        }
+      };
+    
+    case 'UPDATE_FEATURES':
+      return {
+        ...state,
+        features: {
+          ...state.features,
+          ...action.payload
+        }
+      };
+      
     case 'UPDATE_SETTINGS':
       return {
         ...state,
         settings: {
           ...state.settings,
           ...action.payload
-        },
-        loading: false,
-        error: null
+        }
       };
-    case 'SET_LOADING':
-      return {
-        ...state,
-        loading: action.payload
-      };
-    case 'SET_ERROR':
-      return {
-        ...state,
-        error: action.payload,
-        loading: false
-      };
+
     default:
       return state;
   }
-};
+}
 
-const SettingsContext = createContext<{
-  state: SettingsState;
-  updateSettings: (settings: Partial<Settings>) => Promise<void>;
-  resetSettings: () => void;
-} | undefined>(undefined);
+// Provider component
+interface SettingsProviderProps {
+  children: ReactNode;
+}
 
-export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const SettingsProvider: React.FC<SettingsProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(settingsReducer, initialState);
 
-  // Load settings from localStorage on mount
-  useEffect(() => {
-    const savedSettings = localStorage.getItem('settings');
-    if (savedSettings) {
-      try {
-        const parsed = JSON.parse(savedSettings);
-        dispatch({ type: 'SET_SETTINGS', payload: parsed });
-      } catch (error) {
-        console.error('Error loading settings:', error);
-        dispatch({ type: 'SET_ERROR', payload: 'Failed to load settings' });
-      }
-    }
-  }, []);
-
-  const updateSettings = async (newSettings: Partial<Settings>) => {
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      const updatedSettings = {
-        ...state.settings,
-        ...newSettings
-      };
-      
-      // Save to localStorage
-      localStorage.setItem('settings', JSON.stringify(updatedSettings));
-      
-      dispatch({ type: 'SET_SETTINGS', payload: updatedSettings });
-    } catch (error) {
-      console.error('Error updating settings:', error);
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to update settings' });
-    }
-  };
-
-  const resetSettings = () => {
-    localStorage.removeItem('settings');
-    dispatch({ type: 'SET_SETTINGS', payload: initialState.settings });
+  const updateSettings = (action: SettingsAction) => {
+    dispatch(action);
   };
 
   return (
-    <SettingsContext.Provider value={{ state, updateSettings, resetSettings }}>
+    <SettingsContext.Provider value={{ state, updateSettings }}>
       {children}
     </SettingsContext.Provider>
   );
 };
 
+// Custom hook to use the context
 export const useSettings = () => {
   const context = useContext(SettingsContext);
   if (context === undefined) {

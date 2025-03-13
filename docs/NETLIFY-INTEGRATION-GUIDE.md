@@ -1,173 +1,333 @@
 # DentalHub Netlify Integration Guide
 
-This guide shows how to update your existing components to work with Netlify Functions.
+This guide provides detailed instructions for updating your existing components to use the new API utility, ensuring they work properly when deployed to Netlify.
 
-## Overview
+## Why Do Components Need Updates?
 
-When deploying to Netlify, backend API calls need to use Netlify Functions instead of directly calling Supabase. We've created an API utility (`src/utils/api.ts`) that handles this automatically:
+When deployed to Netlify, direct Supabase client calls from the frontend often fail due to CORS restrictions, authentication issues, or missing server-side context. Our solution routes all backend operations through Netlify Functions when in production, while maintaining direct Supabase access during local development.
 
-- In development: Uses direct Supabase calls
-- In production: Routes requests through Netlify Functions
+## API Utility Overview
 
-## How to Update Your Components
+The `src/utils/api.ts` utility provides:
 
-### Step 1: Import the API utility
+- Environment detection (development vs. production)
+- Automatic routing of requests to the appropriate endpoint
+- Consistent error handling
+- Support for all common API operations (GET, POST, PUT, DELETE)
 
-Replace direct Supabase imports with our API utility:
+## Basic Integration Steps
 
-```diff
-- import { supabase } from '../lib/supabase';
-+ import { api } from '../utils/api';
-```
-
-### Step 2: Replace Supabase calls with API calls
-
-#### Before:
+### 1. Import the API Utility
 
 ```typescript
-// Direct Supabase query
+// Replace this:
+import { supabase } from '../path/to/supabase';
+
+// With this:
+import { api } from '../utils/api';
+```
+
+### 2. Replace Supabase Queries
+
+#### Examples
+
+**Fetching Data (Before):**
+```typescript
 const fetchPatients = async () => {
   const { data, error } = await supabase
     .from('patients')
     .select('*')
     .order('created_at', { ascending: false });
     
-  if (error) throw error;
-  return data;
+  if (error) {
+    console.error('Error fetching patients:', error);
+    return [];
+  }
+  
+  return data || [];
 };
 ```
 
-#### After:
-
+**Fetching Data (After):**
 ```typescript
-// Using API utility
 const fetchPatients = async () => {
   try {
     const data = await api.get('patients');
-    return data;
+    return data || [];
   } catch (error) {
     console.error('Error fetching patients:', error);
-    throw error;
+    return [];
   }
 };
 ```
 
-### Step 3: Update Authentication
-
-#### Before:
-
+**Creating Records (Before):**
 ```typescript
-// Direct Supabase auth
-const signIn = async (email: string, password: string) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  });
+const createPatient = async (patientData) => {
+  const { data, error } = await supabase
+    .from('patients')
+    .insert(patientData)
+    .select();
+    
+  if (error) {
+    console.error('Error creating patient:', error);
+    throw error;
+  }
   
-  if (error) throw error;
-  return data;
+  return data[0];
 };
 ```
 
-#### After:
-
+**Creating Records (After):**
 ```typescript
-// Using API utility
-const signIn = async (email: string, password: string) => {
+const createPatient = async (patientData) => {
   try {
-    const result = await api.post('auth/session', {
-      action: 'SIGNIN',
-      email,
-      password
-    });
-    return result;
+    const data = await api.post('patients', patientData);
+    return data[0];
   } catch (error) {
-    console.error('Error signing in:', error);
+    console.error('Error creating patient:', error);
     throw error;
   }
 };
 ```
 
-## Example: Updating a Patient List Component
-
-### Before:
-
-```tsx
-import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
-
-export function PatientList() {
-  const [patients, setPatients] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    async function loadPatients() {
-      const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .order('created_at', { ascending: false });
-        
-      if (error) {
-        console.error('Error loading patients:', error);
-        return;
-      }
-      
-      setPatients(data);
-      setLoading(false);
-    }
+**Updating Records (Before):**
+```typescript
+const updatePatient = async (id, updates) => {
+  const { data, error } = await supabase
+    .from('patients')
+    .update(updates)
+    .eq('id', id)
+    .select();
     
-    loadPatients();
-  }, []);
+  if (error) {
+    console.error('Error updating patient:', error);
+    throw error;
+  }
   
-  // Rest of component...
-}
+  return data[0];
+};
 ```
 
-### After:
+**Updating Records (After):**
+```typescript
+const updatePatient = async (id, updates) => {
+  try {
+    const data = await api.put('patients', {
+      id,
+      ...updates
+    });
+    return data[0];
+  } catch (error) {
+    console.error('Error updating patient:', error);
+    throw error;
+  }
+};
+```
 
-```tsx
-import { useState, useEffect } from 'react';
-import { api } from '../utils/api';
-
-export function PatientList() {
-  const [patients, setPatients] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    async function loadPatients() {
-      try {
-        const data = await api.get('patients');
-        setPatients(data);
-      } catch (error) {
-        console.error('Error loading patients:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
+**Deleting Records (Before):**
+```typescript
+const deletePatient = async (id) => {
+  const { error } = await supabase
+    .from('patients')
+    .delete()
+    .eq('id', id);
     
-    loadPatients();
-  }, []);
+  if (error) {
+    console.error('Error deleting patient:', error);
+    throw error;
+  }
   
-  // Rest of component...
-}
+  return true;
+};
+```
+
+**Deleting Records (After):**
+```typescript
+const deletePatient = async (id) => {
+  try {
+    await api.delete('patients', id);
+    return true;
+  } catch (error) {
+    console.error('Error deleting patient:', error);
+    throw error;
+  }
+};
+```
+
+### 3. Handle More Complex Queries
+
+For more complex queries, our API utility supports special formats:
+
+**Filtering, Sorting and Limiting (Before):**
+```typescript
+const { data, error } = await supabase
+  .from('appointments')
+  .select('*, patient:patients(*)')
+  .eq('status', 'scheduled')
+  .order('appointment_date', { ascending: true })
+  .limit(10);
+```
+
+**Filtering, Sorting and Limiting (After):**
+```typescript
+const data = await api.post('appointments/query', {
+  select: '*, patient:patients(*)',
+  filters: [
+    { field: 'status', operator: 'eq', value: 'scheduled' }
+  ],
+  sort: { field: 'appointment_date', ascending: true },
+  limit: 10
+});
+```
+
+## Integration with External Services
+
+The API utility also routes requests to external services through Netlify Functions:
+
+### AI Integration
+
+```typescript
+import { ai } from '../utils/ai';
+
+// Generate AI-powered dental diagnosis
+const diagnosis = await ai.getDentalDiagnosis(symptoms);
+
+// Get treatment recommendations
+const treatment = await ai.getTreatmentRecommendations(diagnosis);
+
+// Basic chat interface
+const response = await ai.chat([
+  ai.systemMessage('You are a dental assistant AI.'),
+  ai.userMessage('What causes tooth sensitivity?')
+]);
+```
+
+### Social Media Integration
+
+```typescript
+// Post to social media
+const result = await api.post('social/post', {
+  post: 'Check out our new dental services!',
+  platforms: ['twitter', 'facebook'],
+  mediaUrls: ['https://example.com/image.jpg']
+});
+```
+
+### Newsletter Integration
+
+```typescript
+// Add subscriber to newsletter
+const subscriber = await api.post('newsletter/subscriber', {
+  email: 'patient@example.com',
+  publicationId: 'pub_123',
+  firstName: 'John',
+  lastName: 'Doe'
+});
+
+// Unsubscribe from newsletter
+const result = await api.put('newsletter/subscriber', {
+  email: 'patient@example.com',
+  publicationId: 'pub_123',
+  status: 'unsubscribed'
+});
+```
+
+### Call Center Integration
+
+```typescript
+// Start a call
+const call = await api.post('retell/start-call', {
+  agentId: 'agent_123',
+  phoneNumber: '+15551234567',
+  userPhoneNumber: '+15557654321'
+});
+```
+
+### Push Notifications
+
+```typescript
+// Send a notification
+const notification = await api.post('notifications/send', {
+  title: 'Appointment Reminder',
+  body: 'Your dental checkup is tomorrow at 2pm',
+  token: deviceToken, // For a single device
+  // OR
+  tokens: [deviceToken1, deviceToken2], // For multiple devices
+  // OR
+  topic: 'appointment-reminders', // For subscribers to a topic
+  data: { appointmentId: '123' } // Optional additional data
+});
 ```
 
 ## Testing Your Integration
 
-1. Test locally first:
-   - Run `npm run dev` to test in development mode
-   - The API utility will use direct Supabase calls
+After updating your components, test them in both environments:
 
-2. Deploy to Netlify:
-   - Push your changes to your repository
-   - Netlify will build and deploy your app
-   - The API utility will automatically switch to using Netlify Functions
+1. **Development**: Run `npm run dev` to test locally
+2. **Production**: Deploy to Netlify and test on the live site
 
-3. Verify functionality:
-   - Test all features of your app on the deployed site
-   - Check the browser console for any errors
-   - Use the Network tab to inspect API calls
+Always check the browser's Console and Network tabs for errors.
 
-## Example Component
+## Common Integration Challenges
 
-We've included an example component in `src/examples/NetlifyApiExample.tsx` that demonstrates how to use the API utility with various endpoints. You can use this as a reference when updating your components.
+### 1. Authentication
+
+If your components use Supabase authentication:
+
+```typescript
+// Before
+const { data: { user } } = await supabase.auth.getUser();
+
+// After
+const user = await api.get('auth/user');
+```
+
+### 2. Storage
+
+For file uploads and storage operations:
+
+```typescript
+// Before
+const { data, error } = await supabase.storage
+  .from('avatars')
+  .upload(`public/${fileName}`, file);
+
+// After
+const formData = new FormData();
+formData.append('file', file);
+formData.append('bucket', 'avatars');
+formData.append('path', `public/${fileName}`);
+
+const data = await api.post('storage/upload', formData, {
+  headers: {
+    'Content-Type': 'multipart/form-data'
+  }
+});
+```
+
+### 3. Real-time Subscriptions
+
+For real-time subscriptions, continue to use the direct Supabase client:
+
+```typescript
+// This still works in both environments
+const subscription = supabase
+  .channel('table-changes')
+  .on('postgres_changes', {
+    event: 'INSERT',
+    schema: 'public',
+    table: 'messages'
+  }, (payload) => {
+    // Handle new message
+  })
+  .subscribe();
+```
+
+## Need More Help?
+
+Refer to these resources:
+- `README-NETLIFY.md` for general deployment information
+- `NETLIFY-DEBUGGING.md` for troubleshooting
+- `NETLIFY-STARTUP-GUIDE.md` for step-by-step deployment
+- `src/examples/` directory for working example components

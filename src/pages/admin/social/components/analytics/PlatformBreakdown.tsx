@@ -6,10 +6,10 @@ import * as Icons from 'lucide-react';
 
 export const PlatformBreakdown = () => {
   const data = [
-    { name: 'Instagram', value: 45, color: '#E4405F' },
-    { name: 'Facebook', value: 30, color: '#1877F2' },
-    { name: 'Twitter', value: 15, color: '#1DA1F2' },
-    { name: 'LinkedIn', value: 10, color: '#0A66C2' },
+    { name: 'Instagram', value: 45, color: '#6B4C9A' }, // Purple
+    { name: 'Facebook', value: 30, color: '#1B2B5B' }, // Navy
+    { name: 'Twitter', value: 15, color: '#4BC5BD' }, // Turquoise
+    { name: 'LinkedIn', value: 10, color: '#C5A572' }, // Gold
   ];
 
   return (

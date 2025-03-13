@@ -1,10 +1,12 @@
-# Netlify configuration for DentalHub
+# Netlify configuration for DentalHub - Production Ready Version
 
 [build]
   # Command to build your site
   command = "npm run build"
   # Directory to publish (Vite default is "dist")
   publish = "dist"
+  # Ignore certain files/directories during build
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF netlify/ src/"
 
 # Functions configuration
 [functions]
@@ -16,6 +18,14 @@
   timeout = 30
   # Include all necessary files for functions
   included_files = ["netlify/functions/**/*.js"]
+  
+  # External node modules that should be included
+  external_node_modules = ["axios", "@supabase/supabase-js"]
+  
+  # Individual function configurations
+  [functions.health-check]
+    # Health check should have a shorter timeout
+    timeout = 10
 
 # Environment variable configuration
 [build.environment]
@@ -44,7 +54,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://api.deepseek.com https://*.netlify.app https://www.google-analytics.com;"
+    Content-Security-Policy = "default-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://*.supabase.co https://api.deepseek.com https://*.netlify.app https://www.google-analytics.com https://dentalhub.netlify.app https://dentalhub-v10.netlify.app;"
 
 # Performance optimization for static assets
 [[headers]]

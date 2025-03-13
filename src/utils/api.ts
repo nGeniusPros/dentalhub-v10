@@ -18,8 +18,9 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Determine if we're in development or production
-const isProduction = import.meta.env.PROD || 
-  window.location.hostname === 'dentalhub-v10.netlify.app' || 
+const isProduction = import.meta.env.PROD ||
+  window.location.hostname === 'dentalhub-v10.netlify.app' ||
+  window.location.hostname === 'dentalhub.netlify.app' ||
   window.location.hostname.endsWith('.netlify.app');
 
 // Base URL for API requests

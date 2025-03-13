@@ -1,19 +1,22 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { initErrorTracking } from '../utils/errorTracking';
 
 interface AuthContextType {
   user: User | null;
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  loading: boolean; // Alias for isLoading to maintain compatibility
   devLogin: () => void; // Added for development/testing
 }
 
 interface User {
   id: string;
-  role: 'admin' | 'staff' | 'patient';
+  role: 'admin' | 'staff' | 'patient' | 'super_admin';
   name: string;
   title?: string;
   department?: string;
+  locationId?: string; // Reference to the user's assigned location
 }
 
 interface LoginCredentials {
@@ -49,10 +52,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       role: 'admin' as const,
       name: 'Dev Admin',
       title: 'Administrator',
-      department: 'Development'
+      department: 'Development',
+      locationId: 'dev-location-id' // Mock location ID for development
     };
     setUser(devUser);
     localStorage.setItem('user', JSON.stringify(devUser));
+    
+    // For development, also create a mock location in localStorage
+    // This helps with testing LocationContext functionality
+    const devLocation = {
+      id: 'dev-location-id',
+      name: 'Development Office',
+      address: '123 Dev Street',
+      city: 'San Francisco',
+      state: 'CA',
+      postalCode: '94103',
+      contactPhone: '555-123-4567',
+      contactEmail: 'dev@dentalhub.com'
+    };
+    localStorage.setItem('dev-location', JSON.stringify(devLocation));
+    
     console.log('Development auto-login successful');
   };
 
@@ -70,6 +89,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userData = await response.json();
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+      
+      // Initialize error tracking with user ID for better error context
+      if (import.meta.env.PROD) {
+        initErrorTracking(userData.id);
+      }
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -82,7 +106,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading, devLogin }}>
+    <AuthContext.Provider value={{
+      user,
+      login,
+      logout,
+      isLoading,
+      loading: isLoading, // Add alias for compatibility
+      devLogin
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,16 +1,34 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import * as Icons from 'lucide-react';
+import {
+  Stethoscope, BarChart2, Shield, MessageSquare,
+  Users, GraduationCap, Trophy, Crown, RotateCcw, Settings
+} from 'lucide-react';
 import { Button } from '../../../../components/ui/button';
 import { cn } from '../../../../lib/utils';
 import { Toggle } from '../../../../components/ui/toggle';
 import { useSettings } from '../../../../contexts/SettingsContext';
-import type { Settings } from '../../../../types/settings';
+
+// Icon mapping to use in our component
+const iconMap = {
+  Stethoscope,
+  BarChart2,
+  Shield,
+  MessageSquare,
+  Users,
+  GraduationCap,
+  Trophy,
+  Crown,
+  Settings
+};
+
+// Type for our iconMap keys
+type IconName = keyof typeof iconMap;
 
 interface FeatureGroup {
   title: string;
   description: string;
-  icon: keyof typeof Icons;
+  icon: IconName;
   features: Feature[];
 }
 
@@ -251,12 +269,12 @@ const featureGroups: FeatureGroup[] = [
 
 export const FeatureSettings = () => {
   const { state, updateSettings } = useSettings();
-  const { settings } = state;
+
 
   const handleFeatureToggle = async (featureId: string, enabled: boolean) => {
     await updateSettings({
-      features: {
-        ...settings.features,
+      type: 'UPDATE_FEATURES',
+      payload: {
         [featureId]: enabled
       }
     });
@@ -276,7 +294,7 @@ export const FeatureSettings = () => {
           <p className="text-gray-500">Control access to features and functionality</p>
         </div>
         <Button variant="outline">
-          <Icons.RotateCcw className="w-4 h-4 mr-2" />
+          <RotateCcw className="w-4 h-4 mr-2" />
           Reset to Defaults
         </Button>
       </div>
@@ -286,9 +304,10 @@ export const FeatureSettings = () => {
           <div key={group.title} className="border border-gray-200 rounded-xl p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="p-2 bg-primary/10 rounded-lg">
-                {React.createElement(Icons[group.icon], {
-                  className: "w-6 h-6 text-primary"
-                })}
+                {(() => {
+                  const IconComponent = iconMap[group.icon];
+                  return <IconComponent className="w-6 h-6 text-primary" />;
+                })()}
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900">{group.title}</h3>
@@ -325,7 +344,7 @@ export const FeatureSettings = () => {
                   </div>
                   <div className="ml-4">
                     <Toggle
-                      checked={settings.features?.[feature.id] ?? feature.defaultEnabled}
+                      checked={state.features?.[feature.id] ?? feature.defaultEnabled}
                       onChange={(checked) => handleFeatureToggle(feature.id, checked)}
                     />
                   </div>
