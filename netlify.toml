@@ -15,17 +15,20 @@
   # Use esbuild for better performance
   node_bundler = "esbuild"
   # Increase timeout for functions that may take longer (like AI operations)
-  timeout = 30
+  [functions.timeout]
+    external_node_modules = []
+    time = 30
   # Include all necessary files for functions
   included_files = ["netlify/functions/**/*.js"]
   
   # External node modules that should be included
-  external_node_modules = ["axios", "@supabase/supabase-js"]
   
   # Individual function configurations
   [functions.health-check]
     # Health check should have a shorter timeout
-    timeout = 10
+    [functions.health-check.timeout]
+      external_node_modules = []
+      time = 10
 
 # Environment variable configuration
 [build.environment]

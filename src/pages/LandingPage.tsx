@@ -2,17 +2,16 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Mockup } from "@/components/ui/mockup";
-import { Glow } from "@/components/ui/glow";
-import { 
-  LucideMessageSquare, 
-  LucideArrowRight, 
-  LucideCheck, 
-  LucideCheckCircle, 
-  LucideChevronDown, 
-  LucideChevronRight, 
-  LucideDollarSign, 
-  LucideBrain, 
-  LucideUsers, 
+import {
+  LucideMessageSquare,
+  LucideArrowRight,
+  LucideCheck,
+  LucideCheckCircle,
+  LucideChevronDown,
+  LucideChevronRight,
+  LucideDollarSign,
+  LucideBrain,
+  LucideUsers,
   LucideCalendar,
   LucideLineChart,
   LucideClipboard,
@@ -24,6 +23,72 @@ import {
 import { Link } from "react-router-dom";
 import StatsCard from "@/components/dashboard/StatsCard";
 import FeatureHighlight from "@/components/FeatureHighlight";
+import { Glow } from "@/components/ui/glow";
+
+const Header = () => {
+  // Function to handle smooth scrolling to sections
+  const scrollToSection = (sectionId: string) => {
+    console.log(`Scrolling to section: ${sectionId}`);
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      console.warn(`Section with id "${sectionId}" not found. Please ensure the section exists in the document.`);
+    }
+  };
+
+  return (
+    <header className="bg-white py-4 shadow-md sticky top-0 z-50">
+      <div className="container mx-auto px-4 flex items-center justify-between">
+        {/* Logo */}
+        <div className="text-2xl font-bold text-navy">
+          nGenius Pros
+        </div>
+
+        {/* Navigation Links and CTA aligned to the right */}
+        <div className="flex items-center space-x-8">
+          <Link
+            to="/#how-it-works"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollToSection('how-it-works');
+            }}
+            className="text-gray-darker hover:text-navy transition-colors"
+          >
+            How It Works
+          </Link>
+          <Link
+            to="/#features"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollToSection('features');
+            }}
+            className="text-gray-darker hover:text-navy transition-colors"
+          >
+            Features
+          </Link>
+          <Link
+            to="/#faq"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollToSection('faq');
+            }}
+            className="text-gray-darker hover:text-navy transition-colors"
+          >
+            FAQ
+          </Link>
+          
+          {/* Call-to-Action Button */}
+          <Button className="bg-gradient-to-r from-turquoise to-navy text-white font-medium hover:from-navy hover:to-turquoise transition-colors" asChild>
+            <Link to="/signup">
+              Join the Waitlist
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </header>
+  );
+};
 
 // Portal card component for the second section
 interface PortalCardProps {
@@ -178,48 +243,55 @@ const BenefitCard = ({ title, items, icon, color }: { title: string; items: stri
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-gray-smoke">
+      <Header />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gray-smoke py-16 md:py-24 lg:py-32">
         <div className="relative mx-auto max-w-[1280px] px-4">
           <div className="relative z-10 flex flex-col items-center text-center">
             {/* Heading */}
-            <h1 className={cn(
-              "inline-block animate-appear",
-              "text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl",
-              "leading-[1.1] text-navy",
-              "mb-6",
-            )}>
-              The Future of Dental Practice<br />Management is Here!
+            <h1
+              className={cn(
+                "inline-block animate-appear",
+                "text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl",
+                "leading-[1.1] text-navy",
+                "mb-6"
+              )}
+            >
+              The Future of Dental Practice
+              <br />
+              Management is Here!
             </h1>
 
             {/* Description */}
-            <p className={cn(
-              "max-w-[650px] animate-appear opacity-0 [animation-delay:150ms]",
-              "text-base sm:text-lg md:text-xl",
-              "text-gray-darker",
-              "font-medium mb-8",
-            )}>
+            <p
+              className={cn(
+                "max-w-[650px] animate-appear opacity-0 [animation-delay:150ms]",
+                "text-base sm:text-lg md:text-xl",
+                "text-gray-darker",
+                "font-medium mb-8"
+              )}
+            >
               Transform your dental practice with our AI-powered platform:
-              designed to enhance patient care, optimize operations, and maximize profitability.
+              designed to enhance patient care, optimize operations, and
+              maximize profitability.
             </p>
 
             {/* CTAs */}
-            <div className="relative z-10 flex flex-wrap justify-center gap-4 mb-16
-                animate-appear opacity-0 [animation-delay:300ms]">
+            <div
+              className="relative z-10 flex flex-wrap justify-center gap-4 mb-16
+                animate-appear opacity-0 [animation-delay:300ms]"
+            >
               <Button
                 size="lg"
                 className={cn(
                   "bg-gradient-to-r from-turquoise to-navy hover:from-navy hover:to-turquoise",
                   "text-white font-medium shadow-lg",
-                  "transition-all duration-300",
+                  "transition-all duration-300"
                 )}
                 asChild
               >
-                <Link to="/signup">
-                Join our exclusive waitlist today!
-                </Link>
+                <Link to="/signup">Join our exclusive waitlist today!</Link>
               </Button>
-
             </div>
 
             {/* Mockup */}
@@ -228,7 +300,7 @@ export default function LandingPage() {
                 className={cn(
                   "animate-appear opacity-0 [animation-delay:700ms]",
                   "shadow-[0_0_50px_-12px_rgba(0,0,0,0.3)]",
-                  "border-navy/10",
+                  "border-navy/10"
                 )}
               >
                 <img
@@ -244,15 +316,17 @@ export default function LandingPage() {
             </div>
 
             {/* Subheading under mockup */}
-            <p className={cn(
-              "max-w-[800px] mt-8 animate-appear opacity-0 [animation-delay:900ms]",
-              "text-base sm:text-lg",
-              "text-gray-darker",
-              "font-medium italic text-center",
-            )}>
-              Experience the revolutionary nGenius Pros Dental Hub—an all-in-one platform 
-              powered by advanced AI that optimizes operations, boosts treatment acceptance, 
-              and keeps patients coming back effortlessly.
+            <p
+              className={cn(
+                "max-w-[800px] mt-8 animate-appear opacity-0 [animation-delay:900ms]",
+                "text-base sm:text-lg",
+                "text-gray-darker",
+                "font-medium italic text-center"
+              )}
+            >
+              Experience the revolutionary nGenius Pros Dental Hub—an all-in-one
+              platform powered by advanced AI that optimizes operations, boosts
+              treatment acceptance, and keeps patients coming back effortlessly.
             </p>
           </div>
         </div>
@@ -267,7 +341,7 @@ export default function LandingPage() {
       </section>
 
       {/* AI Features Section */}
-      <section className="py-24 px-4 bg-white">
+      <section id="features" className="py-24 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
@@ -524,7 +598,7 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-24 px-4 bg-white">
+      <section id="how-it-works" className="py-24 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
@@ -537,22 +611,22 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="flex flex-col items-center text-center p-6">
-              <div className="w-16 h-16 bg-navy text-white rounded-full flex items-center justify-center mb-4 text-xl font-bold">1</div>
+              <div className="w-16 h-16 bg-navy text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">1</div>
               <h3 className="text-xl font-bold text-navy mb-2">Integration</h3>
               <p className="text-gray-darker">Quick integration with your existing practice management software</p>
             </div>
             <div className="flex flex-col items-center text-center p-6">
-              <div className="w-16 h-16 bg-turquoise text-white rounded-full flex items-center justify-center mb-4 text-xl font-bold">2</div>
+              <div className="w-16 h-16 bg-turquoise text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">2</div>
               <h3 className="text-xl font-bold text-navy mb-2">Data Analysis</h3>
               <p className="text-gray-darker">Our AI analyzes your practice data to identify optimization opportunities</p>
             </div>
             <div className="flex flex-col items-center text-center p-6">
-              <div className="w-16 h-16 bg-purple text-white rounded-full flex items-center justify-center mb-4 text-xl font-bold">3</div>
+              <div className="w-16 h-16 bg-purple text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">3</div>
               <h3 className="text-xl font-bold text-navy mb-2">Implementation</h3>
               <p className="text-gray-darker">Implement AI-powered workflows and patient communication systems</p>
             </div>
             <div className="flex flex-col items-center text-center p-6">
-              <div className="w-16 h-16 bg-gold text-white rounded-full flex items-center justify-center mb-4 text-xl font-bold">4</div>
+              <div className="w-16 h-16 bg-gold text-white rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">4</div>
               <h3 className="text-xl font-bold text-navy mb-2">Growth</h3>
               <p className="text-gray-darker">Watch your practice thrive with continued optimization and support</p>
             </div>
@@ -596,7 +670,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 px-4 bg-white">
+      <section id="faq" className="py-24 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">

@@ -94,7 +94,7 @@ const FaqItem = ({ question, answer }: { question: string; answer: string }) => 
 // Testimonial Card Component
 const TestimonialCard = ({ quote, author, role, image }: { quote: string; author: string; role: string; image: string }) => {
   return (
-    <div className="bg-white rounded-xl shadow-sm hover:shadow-glow transition-shadow p-6">
+    <div className="bg-white rounded-xl shadow-sm p-6">
       <div className="mb-4 text-gold">
         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
           <path d="M11.192 15.757c0-.88-.23-1.618-.69-2.217-.326-.412-.768-.683-1.327-.812-.55-.128-1.07-.137-1.54-.028-.16.032-.52.112-1.1.248-.73.168-1.29.3-1.71.393.5-1.524 1.233-2.593 2.2-3.22.966-.626 2.184-.942 3.654-.942v-2.134c-1.326 0-2.52.214-3.585.642-1.066.427-1.975 1.03-2.727 1.808-.75.773-1.337 1.698-1.757 2.773-.42 1.07-.63 2.235-.63 3.497 0 1.205.148 2.26.445 3.167.298.9.738 1.668 1.32 2.29.58.626 1.296 1.1 2.146 1.427.85.32 1.816.482 2.89.482.714 0 1.413-.07 2.105-.21.692-.143 1.304-.354 1.834-.635.53-.28.972-.62 1.328-1.017.354-.398.63-.846.83-1.347.197-.5.295-1.07.295-1.71zm10.264 0c0-.88-.23-1.618-.69-2.217-.326-.42-.77-.695-1.327-.824-.56-.13-1.07-.14-1.54-.03-.16.033-.506.113-1.07.248-.73.168-1.29.3-1.71.394.497-1.525 1.233-2.594 2.2-3.22.966-.626 2.184-.942 3.654-.942v-2.12c-1.326 0-2.522.214-3.585.642-1.066.427-1.975 1.03-2.727 1.808-.75.773-1.34 1.7-1.758 2.775-.42 1.068-.63 2.233-.63 3.495 0 1.205.148 2.26.445 3.167.298.9.737 1.667 1.318 2.29.583.626 1.297 1.1 2.147 1.427.85.32 1.816.483 2.89.483.714 0 1.413-.07 2.105-.21.692-.143 1.304-.354 1.834-.635.53-.28.972-.62 1.328-1.016.355-.4.63-.85.83-1.35.2-.5.294-1.07.294-1.713z" />
@@ -165,7 +165,7 @@ const LegalDocumentModal = ({
 const WaitlistForm = () => {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 max-w-md mx-auto">
-      <h3 className="text-xl font-bold text-navy mb-4">Join the RecallGenius Waitlist</h3>
+      <h3 className="text-xl font-bold text-navy mb-4">Join the Exclusive Waitlist</h3>
       
       <form className="space-y-4">
         <div>
@@ -253,10 +253,54 @@ export default function LandingPage() {
     <!-- More cookie policy content here -->
   `;
 
+  const scrollToSection = (sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-smoke">
+      {/* Header Component */}
+      <header className="bg-white py-4">
+        <div className="max-w-7xl mx-auto px-4">
+          <nav className="flex justify-between items-center">
+            <div className="flex items-center">
+              <Link to="/" className="text-lg font-bold text-navy">RecallGenius</Link>
+            </div>
+            <div className="flex items-center space-x-4">
+              <button 
+                onClick={() => scrollToSection('how-it-works')} 
+                className="text-sm text-gray-700 hover:text-navy"
+              >
+                How It Works
+              </button>
+              <button 
+                onClick={() => scrollToSection('features')} 
+                className="text-sm text-gray-700 hover:text-navy"
+              >
+                Features
+              </button>
+              <button 
+                onClick={() => scrollToSection('faq')} 
+                className="text-sm text-gray-700 hover:text-navy"
+              >
+                FAQ
+              </button>
+              {/* Call-to-Action Button */}
+          <Button className="bg-gradient-to-r from-turquoise to-navy text-white font-medium hover:from-navy hover:to-turquoise transition-colors" asChild>
+            <Link to="/signup">
+              Join the Waitlist
+            </Link>
+          </Button>
+            </div>
+          </nav>
+        </div>
+      </header>
+
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gray-smoke py-16 md:py-24 lg:py-32">
+      <section id="hero" className="relative overflow-hidden bg-gray-smoke py-16 md:py-24 lg:py-32">
         <div className="relative mx-auto max-w-[1280px] px-4">
           <div className="relative z-10 flex flex-col items-center text-center">
             {/* Heading */}
@@ -345,7 +389,7 @@ export default function LandingPage() {
       </section>
 
       {/* Problem Section */}
-      <section className="py-16 px-4 bg-white">
+      <section id="problem" className="py-16 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
@@ -400,15 +444,15 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feature Grid Section */}
-      <section className="py-24 px-4 bg-white">
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-24 px-4 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
-              RecallGenius: Your AI-Powered Recall Assistant
+              How RecallGenius Works
             </h2>
             <p className="text-gray-darker max-w-3xl mx-auto">
-              Joining our waitlist gives you priority access to these powerful features when we launch
+              Our AI-powered recall solution helps you identify overdue patients, send personalized reminders, and rebook no-shows automatically.
             </p>
           </div>
 
@@ -428,6 +472,23 @@ export default function LandingPage() {
               description="Patients confirm or reschedule with a single tap on their phone, dramatically reducing the $200-$292 loss per missed appointment."
               icon={<LucideBrain className="h-6 w-6" />}
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Grid Section */}
+      <section id="features" className="py-24 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
+              RecallGenius: Your AI-Powered Recall Assistant
+            </h2>
+            <p className="text-gray-darker max-w-3xl mx-auto">
+              Joining our waitlist gives you priority access to these powerful features when we launch
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard 
               title="Real-Time ROI Dashboard"
               description="See exactly how many appointments were recovered and quantify revenue impact, with practices typically reclaiming $36,000+ annually."
@@ -460,87 +521,88 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-  <div className="bg-navy text-white rounded-xl shadow-sm hover:shadow-glow transition-shadow p-6">
-    <div className="flex justify-between items-start mb-2">
-      <div>
-        <p className="text-sm opacity-75">Missed Appointments</p>
-        <h3 className="text-xl font-bold mb-1">15%</h3>
-      </div>
-      <div className="bg-navy-light rounded-full p-2">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      </div>
-    </div>
-    <div className="text-sm text-white/80 mt-4">
-      <p>Research shows 15% of dental appointments are missed, affecting your practice's bottom line</p>
-    </div>
-    <div className="text-xs text-white/60 mt-2">
-      First™
-    </div>
-  </div>
-  
-  <div className="bg-amber-100 text-gray-900 rounded-xl shadow-sm hover:shadow-glow transition-shadow p-6">
-    <div className="flex justify-between items-start mb-2">
-      <div>
-        <p className="text-sm opacity-75">Revenue Loss</p>
-        <h3 className="text-xl font-bold mb-1">$200-$292</h3>
-      </div>
-      <div className="bg-amber-200 rounded-full p-2">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      </div>
-    </div>
-    <div className="text-sm mt-4">
-      <p>Each missed appointment costs your practice between $200-$292 in direct revenue loss</p>
-    </div>
-    <div className="text-xs text-amber-800/60 mt-2">
-      Per Appointment
-    </div>
-  </div>
-  
-  <div className="bg-teal-100 text-gray-900 rounded-xl shadow-sm hover:shadow-glow transition-shadow p-6">
-    <div className="flex justify-between items-start mb-2">
-      <div>
-        <p className="text-sm opacity-75">Annual Loss</p>
-        <h3 className="text-xl font-bold mb-1">$36,000-$52,686</h3>
-      </div>
-      <div className="bg-teal-200 rounded-full p-2">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-        </svg>
-      </div>
-    </div>
-    <div className="text-sm mt-4">
-      <p>For a practice with 1,200 annual appointments, missed visits can cost up to $52,686 yearly</p>
-    </div>
-    <div className="text-xs text-teal-800/60 mt-2">
-      Recoverable
-    </div>
-  </div>
-  
-  <div className="bg-purple-100 text-gray-900 rounded-xl shadow-sm hover:shadow-glow transition-shadow p-6">
-    <div className="flex justify-between items-start mb-2">
-      <div>
-        <p className="text-sm opacity-75">Digital ROI</p>
-        <h3 className="text-xl font-bold mb-1">$120,000</h3>
-      </div>
-      <div className="bg-purple-200 rounded-full p-2">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-        </svg>
-      </div>
-    </div>
-    <div className="text-sm mt-4">
-      <p>Practices using digital recall systems generate an additional $120,000 in annual revenue</p>
-    </div>
-    <div className="text-xs text-purple-800/60 mt-2">
-      Additional Revenue
-    </div>
-  </div>
-</div>
-</div></section>
+            <div className="bg-navy text-white rounded-xl shadow-sm hover:shadow-glow transition-shadow p-6">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <p className="text-sm opacity-75">Missed Appointments</p>
+                  <h3 className="text-xl font-bold mb-1">15%</h3>
+                </div>
+                <div className="bg-navy-light rounded-full p-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="text-sm text-white/80 mt-4">
+                <p>Research shows 15% of dental appointments are missed, affecting your practice's bottom line</p>
+              </div>
+              <div className="text-xs text-white/60 mt-2">
+                First™
+              </div>
+            </div>
+            
+            <div className="bg-amber-100 text-gray-900 rounded-xl shadow-sm hover:shadow-glow transition-shadow p-6">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <p className="text-sm opacity-75">Revenue Loss</p>
+                  <h3 className="text-xl font-bold mb-1">$200-$292</h3>
+                </div>
+                <div className="bg-amber-200 rounded-full p-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="text-sm mt-4">
+                <p>Each missed appointment costs your practice between $200-$292 in direct revenue loss</p>
+              </div>
+              <div className="text-xs text-amber-800/60 mt-2">
+                Per Appointment
+              </div>
+            </div>
+            
+            <div className="bg-teal-100 text-gray-900 rounded-xl shadow-sm hover:shadow-glow transition-shadow p-6">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <p className="text-sm opacity-75">Annual Loss</p>
+                  <h3 className="text-xl font-bold mb-1">$36,000-$52,686</h3>
+                </div>
+                <div className="bg-teal-200 rounded-full p-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="text-sm mt-4">
+                <p>For a practice with 1,200 annual appointments, missed visits can cost up to $52,686 yearly</p>
+              </div>
+              <div className="text-xs text-teal-800/60 mt-2">
+                Recoverable
+              </div>
+            </div>
+            
+            <div className="bg-purple-100 text-gray-900 rounded-xl shadow-sm hover:shadow-glow transition-shadow p-6">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <p className="text-sm opacity-75">Digital ROI</p>
+                  <h3 className="text-xl font-bold mb-1">$120,000</h3>
+                </div>
+                <div className="bg-purple-200 rounded-full p-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                </div>
+              </div>
+              <div className="text-sm mt-4">
+                <p>Practices using digital recall systems generate an additional $120,000 in annual revenue</p>
+              </div>
+              <div className="text-xs text-purple-800/60 mt-2">
+                Additional Revenue
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Waitlist Form Section */}
       <section className="py-24 px-4 bg-white">
@@ -595,7 +657,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ Section - Updated with waitlist-specific questions */}
-      <section className="py-24 px-4 bg-white">
+      <section id="faq" className="py-24 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
