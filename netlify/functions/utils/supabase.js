@@ -1,4 +1,4 @@
-const { supabase } = require('../../src/lib/supabase');
+const { createClient } = require('@supabase/supabase-js');
 
 /**
  * Initialize Supabase client with environment variables
@@ -7,6 +7,11 @@ const { supabase } = require('../../src/lib/supabase');
 const initSupabase = () => {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+  const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      persistSession: false
+    }
+  });
 
   if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error('Missing Supabase environment variables');
@@ -47,16 +52,17 @@ const getUserByToken = async (token) => {
  * @returns {Object} Supabase client authenticated as user
  */
 const getSupabaseForUser = (token) => {
-
-
+  const supabase = initSupabase();
+  // Set auth token
+  supabase.auth.setAuth(token);
   return supabase;
 };
 
-
-
-
-
-
+/**
+ * Verify a JWT token
+ * @param {string} token JWT token from request
+ * @returns {Promise<Object>} Decoded token payload
+ */
 const verifyToken = async (token) => {
   // This is a simplified implementation
   // In production, use a proper JWT verification library

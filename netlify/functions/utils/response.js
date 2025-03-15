@@ -112,9 +112,12 @@ const validateRequiredFields = (payload, requiredFields) => {
  * @returns {Object} Supabase client or null if environment variables are missing
  */
 const createSupabaseAdmin = () => {
-  const { supabase } = require('../../src/lib/supabase');
+  const { createClient } = require('@supabase/supabase-js');
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
+  if (!supabaseUrl || !supabaseServiceKey) {
     console.error('Missing Supabase environment variables');
     return null;
   }
