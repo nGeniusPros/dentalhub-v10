@@ -1,21 +1,20 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { createClient } from '@supabase/supabase-js';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { supabase } from '../lib/supabase';
 
 /**
  * API Utility
- * 
+ *
  * This utility provides a smart API interface that automatically:
  * - Uses direct Supabase calls in development environment
  * - Routes through Netlify Functions in production environment
- * 
+ *
  * This approach ensures your app works both locally and when deployed to Netlify
  * without requiring code changes.
  */
 
-// Initialize Supabase client for direct database access in development
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Validate Supabase URL and key before creating client
+const apiSupabase = supabase;
 
 // Determine if we're in development or production
 const isProduction = import.meta.env.PROD ||
@@ -61,9 +60,14 @@ export const api = {
     
     // In development and not a special endpoint, use direct Supabase
     if (!isProduction && !forceNetlify) {
+      // Check if Supabase client is available
+      if (!apiSupabase) {
+        throw new Error('Supabase client is not initialized. Check your environment variables.');
+      }
+      
       try {
         // Assume endpoint is a table name
-        const { data, error } = await supabase
+        const { data, error } = await apiSupabase
           .from(endpoint)
           .select('*')
           .order('created_at', { ascending: false });
@@ -116,7 +120,7 @@ export const api = {
     if (!isProduction && !forceNetlify) {
       try {
         // Assume endpoint is a table name and data is a record to insert
-        const { data: responseData, error } = await supabase
+        const { data: responseData, error } = await apiSupabase
           .from(endpoint)
           .insert(data)
           .select();
@@ -167,7 +171,7 @@ export const api = {
         }
         
         // Assume endpoint is a table name and data has an ID
-        const { data: responseData, error } = await supabase
+        const { data: responseData, error } = await apiSupabase
           .from(endpoint)
           .update(data)
           .eq('id', data.id)
@@ -215,7 +219,7 @@ export const api = {
     if (!isProduction && !forceNetlify) {
       try {
         // Assume endpoint is a table name
-        const { data: responseData, error } = await supabase
+        const { data: responseData, error } = await apiSupabase
           .from(endpoint)
           .delete()
           .eq('id', id);
@@ -244,7 +248,7 @@ export const api = {
    * Direct access to the Supabase client
    * Note: This should only be used for complex operations not covered by the API methods
    */
-  supabase,
+  apiSupabase,
 };
 
 export default api;

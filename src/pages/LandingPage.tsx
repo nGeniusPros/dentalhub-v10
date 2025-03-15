@@ -3,7 +3,24 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Mockup } from "@/components/ui/mockup";
 import { Glow } from "@/components/ui/glow";
-import { LucideMessageSquare, LucideArrowRight, LucideCheck, LucideCheckCircle, LucideChevronDown, LucideChevronRight, LucideDollarSign, LucideBrain, LucideUsers, LucideCalendar } from "lucide-react";
+import { 
+  LucideMessageSquare, 
+  LucideArrowRight, 
+  LucideCheck, 
+  LucideCheckCircle, 
+  LucideChevronDown, 
+  LucideChevronRight, 
+  LucideDollarSign, 
+  LucideBrain, 
+  LucideUsers, 
+  LucideCalendar,
+  LucideLineChart,
+  LucideClipboard,
+  LucideActivity,
+  LucideZap,
+  LucideShield,
+  LucideClock
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import StatsCard from "@/components/dashboard/StatsCard";
 import FeatureHighlight from "@/components/FeatureHighlight";
@@ -112,6 +129,19 @@ const TestimonialCard = ({ quote, author, role, image }: { quote: string; author
   );
 };
 
+// AI Feature Card Component
+const AIFeatureCard = ({ title, description, icon }: { title: string; description: string; icon: React.ReactNode }) => {
+  return (
+    <div className="bg-white rounded-xl shadow-sm hover:shadow-glow transition-shadow p-6 border-l-4 border-turquoise">
+      <div className="w-12 h-12 bg-turquoise/10 text-turquoise rounded-lg flex items-center justify-center mb-4">
+        {icon}
+      </div>
+      <h3 className="text-xl font-bold text-navy mb-2">{title}</h3>
+      <p className="text-gray-darker">{description}</p>
+    </div>
+  );
+};
+
 // Feature Card Component
 const FeatureCard = ({ title, description, icon }: { title: string; description: string; icon: React.ReactNode }) => {
   return (
@@ -121,6 +151,26 @@ const FeatureCard = ({ title, description, icon }: { title: string; description:
       </div>
       <h3 className="text-xl font-bold text-navy mb-2">{title}</h3>
       <p className="text-gray-darker">{description}</p>
+    </div>
+  );
+};
+
+// Benefit Card Component
+const BenefitCard = ({ title, items, icon, color }: { title: string; items: string[]; icon: React.ReactNode; color: string }) => {
+  return (
+    <div className={`bg-white rounded-xl shadow-sm hover:shadow-glow transition-shadow p-6 border-t-4 ${color}`}>
+      <div className={`w-12 h-12 ${color.replace('border-', 'text-')} rounded-lg flex items-center justify-center mb-4`}>
+        {icon}
+      </div>
+      <h3 className="text-xl font-bold text-navy mb-4">{title}</h3>
+      <ul className="space-y-2">
+        {items.map((item, index) => (
+          <li key={index} className="flex items-start">
+            <LucideCheck className={`h-5 w-5 mr-2 mt-0.5 ${color.replace('border-', 'text-')}`} />
+            <span className="text-gray-darker">{item}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
@@ -149,7 +199,7 @@ export default function LandingPage() {
               "text-gray-darker",
               "font-medium mb-8",
             )}>
-              Transform your dental practice with next-gen AI:
+              Transform your dental practice with our AI-powered platform:
               designed to enhance patient care, optimize operations, and maximize profitability.
             </p>
 
@@ -159,31 +209,17 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 className={cn(
-                  "bg-gradient-to-r from-navy to-navy-light hover:from-navy-light hover:to-navy",
+                  "bg-gradient-to-r from-turquoise to-navy hover:from-navy hover:to-turquoise",
                   "text-white font-medium shadow-lg",
                   "transition-all duration-300",
                 )}
                 asChild
               >
-                <Link to="/login/patient">
-                  Get Started
+                <Link to="/signup">
+                Join our exclusive waitlist today!
                 </Link>
               </Button>
 
-              <Button
-                size="lg"
-                variant="outline"
-                className={cn(
-                  "border-gray-light text-gray-darker hover:bg-gray-lighter",
-                  "transition-all duration-300",
-                )}
-                asChild
-              >
-                <a href="https://github.com/nGeniusPros/dentalhub-v10" target="_blank" rel="noopener noreferrer">
-                  <LucideArrowRight className="mr-2 h-4 w-4" />
-                  View on GitHub
-                </a>
-              </Button>
             </div>
 
             {/* Mockup */}
@@ -215,7 +251,8 @@ export default function LandingPage() {
               "font-medium italic text-center",
             )}>
               Experience the revolutionary nGenius Pros Dental Hub—an all-in-one platform 
-              that optimizes operations, boosts treatment acceptance, and keeps patients coming back effortlessly.
+              powered by advanced AI that optimizes operations, boosts treatment acceptance, 
+              and keeps patients coming back effortlessly.
             </p>
           </div>
         </div>
@@ -229,8 +266,45 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Feature Grid Section */}
+      {/* AI Features Section */}
       <section className="py-24 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">
+              AI-Powered Intelligence
+            </h2>
+            <p className="text-gray-darker max-w-3xl mx-auto text-lg">
+              Our cutting-edge artificial intelligence transforms every aspect of your practice
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <AIFeatureCard 
+              title="Recall Genius"
+              description="AI-driven patient recall system that identifies and prioritizes patients for follow-up, maximizing appointment scheduling and revenue."
+              icon={<LucideCalendar className="h-6 w-6" />}
+            />
+            <AIFeatureCard 
+              title="Smart Scheduling"
+              description="Intelligent appointment booking that considers staff availability, patient preferences, and treatment requirements."
+              icon={<LucideClock className="h-6 w-6" />}
+            />
+            <AIFeatureCard 
+              title="AI Diagnostics"
+              description="AI algorithms analyze patient data, including X-rays and dental records, to assist in early detection and treatment planning."
+              icon={<LucideBrain className="h-6 w-6" />}
+            />
+            <AIFeatureCard 
+              title="Personalized Comms"
+              description="AI-powered chatbots and communication tools that provide personalized support and tailored oral health recommendations."
+              icon={<LucideMessageSquare className="h-6 w-6" />}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Feature Grid Section */}
+      <section className="py-24 px-4 bg-gray-smoke">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
@@ -272,6 +346,130 @@ export default function LandingPage() {
               description="Stay compliant with regulations, monitor hygiene protocols, and manage certifications."
               icon={<LucideCheckCircle className="h-6 w-6" />}
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-24 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
+              Benefits for Your Entire Practice
+            </h2>
+            <p className="text-gray-darker max-w-3xl mx-auto">
+              DentalHub delivers value to every stakeholder in your practice
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <BenefitCard 
+              title="For Dental Practices"
+              items={[
+                "Increased operational efficiency",
+                "Improved revenue generation",
+                "Enhanced patient satisfaction",
+                "Data-driven business insights"
+              ]}
+              icon={<LucideLineChart className="h-6 w-6" />}
+              color="border-navy"
+            />
+            <BenefitCard 
+              title="For Staff Members"
+              items={[
+                "Streamlined daily workflows",
+                "Enhanced team collaboration",
+                "Improved job satisfaction",
+                "Access to advanced AI tools"
+              ]}
+              icon={<LucideUsers className="h-6 w-6" />}
+              color="border-turquoise"
+            />
+            <BenefitCard 
+              title="For Patients"
+              items={[
+                "Personalized dental care",
+                "Convenient communication",
+                "Improved treatment outcomes",
+                "Enhanced overall experience"
+              ]}
+              icon={<LucideShield className="h-6 w-6" />}
+              color="border-purple"
+            />
+          </div>
+        </div>
+      </section>
+
+{/* Waitlist Sign-up Section */}
+<section className="py-20 px-4 bg-gray-smoke">
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-white rounded-xl shadow-sm p-8 md:p-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold text-navy mb-4">Join Our Waitlist</h2>
+                <p className="text-gray-darker mb-6">
+                  Be among the first to experience the future of dental practice management.
+                  Early adopters receive exclusive benefits and priority onboarding.
+                </p>
+                <ul className="space-y-2 mb-6">
+                  <li className="flex items-center">
+                    <LucideCheck className="h-5 w-5 text-turquoise mr-2" />
+                    <span className="text-gray-darker">Early access to new features</span>
+                  </li>
+                  <li className="flex items-center">
+                    <LucideCheck className="h-5 w-5 text-turquoise mr-2" />
+                    <span className="text-gray-darker">Founding member pricing</span>
+                  </li>
+                  <li className="flex items-center">
+                    <LucideCheck className="h-5 w-5 text-turquoise mr-2" />
+                    <span className="text-gray-darker">Priority support and setup</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div className="bg-gray-smoke p-6 rounded-xl">
+                <form className="space-y-4">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-navy mb-1">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      className="w-full px-4 py-2 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-turquoise"
+                      placeholder="Dr. Jane Smith"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-navy mb-1">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      className="w-full px-4 py-2 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-turquoise"
+                      placeholder="jane@example.com"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="practice" className="block text-sm font-medium text-navy mb-1">
+                      Practice Name
+                    </label>
+                    <input
+                      type="text"
+                      id="practice"
+                      className="w-full px-4 py-2 border border-gray-light rounded-lg focus:outline-none focus:ring-2 focus:ring-turquoise"
+                      placeholder="Smith Family Dental"
+                    />
+                  </div>
+                  <Button
+                    className="w-full bg-gradient-to-r from-turquoise to-navy text-white font-medium"
+                  >
+                    Join Waitlist
+                  </Button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -325,8 +523,45 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonial Section */}
+      {/* How It Works Section */}
       <section className="py-24 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
+              How DentalHub Works
+            </h2>
+            <p className="text-gray-darker max-w-3xl mx-auto">
+              Our seamless integration ensures minimal disruption with maximum impact
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="flex flex-col items-center text-center p-6">
+              <div className="w-16 h-16 bg-navy text-white rounded-full flex items-center justify-center mb-4 text-xl font-bold">1</div>
+              <h3 className="text-xl font-bold text-navy mb-2">Integration</h3>
+              <p className="text-gray-darker">Quick integration with your existing practice management software</p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6">
+              <div className="w-16 h-16 bg-turquoise text-white rounded-full flex items-center justify-center mb-4 text-xl font-bold">2</div>
+              <h3 className="text-xl font-bold text-navy mb-2">Data Analysis</h3>
+              <p className="text-gray-darker">Our AI analyzes your practice data to identify optimization opportunities</p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6">
+              <div className="w-16 h-16 bg-purple text-white rounded-full flex items-center justify-center mb-4 text-xl font-bold">3</div>
+              <h3 className="text-xl font-bold text-navy mb-2">Implementation</h3>
+              <p className="text-gray-darker">Implement AI-powered workflows and patient communication systems</p>
+            </div>
+            <div className="flex flex-col items-center text-center p-6">
+              <div className="w-16 h-16 bg-gold text-white rounded-full flex items-center justify-center mb-4 text-xl font-bold">4</div>
+              <h3 className="text-xl font-bold text-navy mb-2">Growth</h3>
+              <p className="text-gray-darker">Watch your practice thrive with continued optimization and support</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonial Section */}
+      <section className="py-24 px-4 bg-gray-smoke">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
@@ -339,7 +574,7 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <TestimonialCard 
-              quote="DentalHub has transformed our practice workflow. The AI scheduling alone has increased our chair utilization by 23% and dramatically reduced no-shows."
+              quote="DentalHub's AI has transformed our practice workflow. The Recall Genius alone has increased our chair utilization by 23% and dramatically reduced no-shows."
               author="Dr. Sarah Johnson"
               role="Dentist, Johnson Family Dental"
               image="/images/testimonials/dentist1.jpg"
@@ -361,7 +596,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 px-4 bg-gray-smoke">
+      <section className="py-24 px-4 bg-white">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
@@ -372,7 +607,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="bg-gray-smoke rounded-xl shadow-sm p-6">
             <FaqItem 
               question="How does DentalHub integrate with my existing practice management software?"
               answer="DentalHub offers seamless integration with all major practice management systems including Dentrix, Eaglesoft, Open Dental, and many more. Our team handles the entire integration process, typically taking 2-3 business days with minimal disruption to your practice."
@@ -382,6 +617,10 @@ export default function LandingPage() {
               answer="Absolutely. DentalHub is fully HIPAA compliant with end-to-end encryption, secure cloud storage, and role-based access controls. We conduct regular security audits and provide a Business Associate Agreement (BAA) to all practices."
             />
             <FaqItem 
+              question="How does the AI-powered patient recall system work?"
+              answer="Our Recall Genius leverages advanced AI to analyze patient histories, appointment patterns, and treatment needs to automatically identify and prioritize patients for follow-up. It then creates personalized communication campaigns across multiple channels (email, SMS, voice) to maximize patient reactivation and retention."
+            />
+            <FaqItem 
               question="How long does implementation take?"
               answer="Most practices are up and running with DentalHub in less than a week. Our implementation team handles data migration, staff training, and system configuration. We offer both in-person and virtual training sessions to ensure your team is comfortable with the platform."
             />
@@ -389,24 +628,92 @@ export default function LandingPage() {
               question="Can I customize the system to fit my practice's specific needs?"
               answer="Yes, DentalHub is highly customizable. From treatment plan templates to patient communication flows, you can tailor the system to match your practice's unique workflow and requirements. Our team will work with you to configure the system to your specifications."
             />
-            <FaqItem 
-              question="What kind of support does DentalHub provide?"
-              answer="We offer comprehensive support including 24/7 technical assistance, regular training webinars, and a dedicated success manager for every practice. Our average response time is under 10 minutes, and we maintain a 98% satisfaction rating for our support services."
-            />
           </div>
         </div>
       </section>
 
-      {/* Enhanced CTA Section */}
-      <section className="relative py-32 px-4 overflow-hidden">
+      {/* Features Grid Section */}
+      <section className="py-24 px-4 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
+              Complete Platform for Modern Dentistry
+            </h2>
+            <p className="text-gray-darker max-w-3xl mx-auto">
+              DentalHub combines powerful tools in one integrated platform
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="bg-gray-smoke rounded-xl p-4 text-center hover:shadow-sm transition-shadow">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3">
+                <LucideUsers className="h-6 w-6 text-navy" />
+              </div>
+              <h3 className="font-semibold text-navy">Patient Management</h3>
+            </div>
+            
+            <div className="bg-gray-smoke rounded-xl p-4 text-center hover:shadow-sm transition-shadow">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3">
+                <LucideCalendar className="h-6 w-6 text-navy" />
+              </div>
+              <h3 className="font-semibold text-navy">Smart Scheduling</h3>
+            </div>
+            
+            <div className="bg-gray-smoke rounded-xl p-4 text-center hover:shadow-sm transition-shadow">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3">
+                <LucideMessageSquare className="h-6 w-6 text-navy" />
+              </div>
+              <h3 className="font-semibold text-navy">Patient Communication</h3>
+            </div>
+            
+            <div className="bg-gray-smoke rounded-xl p-4 text-center hover:shadow-sm transition-shadow">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3">
+                <LucideDollarSign className="h-6 w-6 text-navy" />
+              </div>
+              <h3 className="font-semibold text-navy">Financial Analytics</h3>
+            </div>
+            
+            <div className="bg-gray-smoke rounded-xl p-4 text-center hover:shadow-sm transition-shadow">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3">
+                <LucideBrain className="h-6 w-6 text-navy" />
+              </div>
+              <h3 className="font-semibold text-navy">AI Treatment Planning</h3>
+            </div>
+            
+            <div className="bg-gray-smoke rounded-xl p-4 text-center hover:shadow-sm transition-shadow">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3">
+                <LucideClipboard className="h-6 w-6 text-navy" />
+              </div>
+              <h3 className="font-semibold text-navy">Treatment Tracking</h3>
+            </div>
+            
+            <div className="bg-gray-smoke rounded-xl p-4 text-center hover:shadow-sm transition-shadow">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3">
+                <LucideActivity className="h-6 w-6 text-navy" />
+              </div>
+              <h3 className="font-semibold text-navy">Practice Analytics</h3>
+            </div>
+            
+            <div className="bg-gray-smoke rounded-xl p-4 text-center hover:shadow-sm transition-shadow">
+              <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3">
+                <LucideZap className="h-6 w-6 text-navy" />
+              </div>
+              <h3 className="font-semibold text-navy">Recall Genius</h3>
+            </div>
+          </div>
+        </div>
+      </section>
+
+{/* Enhanced CTA Section */}
+<section className="relative py-32 px-4 overflow-hidden">
         <div className="relative z-10 max-w-5xl mx-auto text-center">
           <div className="mb-12">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">
               Ready to Transform Your Dental Practice?
             </h2>
             <p className="text-white/80 text-lg max-w-3xl mx-auto mb-8">
-              Join thousands of dental professionals who are elevating patient care and
-              practice performance with DentalHub's AI-powered platform.
+            Join our exclusive waitlist today and be among the first to transform your dental practice with DentalHub's comprehensive AI-powered platform. Our early adopters have increased productivity by up to 32% and reclaimed over $50,000 in annual revenue through optimized scheduling, automated patient engagement, and intelligent practice analytics.
+
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Button
@@ -415,48 +722,38 @@ export default function LandingPage() {
                 asChild
               >
                 <Link to="/signup">
-                  Get Started for Free
+                Join our exclusive waitlist today!
                 </Link>
               </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white text-white hover:bg-white/10"
-                asChild
-              >
-                <Link to="/contact">
-                  Schedule a Demo
-                </Link>
-              </Button>
+
             </div>
           </div>
           
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-white">
             <div className="flex items-center">
               <LucideCheck className="mr-2 h-5 w-5 text-turquoise" />
-              <span>14-day free trial</span>
+              <span>No credit card required</span>
             </div>
             <div className="flex items-center">
               <LucideCheck className="mr-2 h-5 w-5 text-turquoise" />
-              <span>No credit card required</span>
+              <span>Full-featured access</span>
+            </div>
+            <div className="flex items-center">
+              <LucideCheck className="mr-2 h-5 w-5 text-turquoise" />
+              <span>No Obligation</span>
             </div>
             <div className="flex items-center">
               <LucideCheck className="mr-2 h-5 w-5 text-turquoise" />
               <span>Cancel anytime</span>
             </div>
-            <div className="flex items-center">
-              <LucideCheck className="mr-2 h-5 w-5 text-turquoise" />
-              <span>Free data migration</span>
-            </div>
           </div>
         </div>
         
         {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-ocean z-0"></div>
-      </section>
-
-      {/* Portal Section */}
-      <section className="py-20 px-4 bg-gray-smoke">
+        <div className="absolute inset-0 bg-gradient-to-r from-navy via-purple to-turquoise z-0"></div>
+      </section>     
+{/* Portal Section */}
+<section className="py-20 px-4 bg-gray-smoke">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-navy mb-2">
@@ -472,24 +769,25 @@ export default function LandingPage() {
               title="Patient Portal"
               description="Access your appointments, records, and treatment plans"
               icon={
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-navy" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-turquoise" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
               }
               features={[
-                "View Appointments",
-                "Medical Records",
-                "Billing History"
+                "Schedule appointments",
+                "View treatment plans",
+                "Access health records",
+                "Secure messaging"
               ]}
-              buttonText="Login"
+              buttonText="Patient Login"
             />
             
             <PortalCard
               title="Staff Portal"
               description="Manage patient care and daily operations"
               icon={
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-navy" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-purple" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                   <circle cx="9" cy="7" r="4"></circle>
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -497,11 +795,12 @@ export default function LandingPage() {
                 </svg>
               }
               features={[
-                "Patient Management",
-                "Schedule Control",
-                "Treatment Plans"
+                "Treatment scheduling",
+                "Patient management",
+                "Team collaboration",
+                "Clinical records"
               ]}
-              buttonText="Login"
+              buttonText="Staff Login"
             />
             
             <PortalCard
@@ -513,11 +812,12 @@ export default function LandingPage() {
                 </svg>
               }
               features={[
-                "Practice Analytics",
-                "Staff Management",
-                "Financial Reports"
+                "Practice analytics",
+                "Staff management",
+                "Financial reports",
+                "AI consultant access"
               ]}
-              buttonText="Login"
+              buttonText="Admin Login"
             />
           </div>
         </div>
@@ -525,36 +825,56 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-navy py-12 px-4 text-white">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="col-span-1 md:col-span-2">
             <h3 className="text-xl font-bold mb-4">DentalHub</h3>
-            <p className="text-white/70">
+            <p className="text-white/70 mb-6 max-w-md">
               The next generation dental practice management platform
               powered by AI and designed for modern dental practices.
+              Transform patient care and practice efficiency with our
+              comprehensive solution.
             </p>
+            <div className="flex space-x-4">
+              <a href="#" className="text-white hover:text-turquoise transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
+                </svg>
+              </a>
+              <a href="#" className="text-white hover:text-turquoise transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path>
+                </svg>
+              </a>
+              <a href="#" className="text-white hover:text-turquoise transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"></path>
+                </svg>
+              </a>
+            </div>
           </div>
           
           <div>
             <h3 className="text-xl font-bold mb-4">Contact</h3>
             <ul className="space-y-2 text-white/70">
-              <li>Email: contact@dentalhub.com</li>
-              <li>Phone: (800) 123-4567</li>
-              <li>Address: 123 Dental Ave, San Francisco, CA</li>
+            <li>Email: info@ngeniusmarketing.com</li>
+              <li>Phone: 949-203-1936</li>
+              <li>Address: 4193 Flat Rocks Dr. SUITE# 200 OFFICE# 412, Riverside, CA 92505</li>
             </ul>
           </div>
           
           <div>
             <h3 className="text-xl font-bold mb-4">Legal</h3>
-            <ul className="space-y-2 text-white/70">
-              <li>Privacy Policy</li>
-              <li>Terms of Service</li>
-              <li>Cookie Policy</li>
+            <ul className="space-y-2">
+              <li><a href="#" className="text-white/70 hover:text-white transition-colors">Privacy Policy</a></li>
+              <li><a href="#" className="text-white/70 hover:text-white transition-colors">Terms of Service</a></li>
+              <li><a href="#" className="text-white/70 hover:text-white transition-colors">HIPAA Compliance</a></li>
+              <li><a href="#" className="text-white/70 hover:text-white transition-colors">Cookie Policy</a></li>
             </ul>
           </div>
         </div>
         
         <div className="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/20 text-center text-white/50">
-          &copy; {new Date().getFullYear()} DentalHub. All rights reserved.
+          &copy; {new Date().getFullYear()} nGenius Pros DentalHub. All rights reserved.
         </div>
       </footer>
     </div>

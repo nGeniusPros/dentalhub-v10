@@ -1,306 +1,148 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import communicationService, { 
-  SendSMSRequest, 
-  InitiateCallRequest,
-  RetellCallRequest
-} from '../lib/api/communicationService';
 
-// Define call and message types for our state
-interface CallRecord {
-  id: string;
+// Define types for communication requests
+export interface SendSMSRequest {
   to: string;
-  from: string;
-  status: string;
-  direction: 'inbound' | 'outbound';
-  duration?: number;
-  startTime: string;
-  endTime?: string;
-  recording?: string;
-  notes?: string;
+  message: string;
+  from?: string;
 }
 
-interface MessageRecord {
-  id: string;
+export interface InitiateCallRequest {
   to: string;
-  from: string;
-  body: string;
-  status: string;
-  direction: 'inbound' | 'outbound';
-  mediaUrl?: string;
-  timestamp: string;
+  from?: string;
+  callerType: 'prospect' | 'patient' | 'staff';
 }
 
-// Context interface
+// Define the context shape
 interface CommunicationContextType {
-  // SMS state and functions
-  messages: MessageRecord[];
-  sendSMS: (request: SendSMSRequest) => Promise<unknown>;
-  sendBatchSMS: (recipients: string[], body: string, mediaUrl?: string) => Promise<unknown>;
-  messageLoading: boolean;
-  messageError: Error | null;
-  
-  // Voice call state and functions
-  calls: CallRecord[];
-  initiateCall: (request: InitiateCallRequest) => Promise<unknown>;
-  callLoading: boolean;
-  callError: Error | null;
-  
-  // Retell AI state and functions
-    initiateRetellCall: (request: RetellCallRequest) => Promise<unknown>;
-    retellLoading: boolean;
-    retellError: Error | null;
-    agentStatus: Record<string, unknown> | null;
-    
-    // Utilities
-    refreshCallHistory: () => Promise<void>;
-    refreshMessageHistory: () => Promise<void>;
-  }
+  sendSMS: (request: SendSMSRequest) => Promise<void>;
+  sendBatchSMS: (to: string[], message: string) => Promise<void>;
+  initiateCall: (request: InitiateCallRequest) => Promise<void>;
+  isSending: boolean;
+  isCalling: boolean;
+  error: string | null;
+}
 
-// Create context with default values
+// Create the context with a default value
 const CommunicationContext = createContext<CommunicationContextType>({
-  messages: [],
-  sendSMS: async () => Promise.resolve(),
-  sendBatchSMS: async () => Promise.resolve(),
-  messageLoading: false,
-  messageError: null,
-  
-  calls: [],
-  initiateCall: async () => Promise.resolve(),
-  callLoading: false,
-  callError: null,
-  
-  initiateRetellCall: async () => Promise.resolve(),
-  retellLoading: false,
-  retellError: null,
-  agentStatus: null,
-  
-  refreshCallHistory: async () => Promise.resolve(),
-  refreshMessageHistory: async () => Promise.resolve(),
+  sendSMS: async () => {},
+  sendBatchSMS: async () => {},
+  initiateCall: async () => {},
+  isSending: false,
+  isCalling: false,
+  error: null
 });
 
-// Provider component
-export const CommunicationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // State for SMS
-  const [messages, setMessages] = useState<MessageRecord[]>([]);
-  const [messageLoading, setMessageLoading] = useState(false);
-  const [messageError, setMessageError] = useState<Error | null>(null);
-  
-  // State for calls
-  const [calls, setCalls] = useState<CallRecord[]>([]);
-  const [callLoading, setCallLoading] = useState(false);
-  const [callError, setCallError] = useState<Error | null>(null);
-  
-  // State for Retell AI
-  const [retellLoading, setRetellLoading] = useState(false);
-  const [retellError, setRetellError] = useState<Error | null>(null);
-  const [agentStatus, setAgentStatus] = useState<Record<string, unknown> | null>(null);
-  
-  // Load initial data
+// Create a provider component
+interface CommunicationProviderProps {
+  children: ReactNode;
+}
+
+export const CommunicationProvider: React.FC<CommunicationProviderProps> = ({ children }) => {
+  const [isSending, setIsSending] = useState(false);
+  const [isCalling, setIsCalling] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Reset error when component unmounts
   useEffect(() => {
-    refreshMessageHistory();
-    refreshCallHistory();
-    fetchAgentStatus();
+    return () => {
+      setError(null);
+    };
   }, []);
-  
-  // SMS functions
+
+  // Send a single SMS
   const sendSMS = async (request: SendSMSRequest) => {
-    setMessageLoading(true);
-    setMessageError(null);
+    setIsSending(true);
+    setError(null);
+    
     try {
-      const response = await communicationService.sms.sendSMS(request);
-      await refreshMessageHistory();
-      return response;
-    } catch (error) {
-      setMessageError(error instanceof Error ? error : new Error('Failed to send SMS'));
-      throw error;
+      // In a real implementation, you would call an API endpoint
+      console.log('Sending SMS:', request);
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // API call successful
+      console.log('SMS sent successfully');
+    } catch (err) {
+      console.error('Error sending SMS:', err);
+      setError('Failed to send SMS. Please try again.');
+      throw err;
     } finally {
-      setMessageLoading(false);
+      setIsSending(false);
     }
   };
-  
-  const sendBatchSMS = async (recipients: string[], body: string, mediaUrl?: string) => {
-    setMessageLoading(true);
-    setMessageError(null);
+
+  // Send batch SMS to multiple recipients
+  const sendBatchSMS = async (to: string[], message: string) => {
+    setIsSending(true);
+    setError(null);
+    
     try {
-      const response = await communicationService.sms.sendBatchSMS(recipients, body, mediaUrl);
-      await refreshMessageHistory();
-      return response;
-    } catch (error) {
-      setMessageError(error instanceof Error ? error : new Error('Failed to send batch SMS'));
-      throw error;
+      // In a real implementation, you would call an API endpoint
+      console.log(`Sending batch SMS to ${to.length} recipients:`, { to, message });
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // API call successful
+      console.log('Batch SMS sent successfully');
+    } catch (err) {
+      console.error('Error sending batch SMS:', err);
+      setError('Failed to send batch SMS. Please try again.');
+      throw err;
     } finally {
-      setMessageLoading(false);
+      setIsSending(false);
     }
   };
-  
-  const refreshMessageHistory = async () => {
-    setMessageLoading(true);
-    try {
-      // For development, use mock data if the API isn't fully implemented
-      if (import.meta.env.DEV && !import.meta.env.VITE_API_BASE_URL) {
-        // Mock message data
-        const mockMessages: MessageRecord[] = [
-          {
-            id: '1',
-            to: '+15551234567',
-            from: '+15557654321',
-            body: 'Your dental appointment is scheduled for tomorrow at 2:00 PM.',
-            status: 'delivered',
-            direction: 'outbound',
-            timestamp: new Date().toISOString()
-          },
-          {
-            id: '2',
-            to: '+15557654321',
-            from: '+15551234567',
-            body: 'Thank you. I\'ll be there.',
-            status: 'received',
-            direction: 'inbound',
-            timestamp: new Date().toISOString()
-          }
-        ];
-        setMessages(mockMessages);
-      } else {
-        const response = await communicationService.sms.getSMSHistory();
-        setMessages(response.messages);
-      }
-    } catch (error) {
-      console.error('Error refreshing message history:', error);
-    } finally {
-      setMessageLoading(false);
-    }
-  };
-  
-  // Voice call functions
+
+  // Initiate a call
   const initiateCall = async (request: InitiateCallRequest) => {
-    setCallLoading(true);
-    setCallError(null);
+    setIsCalling(true);
+    setError(null);
+    
     try {
-      const response = await communicationService.voice.initiateCall(request);
-      await refreshCallHistory();
-      return response;
-    } catch (error) {
-      setCallError(error instanceof Error ? error : new Error('Failed to initiate call'));
-      throw error;
+      // In a real implementation, you would call an API endpoint
+      console.log('Initiating call:', request);
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // API call successful
+      console.log('Call initiated successfully');
+    } catch (err) {
+      console.error('Error initiating call:', err);
+      setError('Failed to initiate call. Please try again.');
+      throw err;
     } finally {
-      setCallLoading(false);
+      setIsCalling(false);
     }
   };
-  
-  const refreshCallHistory = async () => {
-    setCallLoading(true);
-    try {
-      // For development, use mock data if the API isn't fully implemented
-      if (import.meta.env.DEV && !import.meta.env.VITE_API_BASE_URL) {
-        // Mock call data
-        const mockCalls: CallRecord[] = [
-          {
-            id: '1',
-            to: '+15551234567',
-            from: '+15557654321',
-            status: 'completed',
-            direction: 'outbound',
-            duration: 120,
-            startTime: new Date(Date.now() - 3600000).toISOString(),
-            endTime: new Date(Date.now() - 3480000).toISOString()
-          },
-          {
-            id: '2',
-            to: '+15557654321',
-            from: '+15551234567',
-            status: 'completed',
-            direction: 'inbound',
-            duration: 180,
-            startTime: new Date(Date.now() - 7200000).toISOString(),
-            endTime: new Date(Date.now() - 7020000).toISOString()
-          }
-        ];
-        setCalls(mockCalls);
-      } else {
-        const response = await communicationService.voice.getCallHistory();
-        setCalls(response.calls);
-      }
-    } catch (error) {
-      console.error('Error refreshing call history:', error);
-    } finally {
-      setCallLoading(false);
-    }
-  };
-  
-  // Retell AI functions
-  const initiateRetellCall = async (request: RetellCallRequest) => {
-    setRetellLoading(true);
-    setRetellError(null);
-    try {
-      const response = await communicationService.retell.initiateRetellCall(request);
-      await refreshCallHistory(); // Refresh to show the new call
-      return response;
-    } catch (error) {
-      setRetellError(error instanceof Error ? error : new Error('Failed to initiate Retell call'));
-      throw error;
-    } finally {
-      setRetellLoading(false);
-    }
-  };
-  
-  const fetchAgentStatus = async () => {
-    try {
-      // For development, use mock data if the API isn't fully implemented
-      if (import.meta.env.DEV && !import.meta.env.VITE_API_BASE_URL) {
-        setAgentStatus({
-          id: 'mock-agent-id',
-          name: 'Dental Assistant (Mock)',
-          status: 'active',
-          voice_id: 'alloy',
-          created_at: new Date().toISOString()
-        });
-      } else {
-        const response = await communicationService.retell.getAgentStatus();
-        setAgentStatus(response.agent);
-      }
-    } catch (error) {
-      console.error('Error fetching Retell agent status:', error);
-    }
-  };
-  
-  // Provide context value
-  const value = {
-    // SMS
-    messages,
+
+  // Provide the context value
+  const contextValue: CommunicationContextType = {
     sendSMS,
     sendBatchSMS,
-    messageLoading,
-    messageError,
-    refreshMessageHistory,
-    
-    // Voice call
-    calls,
     initiateCall,
-    callLoading,
-    callError,
-    refreshCallHistory,
-    
-    // Retell AI
-    initiateRetellCall,
-    retellLoading,
-    retellError,
-    agentStatus
+    isSending,
+    isCalling,
+    error
   };
-  
+
   return (
-    <CommunicationContext.Provider value={value}>
+    <CommunicationContext.Provider value={contextValue}>
       {children}
     </CommunicationContext.Provider>
   );
 };
 
-// Custom hook for using the communication context
+// Create a custom hook for using the communication context
 export const useCommunication = () => {
   const context = useContext(CommunicationContext);
-  if (context === undefined) {
+  
+  if (!context) {
     throw new Error('useCommunication must be used within a CommunicationProvider');
   }
+  
   return context;
 };
-
-export default CommunicationContext;

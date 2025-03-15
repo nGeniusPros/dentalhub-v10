@@ -32,10 +32,14 @@ const AdminLogin = () => {
     setError(null);
     setLoading(true);
 
+    // Verify that we are sending the credentials
+    console.log("Credentials : ", formData.email, formData.password);
+
     try {
+      // Here we are passing the correct credentials
       const { error: authError } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
+        email: formData.email, // Email is sent with the correct name
+        password: formData.password // Password is sent with the correct name
       });
 
       if (authError) throw authError;

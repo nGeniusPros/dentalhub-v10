@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import * as Icons from 'lucide-react';
 
-const Settings = () => {
+const PatientSettings = () => {
   const patientInfo = {
     personal: {
       name: "Sarah Johnson",
@@ -162,4 +162,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default PatientSettings;
