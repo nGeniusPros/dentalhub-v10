@@ -41,81 +41,6 @@ interface MonthlyReportData {
   }[];
 }
 
-// Sample data - would be replaced with real data from API
-const sampleData: MonthlyReportData = {
-  currentMonth: "February 2025",
-  overview: {
-    revenue: 146000,
-    goal: 185000,
-    lastMonth: 138500,
-    changePercentage: 5.4,
-    projectedEnd: 172000,
-    remainingDays: 2,
-  },
-  collections: {
-    total: 128500,
-    goal: 170000,
-    pending: 24000,
-    overdue: 14500,
-  },
-  categories: [
-    { name: "Preventive", revenue: 42800, appointments: 245, changePercentage: 3.2 },
-    { name: "Restorative", revenue: 56700, appointments: 162, changePercentage: 8.5 },
-    { name: "Cosmetic", revenue: 28500, appointments: 48, changePercentage: 12.4 },
-    { name: "Orthodontics", revenue: 18000, appointments: 15, changePercentage: -2.1 },
-  ],
-  dailyRevenue: [
-    { day: "Feb 1", revenue: 6200, goal: 6500 },
-    { day: "Feb 2", revenue: 5100, goal: 6500 },
-    { day: "Feb 3", revenue: 0, goal: 0 }, // Weekend
-    { day: "Feb 4", revenue: 0, goal: 0 }, // Weekend
-    { day: "Feb 5", revenue: 7300, goal: 6500 },
-    { day: "Feb 6", revenue: 6800, goal: 6500 },
-    { day: "Feb 7", revenue: 7100, goal: 6500 },
-    { day: "Feb 8", revenue: 6500, goal: 6500 },
-    { day: "Feb 9", revenue: 5900, goal: 6500 },
-    { day: "Feb 10", revenue: 0, goal: 0 }, // Weekend
-    { day: "Feb 11", revenue: 0, goal: 0 }, // Weekend
-    { day: "Feb 12", revenue: 7600, goal: 6500 },
-    { day: "Feb 13", revenue: 6800, goal: 6500 },
-    { day: "Feb 14", revenue: 4900, goal: 6500 },
-    { day: "Feb 15", revenue: 7200, goal: 6500 },
-    { day: "Feb 16", revenue: 6300, goal: 6500 },
-    { day: "Feb 17", revenue: 0, goal: 0 }, // Weekend
-    { day: "Feb 18", revenue: 0, goal: 0 }, // Weekend
-    { day: "Feb 19", revenue: 8100, goal: 6500 },
-    { day: "Feb 20", revenue: 7400, goal: 6500 },
-    { day: "Feb 21", revenue: 6900, goal: 6500 },
-    { day: "Feb 22", revenue: 7200, goal: 6500 },
-    { day: "Feb 23", revenue: 6800, goal: 6500 },
-    { day: "Feb 24", revenue: 0, goal: 0 }, // Weekend
-    { day: "Feb 25", revenue: 0, goal: 0 }, // Weekend
-    { day: "Feb 26", revenue: 4200, goal: 6500 }, // Current day (partial)
-  ],
-  campaigns: [
-    {
-      name: "February Patient Reactivation",
-      type: "Email + SMS",
-      targetAudience: "Inactive patients (6+ months)",
-      estimatedRevenue: 12500,
-      roi: 4.2,
-    },
-    {
-      name: "Valentine's Day Whitening Special",
-      type: "Social Media + Email",
-      targetAudience: "All active patients",
-      estimatedRevenue: 8700,
-      roi: 3.5,
-    },
-    {
-      name: "Winter Invisalign Promotion",
-      type: "Targeted SMS",
-      targetAudience: "Patients with orthodontic treatment plans",
-      estimatedRevenue: 22000,
-      roi: 5.8,
-    },
-  ],
-};
 
 // Helper functions
 const formatCurrency = (value: number) => {
@@ -134,18 +59,16 @@ const MonthlyRevenueReport = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<MonthlyReportData | null>(null);
 
-  // Simulating data loading from API
+  // Fetching data from API
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
 
       try {
-        // In a real implementation, this would fetch data from an API
-        // Using sample data for now
-        setTimeout(() => {
-          setData(sampleData);
-          setLoading(false);
-        }, 1000);
+        const response = await fetch('/api/monthlyRevenueReport');
+        const data = await response.json();
+        setData(data);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching monthly report data:', error);
         setLoading(false);
@@ -293,23 +216,23 @@ const MonthlyRevenueReport = () => {
           value={formatCurrency(data?.overview.revenue || 0)}
           change={data?.overview.changePercentage || 0}
           icon="DollarSign"
-          variant="primary"
+          variant="ocean"
         />
         <StatsCard
           title="Total Appointments"
           value={formatNumber(data?.categories.reduce((sum, cat) => sum + cat.appointments, 0) || 0)}
           change={0}
           icon="Calendar"
-          variant="secondary"
+          variant="gold"
         />
         <StatsCard
           title="Average Revenue Per Appointment"
           value={formatCurrency(
-            (data?.overview.revenue || 0) / 
+            (data?.overview.revenue || 0) /
             (data?.categories.reduce((sum, cat) => sum + cat.appointments, 0) || 1)
           )}
           icon="BarChart2"
-          variant="accent1"
+          variant="tropical"
         />
       </div>
 
