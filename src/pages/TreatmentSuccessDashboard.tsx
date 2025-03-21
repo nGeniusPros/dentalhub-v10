@@ -35,33 +35,33 @@ interface TreatmentData {
 }
 
 // Sample data - would be replaced with real data from API
-const sampleData: TreatmentData = {
-  overallAcceptance: {
-    rate: 68.5,
-    previousPeriod: 65.2,
-    changePercentage: 3.3,
-    totalPresentations: 842,
-    totalAccepted: 577,
-  },
-  unscheduledTreatment: {
-    value: 367500,
-    count: 214,
-    averageAge: 73,
-  },
-  providerPerformance: [
-    { name: 'Dr. Emma Wilson', presentationCount: 293, acceptanceRate: 74.2, changePercentage: 5.1, revenue: 187600 },
-    { name: 'Dr. James Miller', presentationCount: 248, acceptanceRate: 69.8, changePercentage: 2.3, revenue: 156300 },
-    { name: 'Dr. Sarah Chen', presentationCount: 219, acceptanceRate: 62.4, changePercentage: -1.8, revenue: 123500 },
-    { name: 'Dr. Michael Brown', presentationCount: 82, acceptanceRate: 58.5, changePercentage: 8.2, revenue: 74200 },
-  ],
-  treatmentTypes: [
-    { name: 'Preventive Care', presentationCount: 315, acceptanceRate: 82.3, averageValue: 350, revenue: 90650 },
-    { name: 'Restorative', presentationCount: 257, acceptanceRate: 71.6, averageValue: 750, revenue: 137750 },
-    { name: 'Cosmetic', presentationCount: 146, acceptanceRate: 57.8, averageValue: 1800, revenue: 151956 },
-    { name: 'Oral Surgery', presentationCount: 78, acceptanceRate: 54.2, averageValue: 1200, revenue: 50731 },
-    { name: 'Implants', presentationCount: 46, acceptanceRate: 47.5, averageValue: 3200, revenue: 70400 },
-  ],
-};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Helper functions
 const formatNumber = (value: number) => {
@@ -80,20 +80,18 @@ const TreatmentSuccessDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<TreatmentData | null>(null);
 
-  // Simulating data loading from API
+  // Fetching data from API
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
 
       try {
-        // In a real implementation, this would fetch data from an API
-        // Using sample data for now
-        setTimeout(() => {
-          setData(sampleData);
-          setLoading(false);
-        }, 1000);
+        const response = await fetch('/api/treatmentSuccess');
+        const data = await response.json();
+        setData(data);
       } catch (error) {
         console.error('Error fetching treatment data:', error);
+      } finally {
         setLoading(false);
       }
     };
@@ -203,21 +201,21 @@ const TreatmentSuccessDashboard = () => {
           value={formatCurrency(data?.unscheduledTreatment.value || 0)}
           change={8.5}
           icon="DollarSign"
-          variant="primary"
+          variant="ocean"
         />
         <StatsCard
           title="Unscheduled Treatment Count"
           value={formatNumber(data?.unscheduledTreatment.count || 0)}
           change={-3.2}
           icon="FileText"
-          variant="secondary"
+          variant="gold"
         />
         <StatsCard
           title="Avg. Days Outstanding"
           value={formatNumber(data?.unscheduledTreatment.averageAge || 0)}
           change={-5.1}
           icon="Clock"
-          variant="accent1"
+          variant="tropical"
         />
       </div>
 
@@ -321,9 +319,9 @@ const TreatmentSuccessDashboard = () => {
           <div>
             <h4 className="text-sm font-medium mb-2">Opportunity Analysis</h4>
             <p className="text-sm text-gray-600">
-              While Implants have the lowest acceptance rate (47.5%), they represent a significant revenue 
-              opportunity due to their high average value. A 10% increase in Implant acceptance rate would 
-              generate approximately {formatCurrency(sampleData.treatmentTypes[4].averageValue * sampleData.treatmentTypes[4].presentationCount * 0.1)} in additional revenue.
+              While Implants have the lowest acceptance rate, they represent a significant revenue
+              opportunity due to their high average value. A 10% increase in Implant acceptance rate would
+              generate approximately {formatCurrency(0)} in additional revenue.
             </p>
           </div>
           <div>
