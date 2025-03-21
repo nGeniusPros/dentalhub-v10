@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChartContainer } from '../components/dashboard/charts/ChartContainer';
 import { RevenueChart } from '../components/dashboard/charts/RevenueChart';
 import { Link } from 'react-router-dom';
 import { Icon } from '../components/ui/icon-strategy';
@@ -49,92 +48,29 @@ interface RevenueData {
   };
 }
 
-// Sample chart data - would be replaced with real data from AI analysis
-const monthlyData = [
-  { month: 'Jan', revenue: 124000, goal: 120000 },
-  { month: 'Feb', revenue: 118000, goal: 120000 },
-  { month: 'Mar', revenue: 156000, goal: 140000 },
-  { month: 'Apr', revenue: 161000, goal: 140000 },
-  { month: 'May', revenue: 109000, goal: 120000 },
-  { month: 'Jun', revenue: 107000, goal: 120000 },
-];
 
-// These datasets would be used in a full implementation to show different time periods
-/*
-const quarterlyData = [
-  { quarter: 'Q1', revenue: 398000, goal: 380000 },
-  { quarter: 'Q2', revenue: 377000, goal: 380000 },
-  { quarter: 'Q3', revenue: 415000, goal: 420000 },
-  { quarter: 'Q4', revenue: 260000, goal: 420000, projected: true },
-];
-*/
 
-// Marketing spend chart data
-const marketingSpendData = [
-  { category: 'Digital Ads', spend: 8500, roi: 3.2 },
-  { category: 'Print/Mail', spend: 3200, roi: 1.8 },
-  { category: 'Local Events', spend: 4500, roi: 2.5 },
-  { category: 'Referral Program', spend: 2800, roi: 4.1 },
-  { category: 'SEO/Website', spend: 5000, roi: 3.7 },
-  ];
+
+
+
+
+
+
 
 const RevenueDashboard = () => {
   const [activeTab, setActiveTab] = useState<'annual' | 'quarterly' | 'monthly'>('monthly');
   const [loading, setLoading] = useState(true);
   const [revenueData, setRevenueData] = useState<RevenueData | null>(null);
 
-  // Simulating data loading from AI agents
+  // Fetching data from API
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
 
       try {
-        // In a real implementation, this would use the AI agents to fetch and analyze data
-        // const analysisAgent = new DataAnalysisAgent();
-        // const recommendationAgent = new RecommendationAgent();
-        // const practiceData = await dataRetrievalAgent.fetchDataForAnalysis('revenue metrics');
-        // const analysis = await analysisAgent.analyzeKPI(practiceData);
-
-        // Mock data - this would come from AI analysis
-        const mockData: RevenueData = {
-          annual: {
-            actual: 1450000,
-            goal: 1600000,
-            performance: 90.6,
-            previousYear: 1320000,
-            yoyChange: 9.8
-          },
-          quarterly: {
-            q1: { actual: 398000, goal: 380000, performance: 104.7 },
-            q2: { actual: 377000, goal: 380000, performance: 99.2 },
-            q3: { actual: 415000, goal: 420000, performance: 98.8 },
-            q4: { actual: 260000, goal: 420000, performance: 61.9 }
-          },
-          ytd: {
-            actual: 1190000,
-            goal: 1180000,
-            performance: 100.8
-          },
-          mtd: {
-            actual: 87000,
-            goal: 125000,
-            performance: 69.6,
-            projected: 110000
-          },
-          wtd: {
-            actual: 23000,
-            goal: 27500,
-            performance: 83.6
-          },
-          marketing: {
-            spend: 24000,
-            revenuePercentage: 1.7,
-            roi: 3.2,
-            suggestedBudget: 29000
-          }
-        };
-
-        setRevenueData(mockData);
+        const response = await fetch('/api/revenueDashboard');
+        const data = await response.json();
+        setRevenueData(data);
       } catch (error) {
         console.error('Error fetching revenue data:', error);
       } finally {
@@ -266,7 +202,7 @@ const RevenueDashboard = () => {
             value={formatCurrency(revenueData?.ytd.actual || 0)}
             change={(revenueData?.ytd.performance ? formatPercentage(revenueData.ytd.performance - 100) : '0')}
             icon="LineChart"
-            variant="primary"
+            variant="ocean"
           />
         </div>
         <div className="w-full">
@@ -275,7 +211,7 @@ const RevenueDashboard = () => {
             value={formatCurrency(revenueData?.mtd.actual || 0)}
             change={(revenueData?.mtd.performance ? formatPercentage(revenueData.mtd.performance - 100) : '0')}
             icon="CalendarDays"
-            variant="secondary"
+            variant="gold"
           />
         </div>
         <div className="w-full">
@@ -284,7 +220,7 @@ const RevenueDashboard = () => {
             value={formatCurrency(revenueData?.wtd.actual || 0)}
             change={(revenueData?.wtd.performance ? formatPercentage(revenueData.wtd.performance - 100) : '0')}
             icon="DollarSign"
-            variant="accent1"
+            variant="tropical"
           />
         </div>
       </div>
@@ -327,7 +263,7 @@ const RevenueDashboard = () => {
           </h2>
           <div className="h-80 relative">
             <div className="absolute inset-0 bg-gradient-radial from-white/50 to-transparent opacity-50" />
-            <RevenueChart data={monthlyData} />
+            <RevenueChart />
           </div>
         </motion.div>
       </div>
@@ -381,23 +317,7 @@ const RevenueDashboard = () => {
           </div>
 
           <div className="space-y-3">
-            {marketingSpendData.map((channel, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{channel.category}</p>
-                  <p className="text-xs text-gray-500">{formatCurrency(channel.spend)}</p>
-                </div>
-                <div className="w-24 h-2 bg-gray-200 rounded-full">
-                  <div
-                    className="h-2 rounded-full bg-navy"
-                    style={{ width: `${(channel.roi / 5) * 100}%` }}
-                  ></div>
-                </div>
-                <div className="w-12 text-right">
-                  <p className="text-sm font-medium">{channel.roi}x</p>
-                </div>
-              </div>
-            ))}
+            
           </div>
 
           <div className="mt-4 text-xs text-gray-500 italic">
