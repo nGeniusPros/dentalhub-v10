@@ -52,144 +52,6 @@ interface DailyHuddleData {
   }[];
 }
 
-// Sample data - would be replaced with real data from API
-const sampleData: DailyHuddleData = {
-  date: '2025-02-26',
-  overallStats: {
-    appointmentsTotal: 42,
-    appointmentsCompleted: 18,
-    productionGoal: 12500,
-    productionCurrent: 5280,
-    productionProjected: 11850,
-    collectionGoal: 10500,
-    collectionCurrent: 4320,
-  },
-  byDepartment: [
-    {
-      name: 'Hygiene',
-      appointmentsTotal: 18,
-      appointmentsCompleted: 8,
-      productionGoal: 3600,
-      productionCurrent: 1600,
-      productionRemaining: 2000,
-      completionPercentage: 44.4,
-    },
-    {
-      name: 'Restorative',
-      appointmentsTotal: 14,
-      appointmentsCompleted: 6,
-      productionGoal: 6500,
-      productionCurrent: 2580,
-      productionRemaining: 3920,
-      completionPercentage: 42.9,
-    },
-    {
-      name: 'Specialty',
-      appointmentsTotal: 10,
-      appointmentsCompleted: 4,
-      productionGoal: 2400,
-      productionCurrent: 1100,
-      productionRemaining: 1300,
-      completionPercentage: 40.0,
-    },
-  ],
-  byProvider: [
-    {
-      name: 'Dr. Wilson',
-      appointmentsTotal: 12,
-      appointmentsCompleted: 5,
-      appointmentsRemaining: 7,
-      productionGoal: 4800,
-      productionCurrent: 2100,
-      productionPerHour: 700,
-      scheduledHours: 7.5,
-    },
-    {
-      name: 'Dr. Miller',
-      appointmentsTotal: 10,
-      appointmentsCompleted: 4,
-      appointmentsRemaining: 6,
-      productionGoal: 4000,
-      productionCurrent: 1680,
-      productionPerHour: 560,
-      scheduledHours: 8,
-    },
-    {
-      name: 'Dr. Johnson',
-      appointmentsTotal: 8,
-      appointmentsCompleted: 3,
-      appointmentsRemaining: 5,
-      productionGoal: 3200,
-      productionCurrent: 1290,
-      productionPerHour: 645,
-      scheduledHours: 6,
-    },
-  ],
-  upcomingAppointments: [
-    {
-      time: '11:30 AM',
-      patientName: 'Robert Garcia',
-      provider: 'Dr. Wilson',
-      procedure: 'Crown Preparation',
-      duration: 60,
-      preApproved: true,
-      value: 1200,
-    },
-    {
-      time: '11:45 AM',
-      patientName: 'Emily Johnson',
-      provider: 'Dr. Miller',
-      procedure: 'Regular Cleaning',
-      duration: 45,
-      preApproved: true,
-      value: 180,
-    },
-    {
-      time: '12:00 PM',
-      patientName: 'Michael Chen',
-      provider: 'Dr. Johnson',
-      procedure: 'Implant Consultation',
-      duration: 30,
-      preApproved: false,
-      value: 150,
-    },
-    {
-      time: '1:15 PM',
-      patientName: 'Sarah Williams',
-      provider: 'Dr. Wilson',
-      procedure: 'Root Canal',
-      duration: 90,
-      preApproved: true,
-      value: 1400,
-    },
-  ],
-  huddle: [
-    {
-      topic: 'Staff Shortage',
-      description: 'Dental assistant Lisa called in sick today. Angela will cover her patients.',
-      priority: 'high',
-      assignedTo: 'Office Manager',
-    },
-    {
-      topic: 'Insurance Verification',
-      description: '3 patients this afternoon need insurance verification before treatment.',
-      priority: 'high',
-      assignedTo: 'Billing Coordinator',
-    },
-    {
-      topic: 'Equipment Maintenance',
-      description: 'Operatory 3 needs equipment maintenance. Schedule for tomorrow morning.',
-      priority: 'medium',
-      assignedTo: 'Office Manager',
-    },
-    {
-      topic: 'Patient Experience',
-      description: 'Mrs. Thompson is arriving for first visit after negative experience. Ensure VIP treatment.',
-      priority: 'high',
-    },
-  ],
-};
-
 // Helper functions
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -200,6 +62,7 @@ const formatCurrency = (value: number) => {
 };
 
 const formatDate = (dateString: string) => {
+  if (!dateString) return '';
   const date = new Date(dateString);
   return new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
@@ -220,11 +83,22 @@ const DailyHuddleDashboard = () => {
 
       try {
         // In a real implementation, this would fetch data from an API
-        // Using sample data for now
-        setTimeout(() => {
-          setData(sampleData);
+        try {
+          const response = await fetch('/api/dailyhuddle');
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.indexOf("application/json") === -1) {
+            throw new Error("Response is not JSON");
+          }
+          const data = await response.json();
+          setData(data);
           setLoading(false);
-        }, 1000);
+        } catch (error) {
+          console.error('Error fetching daily huddle data:', error);
+          setLoading(false);
+        }
       } catch (error) {
         console.error('Error fetching daily huddle data:', error);
         setLoading(false);
