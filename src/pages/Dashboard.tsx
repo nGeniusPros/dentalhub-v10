@@ -3,17 +3,24 @@ import { AppointmentsChart } from '../components/dashboard/charts/AppointmentsCh
 import { RevenueChart } from '../components/dashboard/charts/RevenueChart';
 import PracticeSnapshotGrid from '../components/dashboard/PracticeSnapshotGrid';
 
-// Sample data for charts
-const data = [
-  { month: 'Jan', appointments: 65, revenue: 12400 },
-  { month: 'Feb', appointments: 59, revenue: 11800 },
-  { month: 'Mar', appointments: 80, revenue: 15600 },
-  { month: 'Apr', appointments: 81, revenue: 16100 },
-  { month: 'May', appointments: 56, revenue: 10900 },
-  { month: 'Jun', appointments: 55, revenue: 10700 },
-];
+
 
 const Dashboard = () => {
+  const [data, setData] = React.useState([]);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/dashboard/charts');
+        const data = await response.json();
+        setData(data);
+      } catch (error) {
+        console.error('Error fetching dashboard chart data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <div className="space-y-8">
       {/* Header with welcome message and actions */}
