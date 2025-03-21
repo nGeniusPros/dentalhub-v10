@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as Icons from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { useCommunication } from '../../../contexts/CommunicationContext';
 import VoiceCallDialog from '../../../components/communication/VoiceCallDialog';
 import SMSDialog from '../../../components/communication/SMSDialog';
+// Removed useUserPreferences import that doesn't exist
 
 // Types
 interface CommunicationItem {
@@ -22,91 +23,6 @@ interface CommunicationItem {
   audioUrl?: string; // For voice calls with audio recording
 }
 
-// Mock data
-const mockCommunications: CommunicationItem[] = [
-  {
-    id: '1',
-    patientId: '101',
-    patientName: 'Sarah Johnson',
-    patientPhone: '(555) 123-4567',
-    patientEmail: 'sarah.j@example.com',
-    type: 'sms',
-    direction: 'outbound',
-    content: 'Hi Sarah, this is a reminder about your appointment tomorrow at 2pm. Reply CONFIRM to confirm or call us to reschedule.',
-    timestamp: '2025-02-25T09:30:00',
-    status: 'delivered',
-    read: true
-  },
-  {
-    id: '2',
-    patientId: '101',
-    patientName: 'Sarah Johnson',
-    patientPhone: '(555) 123-4567',
-    patientEmail: 'sarah.j@example.com',
-    type: 'sms',
-    direction: 'inbound',
-    content: 'CONFIRM',
-    timestamp: '2025-02-25T09:35:00',
-    status: 'received',
-    read: false
-  },
-  {
-    id: '3',
-    patientId: '102',
-    patientName: 'Michael Brown',
-    patientPhone: '(555) 987-6543',
-    patientEmail: 'michael.b@example.com',
-    type: 'call',
-    direction: 'inbound',
-    content: 'Discussed rescheduling appointment from March 15 to March 18',
-    timestamp: '2025-02-25T10:15:00',
-    status: 'completed',
-    assignedTo: 'Dr. Smith',
-    read: true,
-    audioUrl: '/audio/call-recording-1.mp3'
-  },
-  {
-    id: '4',
-    patientId: '103',
-    patientName: 'Emma Davis',
-    patientPhone: '(555) 456-7890',
-    patientEmail: 'emma.d@example.com',
-    type: 'email',
-    direction: 'inbound',
-    content: 'I have a question about my recent billing statement. There seems to be a charge I don\'t recognize...',
-    timestamp: '2025-02-24T16:42:00',
-    status: 'unassigned',
-    read: false
-  },
-  {
-    id: '5',
-    patientId: '102',
-    patientName: 'Michael Brown',
-    patientPhone: '(555) 987-6543',
-    patientEmail: 'michael.b@example.com',
-    type: 'call',
-    direction: 'outbound',
-    content: 'Follow-up call about treatment options and insurance coverage',
-    timestamp: '2025-03-11T14:25:00',
-    status: 'completed',
-    read: true,
-    audioUrl: '/audio/call-recording-2.mp3'
-  },
-  {
-    id: '6',
-    patientId: '104',
-    patientName: 'Taylor Wilson',
-    patientPhone: '(555) 789-0123',
-    patientEmail: 'taylor.w@example.com',
-    type: 'social',
-    direction: 'inbound',
-    content: 'I saw your post about the new whitening service. Do you have any availability next week?',
-    timestamp: '2025-03-10T09:12:00',
-    status: 'received',
-    read: false
-  }
-];
-
 // Patient indicators data
 interface PatientIndicator {
   patientId: string;
@@ -118,40 +34,130 @@ interface PatientIndicator {
   outstandingBalance: number;
 }
 
-const mockPatientIndicators: Record<string, PatientIndicator> = {
-  '101': {
-    patientId: '101',
-    lastVisit: '2024-12-15',
-    lastContact: '2025-02-25',
-    dueForHygiene: true,
-    dueForRecall: false,
-    insuranceExpiration: '2025-06-30',
-    outstandingBalance: 150.00
-  },
-  '102': {
-    patientId: '102',
-    lastVisit: '2025-01-20',
-    lastContact: '2025-02-25',
-    dueForHygiene: false,
-    dueForRecall: true,
-    insuranceExpiration: '2025-12-31',
-    outstandingBalance: 0
-  },
-  '103': {
-    patientId: '103',
-    lastVisit: '2024-11-05',
-    lastContact: '2025-02-24',
-    dueForHygiene: true,
-    dueForRecall: true,
-    insuranceExpiration: '2025-04-15',
-    outstandingBalance: 75.50
-  }
-};
-
 const CommunicationsDashboard: React.FC = () => {
   // Communication context
-  useCommunication(); // Will use calls and messages when we integrate with real backend
+  const { sendSMS } = useCommunication();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const messages: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const calls: any[] = [];
+  // Removed useUserPreferences hook
   
+  // Mock data for initial development - will be replaced with real data from context
+  const mockCommunications: CommunicationItem[] = [
+    {
+      id: '1',
+      patientId: '101',
+      patientName: 'Sarah Johnson',
+      patientPhone: '(555) 123-4567',
+      patientEmail: 'sarah.j@example.com',
+      type: 'sms',
+      direction: 'outbound',
+      content: 'Hi Sarah, this is a reminder about your appointment tomorrow at 2pm. Reply CONFIRM to confirm or call us to reschedule.',
+      timestamp: '2025-02-25T09:30:00',
+      status: 'delivered',
+      read: true
+    },
+    {
+      id: '2',
+      patientId: '101',
+      patientName: 'Sarah Johnson',
+      patientPhone: '(555) 123-4567',
+      patientEmail: 'sarah.j@example.com',
+      type: 'sms',
+      direction: 'inbound',
+      content: 'CONFIRM',
+      timestamp: '2025-02-25T09:35:00',
+      status: 'received',
+      read: false
+    },
+    {
+      id: '3',
+      patientId: '102',
+      patientName: 'Michael Brown',
+      patientPhone: '(555) 987-6543',
+      patientEmail: 'michael.b@example.com',
+      type: 'call',
+      direction: 'inbound',
+      content: 'Discussed rescheduling appointment from March 15 to March 18',
+      timestamp: '2025-02-25T10:15:00',
+      status: 'completed',
+      assignedTo: 'Dr. Smith',
+      read: true,
+      audioUrl: '/audio/call-recording-1.mp3'
+    },
+    {
+      id: '4',
+      patientId: '103',
+      patientName: 'Emma Davis',
+      patientPhone: '(555) 456-7890',
+      patientEmail: 'emma.d@example.com',
+      type: 'email',
+      direction: 'inbound',
+      content: 'I have a question about my recent billing statement. There seems to be a charge I don\'t recognize...',
+      timestamp: '2025-02-24T16:42:00',
+      status: 'unassigned',
+      read: false
+    },
+    {
+      id: '5',
+      patientId: '102',
+      patientName: 'Michael Brown',
+      patientPhone: '(555) 987-6543',
+      patientEmail: 'michael.b@example.com',
+      type: 'call',
+      direction: 'outbound',
+      content: 'Follow-up call about treatment options and insurance coverage',
+      timestamp: '2025-03-11T14:25:00',
+      status: 'completed',
+      read: true,
+      audioUrl: '/audio/call-recording-2.mp3'
+    },
+    {
+      id: '6',
+      patientId: '104',
+      patientName: 'Taylor Wilson',
+      patientPhone: '(555) 789-0123',
+      patientEmail: 'taylor.w@example.com',
+      type: 'social',
+      direction: 'inbound',
+      content: 'I saw your post about the new whitening service. Do you have any availability next week?',
+      timestamp: '2025-03-10T09:12:00',
+      status: 'received',
+      read: false
+    }
+  ];
+
+  const mockPatientIndicators: Record<string, PatientIndicator> = {
+    '101': {
+      patientId: '101',
+      lastVisit: '2024-12-15',
+      lastContact: '2025-02-25',
+      dueForHygiene: true,
+      dueForRecall: false,
+      insuranceExpiration: '2025-06-30',
+      outstandingBalance: 150.00
+    },
+    '102': {
+      patientId: '102',
+      lastVisit: '2025-01-20',
+      lastContact: '2025-02-25',
+      dueForHygiene: false,
+      dueForRecall: true,
+      insuranceExpiration: '2025-12-31',
+      outstandingBalance: 0
+    },
+    '103': {
+      patientId: '103',
+      lastVisit: '2024-11-05',
+      lastContact: '2025-02-24',
+      dueForHygiene: true,
+      dueForRecall: true,
+      insuranceExpiration: '2025-04-15',
+      outstandingBalance: 75.50
+    }
+  };
+
   // State
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -161,10 +167,64 @@ const CommunicationsDashboard: React.FC = () => {
   const [newMessage, setNewMessage] = useState<string>('');
   const [activeCompositionTab, setActiveCompositionTab] = useState<'sms' | 'email' | 'facebook' | 'livechat'>('sms');
   const [isAudioPlaying, setIsAudioPlaying] = useState<{[key: string]: boolean}>({});
+  const [isFiltersOpen, setIsFiltersOpen] = useState<boolean>(false);
+  const [openActionId, setOpenActionId] = useState<string | null>(null);
+  const [assigneeFilter, setAssigneeFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [dateFilter, setDateFilter] = useState<string>('all');
+  const [campaignFilter, setCampaignFilter] = useState<string>('all');
+  
   // Dialogs state
   const [isCallDialogOpen, setIsCallDialogOpen] = useState<boolean>(false);
   const [isSMSDialogOpen, setIsSMSDialogOpen] = useState<boolean>(false);
   const [showMarkAsClosedButton, setShowMarkAsClosedButton] = useState<boolean>(true);
+  const [openSections, setOpenSections] = useState<boolean[]>([false, false, false, false, false, false, false]);
+
+  const toggleSection = (index: number) => {
+    const newOpenSections = [...openSections];
+    newOpenSections[index] = !newOpenSections[index];
+    setOpenSections(newOpenSections);
+  };
+  
+  // Merge communications from context when available
+  useEffect(() => {
+    if (messages?.length || calls?.length) {
+      const contextCommunications: CommunicationItem[] = [
+        ...(messages || []).map(msg => ({
+          id: msg.id,
+          patientId: msg.patientId,
+          patientName: msg.patientName,
+          patientPhone: msg.patientPhone,
+          patientEmail: msg.patientEmail,
+          type: 'sms' as const,
+          direction: msg.direction,
+          content: msg.content,
+          timestamp: msg.timestamp,
+          status: msg.status,
+          assignedTo: msg.assignedTo,
+          read: !!msg.read
+        })),
+        ...(calls || []).map(call => ({
+          id: call.id,
+          patientId: call.patientId,
+          patientName: call.patientName,
+          patientPhone: call.patientPhone,
+          patientEmail: call.patientEmail,
+          type: 'call' as const,
+          direction: call.direction,
+          content: call.notes || 'No call notes',
+          timestamp: call.timestamp,
+          status: call.status,
+          assignedTo: call.assignedTo,
+          read: !!call.read,
+          audioUrl: call.recordingUrl
+        }))
+      ];
+      
+      // Merge with existing mock data for development
+      setCommunications([...contextCommunications, ...mockCommunications]);
+    }
+  }, [messages, calls]);
   
   // Select a communication
   const selectCommunication = (comm: CommunicationItem) => {
@@ -186,7 +246,7 @@ const CommunicationsDashboard: React.FC = () => {
   const getFilteredCommunications = () => {
     let filtered = [...communications];
     
-    // Apply filter
+    // Apply type filter
     switch (activeFilter) {
       case 'unread':
         filtered = filtered.filter(comm => !comm.read);
@@ -200,10 +260,54 @@ const CommunicationsDashboard: React.FC = () => {
       case 'email':
         filtered = filtered.filter(comm => comm.type === 'email');
         break;
+      case 'social':
+        filtered = filtered.filter(comm => comm.type === 'social');
+        break;
       case 'unassigned':
         filtered = filtered.filter(comm => !comm.assignedTo);
         break;
       // Default is 'all', no filtering needed
+    }
+    
+    // Apply advanced filters
+    if (assigneeFilter !== 'all') {
+      filtered = filtered.filter(comm => comm.assignedTo === assigneeFilter);
+    }
+    
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(comm => comm.status === statusFilter);
+    }
+    
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const lastWeek = new Date(today);
+      lastWeek.setDate(lastWeek.getDate() - 7);
+      const lastMonth = new Date(today);
+      lastMonth.setMonth(lastMonth.getMonth() - 1);
+      
+      filtered = filtered.filter(comm => {
+        const commDate = new Date(comm.timestamp);
+        switch (dateFilter) {
+          case 'today':
+            return commDate >= today;
+          case 'yesterday':
+            return commDate >= yesterday && commDate < today;
+          case 'last7days':
+            return commDate >= lastWeek;
+          case 'last30days':
+            return commDate >= lastMonth;
+          default:
+            return true;
+        }
+      });
+    }
+    
+    if (campaignFilter !== 'all') {
+      // This would filter by campaign if we had campaign data in our communications
+      // For now, we'll just keep this as a placeholder
     }
     
     // Apply search
@@ -275,6 +379,7 @@ const CommunicationsDashboard: React.FC = () => {
     const messageType = activeCompositionTab === 'sms' ? 'sms' :
                          activeCompositionTab === 'email' ? 'email' : 'social';
     
+    // Create the new message object
     const newMessageObj: CommunicationItem = {
       id: `msg-${Date.now()}`,
       patientId: selectedCommunication.patientId,
@@ -289,22 +394,148 @@ const CommunicationsDashboard: React.FC = () => {
       read: true
     };
     
+    // Add to conversation history
     setCommunications(prev => [newMessageObj, ...prev]);
+    
+    // If using context, send through the communication service
+    if (messageType === 'sms' && sendSMS) {
+      sendSMS({
+        to: selectedCommunication.patientPhone,
+        body: newMessage
+      } as any).catch(error => {console.error('Error sending SMS:', error)});
+    }
+    
+    // Clear the message input
     setNewMessage('');
   };
   
-  // Use the showMarkAsClosedButton in the UI
+  // Mark conversation as closed
+  const handleMarkAsClosed = () => {
+    // Update status in state
+    if (selectedCommunication) {
+      setCommunications(prev => 
+        prev.map(c => c.id === selectedCommunication.id ? { ...c, status: 'closed' } : c)
+      );
+      setShowMarkAsClosedButton(false);
+    }
+  };
+  
+  // Reset filters
+  const resetFilters = () => {
+    setAssigneeFilter('all');
+    setStatusFilter('all');
+    setDateFilter('all');
+    setCampaignFilter('all');
+    setIsFiltersOpen(false);
+  };
+  
+  // Apply filters
+  const applyFilters = () => {
+    setIsFiltersOpen(false);
+    // The filters are already being applied in getFilteredCommunications()
+  };
+
+// Action dropdown items
+// const actionItems = [
+//   { label: 'View Activity Log', icon: Icons.ClipboardList, action: () => console.log('View activity log') },
+//   { label: 'Block', icon: Icons.Ban, action: () => console.log('Block') },
+//   { label: 'Delete', icon: Icons.Trash, action: () => console.log('Delete') }
+// ];
+  
   return (
     <div className="h-full flex flex-col border border-gray-200 rounded-md overflow-hidden">
-      {/* 1. Top Categories/Navigation Bar - Area 1 in the image */}
+      {/* 1. Top Categories/Navigation Bar */}
       <div className="border-b border-gray-200 bg-white px-4 py-2">
         <div className="flex items-center">
           <div className="mr-4">
-            <Button variant="outline" size="sm" className="h-8">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="h-8"
+              onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+            >
               <Icons.Filter className="w-4 h-4 mr-2" />
               Filter
             </Button>
+            
+            {isFiltersOpen && (
+              <div className="absolute mt-2 z-50 bg-white rounded-lg shadow-lg border border-gray-200 p-4 w-80">
+                <div className="space-y-4">
+                  <h3 className="font-medium">Filter conversations</h3>
+                  
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Conversation Status</label>
+                    <select 
+                      className="w-full p-2 border border-gray-200 rounded-lg"
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="active">Active</option>
+                      <option value="pending">Pending</option>
+                      <option value="closed">Closed</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="sent">Sent</option>
+                      <option value="received">Received</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Assignee</label>
+                    <select 
+                      className="w-full p-2 border border-gray-200 rounded-lg"
+                      value={assigneeFilter}
+                      onChange={(e) => setAssigneeFilter(e.target.value)}
+                    >
+                      <option value="all">All Assignees</option>
+                      <option value="Dr. Smith">Dr. Smith</option>
+                      <option value="Dr. Johnson">Dr. Johnson</option>
+                      <option value="unassigned">Unassigned</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Campaign</label>
+                    <select 
+                      className="w-full p-2 border border-gray-200 rounded-lg"
+                      value={campaignFilter}
+                      onChange={(e) => setCampaignFilter(e.target.value)}
+                    >
+                      <option value="all">All Campaigns</option>
+                      <option value="recall">Recall Campaign</option>
+                      <option value="newpatient">New Patient</option>
+                      <option value="hygiene">Hygiene</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm text-gray-500 mb-1">Date</label>
+                    <select 
+                      className="w-full p-2 border border-gray-200 rounded-lg"
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                    >
+                      <option value="all">All Time</option>
+                      <option value="today">Today</option>
+                      <option value="yesterday">Yesterday</option>
+                      <option value="last7days">Last 7 Days</option>
+                      <option value="last30days">Last 30 Days</option>
+                    </select>
+                  </div>
+                  
+                  <div className="flex justify-between pt-2">
+                    <Button variant="outline" size="sm" onClick={resetFilters}>
+                      Clear All
+                    </Button>
+                    <Button size="sm" onClick={applyFilters}>
+                      Apply
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+          
           <div className="flex space-x-1 overflow-x-auto hide-scrollbar">
             <Button
               variant={activeFilter === 'all' ? 'primary' : 'ghost'}
@@ -384,7 +615,7 @@ const CommunicationsDashboard: React.FC = () => {
       
       {/* Main Content Layout */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Sidebar - All Conversations (Area 2 in the image) */}
+        {/* Left Sidebar - All Conversations */}
         <div className="w-1/4 border-r border-gray-200 flex flex-col overflow-hidden">
           <div className="p-3 bg-blue-50 border-b border-gray-200">
             <div className="text-sm font-semibold">All Conversations</div>
@@ -422,108 +653,144 @@ const CommunicationsDashboard: React.FC = () => {
                       )}
                     </div>
                   </div>
-                </div>
-              ))}
+                  <div className="relative">
+                    <Button variant="ghost" size="sm" onClick={() => setOpenActionId(openActionId === comm.id ? null : comm.id)}>
+                      Action
+                      <Icons.ChevronDown className="ml-1 h-4 w-4" />
+                    </Button>
+                    {openActionId === comm.id && (
+                      <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg z-10">
+                        <button className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" onClick={() => console.log('View Activity Log')}>
+                          View Activity Log
+                        </button>
+                        <button className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" onClick={() => console.log('Block')}>
+                          Block
+                        </button>
+                        <button className="block px-4 py-2 text-sm text-red-500 hover:bg-gray-100 w-full text-left" onClick={() => console.log('Delete')}>
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+              </div>
+            ))}
             </div>
           </div>
         </div>
         
         {/* Middle Content - Contains conversation history and composition area */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Conversation History (Area 3 in the image) */}
+          {/* Conversation Header */}
+          {selectedCommunication && (
+            <div className="p-3 border-b border-gray-200 bg-white flex justify-between items-center">
+              <div className="flex items-center">
+                <h3 className="font-medium text-gray-900">{selectedCommunication.patientName}</h3>
+                <span className="ml-2 text-sm text-gray-500">
+                  {selectedCommunication.patientPhone}
+                </span>
+              </div>
+              <div className="flex space-x-2">
+                {showMarkAsClosedButton && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleMarkAsClosed}
+                  >
+                    Mark as Closed
+                  </Button>
+                )}
+                <div className="relative">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => console.log('Action menu')}
+                  >
+                    Action
+                    <Icons.ChevronDown className="ml-1 h-4 w-4" />
+                  </Button>
+                  {/* Action dropdown would go here */}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Conversation History */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 border-b border-gray-200">
             {selectedCommunication ? (
               <div className="h-full">
-                <div className="mb-4 flex justify-between items-center">
-                  <h3 className="text-sm font-semibold">Conversation History</h3>
-                  <div className="flex space-x-2">
-                    {showMarkAsClosedButton && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setShowMarkAsClosedButton(false)}
-                      >
-                        Mark as Closed
-                      </Button>
-                    )}
-                    <Button variant="outline" size="sm">
-                      <Icons.Star className="w-3 h-3 mr-1" />
-                      Follow
-                    </Button>
-                  </div>
-                </div>
-                
-                {selectedPatientId && getPatientConversationHistory(selectedPatientId).map(msg => (
-                  <div key={msg.id} className="w-full mb-4">
-                    {msg.type === 'call' ? (
-                      // Voice call with audio waveform visualization
-                      <div className={`rounded-lg p-3 ${msg.direction === 'inbound' ? 'bg-white border border-gray-200' : 'bg-blue-50 border border-blue-200'}`}>
-                        <div className="flex items-center mb-2">
-                          <Icons.Phone className="w-4 h-4 mr-2 text-green-500" />
-                          <span className="text-sm font-medium">{msg.direction === 'inbound' ? 'Incoming Call' : 'Outgoing Call'}</span>
-                          <span className="ml-auto text-xs text-gray-500">{formatDate(msg.timestamp)}</span>
-                        </div>
-                        
-                        <div className="mb-2 text-sm">
-                          {msg.content}
-                        </div>
-                        
-                        {msg.audioUrl && (
-                          <div className="relative p-2 bg-white rounded border border-gray-200">
-                            <div className="flex items-center">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0 mr-2"
-                                onClick={() => toggleAudioPlayback(msg.id)}
-                              >
-                                {isAudioPlaying[msg.id] ? (
-                                  <Icons.Pause className="w-4 h-4" />
-                                ) : (
-                                  <Icons.Play className="w-4 h-4" />
-                                )}
-                              </Button>
-                              
-                              {/* Audio waveform visualization */}
-                              <div className="flex-1 h-10 bg-blue-50 rounded relative">
-                                <div className="absolute inset-0 px-2 flex items-center">
-                                  {Array.from({ length: 40 }).map((_, i) => (
-                                    <div
-                                      key={i}
-                                      className="w-1 mx-px bg-blue-500 rounded-full opacity-50"
-                                      style={{
-                                        height: `${Math.max(4, Math.sin(i / 2) * 20 + Math.random() * 10)}px`,
-                                      }}
-                                    />
-                                  ))}
-                                </div>
-                              </div>
-                              
-                              <span className="ml-2 text-xs text-gray-500">0:00/3:10</span>
-                            </div>
+                <div className="space-y-4">
+                  {selectedPatientId && getPatientConversationHistory(selectedPatientId).map(msg => (
+                    <div key={msg.id} className="w-full mb-4">
+                      {msg.type === 'call' ? (
+                        // Voice call with audio waveform visualization
+                        <div className={`rounded-lg p-3 ${msg.direction === 'inbound' ? 'bg-white border border-gray-200' : 'bg-blue-50 border border-blue-200'}`}>
+                          <div className="flex items-center mb-2">
+                            <Icons.Phone className="w-4 h-4 mr-2 text-green-500" />
+                            <span className="text-sm font-medium">{msg.direction === 'inbound' ? 'Incoming Call' : 'Outgoing Call'}</span>
+                            <span className="ml-auto text-xs text-gray-500">{formatDate(msg.timestamp)}</span>
                           </div>
-                        )}
-                      </div>
-                    ) : (
-                      // Regular message (SMS, email, social)
-                      <div
-                        className={`p-3 rounded-lg max-w-[80%] ${
-                          msg.direction === 'inbound'
-                            ? 'bg-white border border-gray-200 self-start'
-                            : 'bg-blue-500 text-white self-end ml-auto'
-                        }`}
-                      >
-                        <div className="text-sm">
-                          {msg.content}
+                          
+                          <div className="mb-2 text-sm">
+                            {msg.content}
+                          </div>
+                          
+                          {msg.audioUrl && (
+                            <div className="relative p-2 bg-white rounded border border-gray-200">
+                              <div className="flex items-center">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 mr-2"
+                                  onClick={() => toggleAudioPlayback(msg.id)}
+                                >
+                                  {isAudioPlaying[msg.id] ? (
+                                    <Icons.Pause className="w-4 h-4" />
+                                  ) : (
+                                    <Icons.Play className="w-4 h-4" />
+                                  )}
+                                </Button>
+                                
+                                {/* Audio waveform visualization */}
+                                <div className="flex-1 h-10 bg-blue-50 rounded relative">
+                                  <div className="absolute inset-0 px-2 flex items-center">
+                                    {Array.from({ length: 40 }).map((_, i) => (
+                                      <div
+                                        key={i}
+                                        className="w-1 mx-px bg-blue-500 rounded-full opacity-50"
+                                        style={{
+                                          height: `${Math.max(4, Math.sin(i / 2) * 20 + Math.random() * 10)}px`,
+                                        }}
+                                      />
+                                    ))}
+                                  </div>
+                                </div>
+                                
+                                <span className="ml-2 text-xs text-gray-500">0:00/3:10</span>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <div className="text-xs mt-1 opacity-70 flex justify-between">
-                          <span>{formatDate(msg.timestamp)}</span>
-                          <span>{msg.type === 'sms' ? 'SMS' : msg.type === 'email' ? 'Email' : msg.type === 'social' ? 'Social' : 'Message'}</span>
+                      ) : (
+                        // Regular message (SMS, email, social)
+                        <div
+                          className={`p-3 rounded-lg max-w-[80%] ${
+                            msg.direction === 'inbound'
+                              ? 'bg-white border border-gray-200 self-start'
+                              : 'bg-blue-500 text-white self-end ml-auto'
+                          }`}
+                        >
+                          <div className="text-sm">
+                            {msg.content}
+                          </div>
+                          <div className="text-xs mt-1 opacity-70 flex justify-between">
+                            <span>{formatDate(msg.timestamp)}</span>
+                            <span>{msg.type === 'sms' ? 'SMS' : msg.type === 'email' ? 'Email' : msg.type === 'social' ? 'Social' : 'Message'}</span>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             ) : (
               <div className="h-full flex items-center justify-center">
@@ -535,7 +802,7 @@ const CommunicationsDashboard: React.FC = () => {
             )}
           </div>
           
-          {/* Composition Area (Area 4 in the image) */}
+          {/* Composition Area */}
           {selectedCommunication && (
             <div className="p-3 border-t border-gray-200 bg-white">
               <div className="flex items-center mb-2 border-b border-gray-200">
@@ -560,14 +827,6 @@ const CommunicationsDashboard: React.FC = () => {
                   <Icons.Facebook className="w-4 h-4 inline mr-1" />
                   Facebook
                 </button>
-                <button
-                  className={`px-3 py-2 text-sm font-medium ${activeCompositionTab === 'livechat' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-                  onClick={() => setActiveCompositionTab('livechat')}
-                >
-                  <Icons.MessageCircle className="w-4 h-4 inline mr-1" />
-                  Live chat
-                </button>
-                
                 <div className="ml-auto">
                   <Button variant="ghost" size="sm">
                     <Icons.FileText className="w-4 h-4 mr-1" />
@@ -575,7 +834,6 @@ const CommunicationsDashboard: React.FC = () => {
                   </Button>
                 </div>
               </div>
-              
               <div className="flex items-start space-x-2">
                 <textarea
                   className="flex-1 p-3 border border-gray-200 rounded text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -604,17 +862,17 @@ const CommunicationsDashboard: React.FC = () => {
           )}
         </div>
         
-        {/* Right Panel - Contact Information (Area 5 in the image) */}
+        {/* Right Panel - Contact Information */}
         <div className="w-1/4 border-l border-gray-200 bg-white overflow-y-auto">
           {selectedCommunication ? (
             <div className="h-full flex flex-col">
-              {/* Contact Header with Action button */}
-              <div className="p-3 border-b border-gray-200 bg-blue-50 flex justify-between items-center">
-                <div>
-                  <h2 className="text-base font-semibold">{selectedCommunication.patientName}</h2>
-                  <p className="text-xs text-gray-500">General Info</p>
-                </div>
-                <div>
+                {/* Contact Header with Action button */}
+                <div className="p-3 border-b border-gray-200 bg-blue-50 flex justify-between items-center">
+                  <div>
+                    <h2 className="text-base font-semibold">{selectedCommunication.patientName}</h2>
+                    <p className="text-xs text-gray-500">General Info</p>
+                  </div>
+                  <div>
                   <Button variant="outline" size="sm" className="h-8">
                     Action
                     <Icons.ChevronDown className="w-3 h-3 ml-1" />
@@ -735,16 +993,26 @@ const CommunicationsDashboard: React.FC = () => {
                 </div>
                 
                 {/* Information Accordion Sections */}
-                <div className="divide-y divide-gray-200">
-                  {['Opportunities', 'Campaign Info', 'WooSender Number', 'WooAI', 'Custom Info', 'Notes', 'Tasks', 'Appointments'].map((section) => (
-                    <div key={section} className="p-3">
-                      <button className="flex items-center justify-between w-full text-left">
-                        <h3 className="text-xs font-medium text-gray-500 uppercase">{section}</h3>
-                        <Icons.ChevronRight className="w-3 h-3 text-gray-400" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                                <div className="divide-y divide-gray-200">
+                                  {['Opportunities', 'Campaign Info', 'Dental Hub Number', 'Custom Info', 'Notes', 'Tasks', 'Appointments'].map((section, index) => {
+                                    return (
+                                      <div key={section} className="p-3">
+                                        <button
+                                          className="flex items-center justify-between w-full text-left"
+                                          onClick={() => toggleSection(index)}
+                                        >
+                                          <h3 className="text-xs font-medium text-gray-500 uppercase">{section}</h3>
+                                          <Icons.ChevronRight className={`w-3 h-3 text-gray-400 transition-transform ${openSections[index] ? 'rotate-90' : ''}`} />
+                                        </button>
+                                        {openSections[index] && (
+                                                                  <div className="mt-2 text-sm text-gray-700">
+                                                                    {section} content goes here.
+                                                                  </div>
+                                                                )}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
               </div>
             </div>
           ) : (
@@ -758,7 +1026,7 @@ const CommunicationsDashboard: React.FC = () => {
         </div>
       </div>
       
-      {/* Dialogs */}
+      
       {selectedCommunication && (
         <>
           <VoiceCallDialog
@@ -779,5 +1047,17 @@ const CommunicationsDashboard: React.FC = () => {
     </div>
   );
 };
+
+async function fetchPatientInfo(patientId: string) {
+  // TODO: Implement database query to fetch patient information
+  console.log('Fetching patient info for:', patientId);
+  return {
+    name: 'John Doe',
+    phone: '(555) 123-4567',
+    email: 'john.doe@example.com',
+    lastVisit: '2024-01-01',
+    outstandingBalance: 100,
+  };
+}
 
 export default CommunicationsDashboard;
