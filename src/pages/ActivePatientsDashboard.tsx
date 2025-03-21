@@ -38,56 +38,6 @@ interface PatientData {
 }
 
 // Sample data - would be replaced with real data from API
-const samplePatientData: PatientData = {
-  activePatients: {
-    total: 2845,
-    newLast30Days: 76,
-    changePercentage: 3.2,
-  },
-  demographics: {
-    ageGroups: [
-      { label: '0-18', value: 612, color: '#4263EB' },
-      { label: '19-35', value: 728, color: '#37B24D' },
-      { label: '36-50', value: 764, color: '#F59F00' },
-      { label: '51-65', value: 476, color: '#F03E3E' },
-      { label: '65+', value: 265, color: '#7048E8' },
-    ],
-    gender: [
-      { label: 'Female', value: 1534, color: '#F783AC' },
-      { label: 'Male', value: 1294, color: '#4263EB' },
-      { label: 'Other', value: 17, color: '#7048E8' },
-    ],
-    insuranceTypes: [
-      { label: 'PPO', value: 1652, color: '#4263EB' },
-      { label: 'HMO', value: 524, color: '#F59F00' },
-      { label: 'Medicare', value: 286, color: '#F03E3E' },
-      { label: 'Self-Pay', value: 383, color: '#37B24D' },
-    ],
-  },
-  recalls: {
-    due: 127,
-    upcoming30Days: 215,
-    overdue: 68,
-    completed30Days: 193,
-  },
-  patientTypes: {
-    regular: 1876,
-    periodontal: 412,
-    cosmetic: 298,
-    pediatric: 427,
-    orthodontic: 143,
-  },
-  procedureRevenue: [
-    { procedure: 'Checkup & Cleaning', count: 437, revenue: 61180, changePercentage: 2.4 },
-    { procedure: 'Fillings', count: 256, revenue: 76800, changePercentage: 1.8 },
-    { procedure: 'Crowns', count: 124, revenue: 148800, changePercentage: 5.2 },
-    { procedure: 'Root Canals', count: 48, revenue: 67200, changePercentage: -1.5 },
-    { procedure: 'Extractions', count: 86, revenue: 34400, changePercentage: 0.7 },
-    { procedure: 'Implants', count: 32, revenue: 128000, changePercentage: 8.3 },
-    { procedure: 'Orthodontics', count: 27, revenue: 162000, changePercentage: 4.1 },
-    { procedure: 'Whitening', count: 58, revenue: 29000, changePercentage: 6.9 },
-  ],
-};
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -116,10 +66,15 @@ const ActivePatientsDashboard = () => {
         // const data = await response.json();
 
         // Using sample data for now
-        setTimeout(() => {
-          setPatientData(samplePatientData);
+        try {
+          const response = await fetch('/api/patients/dashboard');
+          const data = await response.json();
+          setPatientData(data);
           setLoading(false);
-        }, 1000);
+        } catch (error) {
+          console.error('Error fetching patient data:', error);
+          setLoading(false);
+        }
       } catch (error) {
         console.error('Error fetching patient data:', error);
         setLoading(false);
@@ -218,21 +173,21 @@ const ActivePatientsDashboard = () => {
           value={formatNumber(patientData?.recalls.due || 0)}
           change={10.2}
           icon="Bell"
-          variant="primary"
+          variant="ocean"
         />
         <StatsCard
           title="Upcoming Recalls (30 days)"
           value={formatNumber(patientData?.recalls.upcoming30Days || 0)}
           change={5.8}
           icon="Calendar"
-          variant="secondary"
+          variant="gold"
         />
         <StatsCard
           title="Overdue Recalls"
           value={formatNumber(patientData?.recalls.overdue || 0)}
           change={-12.4}
           icon="AlertCircle"
-          variant="accent1"
+          variant="tropical"
         />
       </div>
 
