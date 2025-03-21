@@ -35,66 +35,6 @@ interface SatisfactionData {
   }[];
 }
 
-// Sample data - would be replaced with real data from API
-const sampleData: SatisfactionData = {
-  overallRating: 4.7,
-  totalReviews: 328,
-  changePercentage: 5.2,
-  reviewsByPlatform: [
-    { platform: 'Google', count: 187, averageRating: 4.8, trend: 3.2 },
-    { platform: 'Yelp', count: 73, averageRating: 4.5, trend: 1.8 },
-    { platform: 'Facebook', count: 42, averageRating: 4.9, trend: 7.5 },
-    { platform: 'Healthgrades', count: 26, averageRating: 4.6, trend: 5.0 },
-  ],
-  recentSentiment: {
-    positive: 82,
-    neutral: 12,
-    negative: 6,
-  },
-  recentFeedback: [
-    {
-      patientName: 'Sarah Johnson',
-      rating: 5,
-      comment: 'Dr. Miller and the entire staff were amazing! Very thorough cleaning and they took the time to explain everything.',
-      date: '2025-02-21',
-      platform: 'Google',
-      responded: true,
-    },
-    {
-      patientName: 'Michael Chen',
-      rating: 4,
-      comment: 'Great experience overall. The only issue was waiting a bit longer than expected, but the care was excellent.',
-      date: '2025-02-18',
-      platform: 'Yelp',
-      responded: false,
-    },
-    {
-      patientName: 'Jessica Williams',
-      rating: 5,
-      comment: 'Best dental practice I\'ve ever been to! The staff is incredibly friendly and they use state-of-the-art technology.',
-      date: '2025-02-15',
-      platform: 'Facebook',
-      responded: true,
-    },
-  ],
-  campaignRecommendations: [
-    {
-      title: 'Launch post-appointment voice feedback campaign',
-      description: 'Use automated voice calls to collect feedback from patients 24-48 hours after their appointment.',
-      impact: 'Could generate 15-20 new positive reviews',
-    },
-    {
-      title: 'Address wait time concerns',
-      description: 'Recent feedback shows increased mentions of wait times. Consider reviewing scheduling practices.',
-      impact: 'Could improve satisfaction scores by 0.3 points',
-    },
-    {
-      title: 'Respond to outstanding reviews',
-      description: '7 recent reviews across platforms have no response. Personalized responses could improve engagement.',
-      impact: 'Demonstrates responsiveness to all patients',
-    },
-  ],
-};
 
 // Helper functions
 const formatNumber = (value: number) => {
@@ -123,18 +63,16 @@ const PatientSatisfactionDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<SatisfactionData | null>(null);
 
-  // Simulating data loading from API
+  // Fetching data from API
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
 
       try {
-        // In a real implementation, this would fetch data from an API
-        // Using sample data for now
-        setTimeout(() => {
-          setData(sampleData);
-          setLoading(false);
-        }, 1000);
+        const response = await fetch('/api/patientSatisfaction');
+        const data = await response.json();
+        setData(data);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching satisfaction data:', error);
         setLoading(false);
@@ -234,7 +172,7 @@ const PatientSatisfactionDashboard = () => {
             value={platform.averageRating.toFixed(1)}
             change={platform.trend}
             icon="Star"
-            variant={index === 0 ? "primary" : index === 1 ? "secondary" : index === 2 ? "accent1" : "accent2"}
+            variant={index === 0 ? "ocean" : index === 1 ? "gold" : index === 2 ? "tropical" : "royal"}
           />
         ))}
       </div>
