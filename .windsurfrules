@@ -1,0 +1,137 @@
+MCP Framework Documentation
+Based on the documentation I've retrieved, here's a comprehensive overview of the MCP Framework:
+
+What is MCP Framework?
+The MCP Framework is a specialized framework for building MCP (Model Context Protocol) servers in TypeScript. It provides a structured approach to creating servers that can communicate with AI models and client applications using the Model Context Protocol.
+
+Key Features
+Easy Setup and Development
+Command-line interface for project creation
+Streamlined development workflow
+Built-in TypeScript support
+Flexible Transport Options
+stdio (default) - Standard input/output communication
+HTTP Stream - Web-based communication
+Server-Sent Events (SSE) - Real-time updates
+Authentication Providers
+JWT Authentication
+API Key Authentication
+Customizable security options
+Tool Registration System
+Define callable functions for AI models
+Parameter validation
+Response handling
+Getting Started
+Installation and Setup
+bash
+CopyInsert
+# Install the framework globally
+npm install -g mcp-framework
+
+# Create a new MCP server project
+mcp create my-mcp-server
+
+# Navigate to your project
+cd my-mcp-server
+Basic Server Configuration
+typescript
+CopyInsert
+import { MCPServer } from "mcp-framework";
+
+// Create a basic server with default stdio transport
+const server = new MCPServer();
+
+// Register tools and start the server
+server.registerTool({
+  name: "example-tool",
+  description: "An example tool",
+  parameters: {
+    // Parameter definitions
+  },
+  handler: async (params) => {
+    // Tool implementation
+    return { result: "Success" };
+  }
+});
+
+server.start();
+Transport Configuration Options
+HTTP Stream Transport
+typescript
+CopyInsert
+const server = new MCPServer({
+  transport: {
+    type: "http-stream",
+    options: {
+      responseMode: "batch" // or "streaming"
+    }
+  }
+});
+Server-Sent Events (SSE) Transport
+typescript
+CopyInsert
+const server = new MCPServer({
+  transport: {
+    type: "sse",
+    options: {
+      // SSE-specific options
+    }
+  }
+});
+Authentication Configuration
+JWT Authentication
+typescript
+CopyInsert
+import { MCPServer, JWTAuthProvider } from "mcp-framework";
+import { Algorithm } from "jsonwebtoken";
+
+const server = new MCPServer({
+  transport: {
+    type: "sse",
+    options: {
+      auth: {
+        provider: new JWTAuthProvider({
+          secret: process.env.JWT_SECRET,
+          algorithms: ["HS256" as Algorithm],
+          tokenHeader: "Authorization" // Default
+        })
+      }
+    }
+  }
+});
+Client would then include the token in requests:
+
+CopyInsert
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...
+API Key Authentication
+typescript
+CopyInsert
+import { MCPServer, APIKeyAuthProvider } from "mcp-framework";
+
+const server = new MCPServer({
+  transport: {
+    type: "http-stream",
+    options: {
+      auth: {
+        provider: new APIKeyAuthProvider({
+          apiKeys: ["your-api-key-1", "your-api-key-2"],
+          keyHeader: "X-API-Key" // Default
+        })
+      }
+    }
+  }
+});
+Client would then include the API key in requests:
+
+CopyInsert
+X-API-Key: your-api-key
+Integration with DentalHub
+For the DentalHub project, the MCP Framework could be used to:
+
+Create specialized AI-powered services for dental practice management
+Build custom tools for patient data analysis
+Implement secure communication between the frontend and AI services
+Develop domain-specific functionality for dental workflows
+The MCP Framework's architecture is separate from the Vertical Slice Architecture used in the main DentalHub application, but they can work together effectively - with the MCP server providing specialized AI capabilities that the main application can consume.
+
+This framework allows for extending DentalHub with AI capabilities while maintaining a clean separation of concerns between the core application and the AI services.

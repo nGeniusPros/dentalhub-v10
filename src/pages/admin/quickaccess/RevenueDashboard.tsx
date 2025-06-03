@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { RevenueChart } from '../components/dashboard/charts/RevenueChart';
+import { RevenueChart } from '../../../components/dashboard/charts/RevenueChart';
 import { Link } from 'react-router-dom';
-import { Icon } from '../components/ui/icon-strategy';
-import StatsCard from '../components/dashboard/StatsCard';
+import { Icon } from '../../../components/ui/icon-strategy';
+import StatsCard from '../../../components/dashboard/StatsCard';
+import { practiceDataService, RevenueData as PracticeRevenueData } from '../../../services/practiceDataService';
 
 // Import AI components (commented out for now)
 // import { DataAnalysisAgent } from '../ai/data-analysis/data-analysis.agent';
@@ -62,15 +63,22 @@ const RevenueDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [revenueData, setRevenueData] = useState<RevenueData | null>(null);
 
-  // Fetching data from API
+  // Fetching data using the practice data service
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
 
       try {
-        const response = await fetch('/api/revenueDashboard');
-        const data = await response.json();
-        setRevenueData(data);
+        // Get data from practice data service
+        const practiceData = await practiceDataService.getRevenueData(activeTab);
+        
+        if (practiceData) {
+          // Transform the standardized practice data into the dashboard format
+          const dashboardData = transformPracticeData(practiceData);
+          setRevenueData(dashboardData);
+        } else {
+          throw new Error('Failed to fetch revenue data');
+        }
       } catch (error) {
         console.error('Error fetching revenue data:', error);
       } finally {
@@ -79,7 +87,72 @@ const RevenueDashboard = () => {
     };
 
     fetchData();
-  }, []);
+  }, [activeTab]);
+  
+  /**
+   * Transform practice data from the service into the dashboard format
+   */
+  const transformPracticeData = (practiceData: PracticeRevenueData): RevenueData => {
+    // Create quarterly data from periodic data if available
+    const quarterlyData = {
+      q1: { actual: 0, goal: 0, performance: 0 },
+      q2: { actual: 0, goal: 0, performance: 0 },
+      q3: { actual: 0, goal: 0, performance: 0 },
+      q4: { actual: 0, goal: 0, performance: 0 }
+    };
+    
+    if (practiceData.timeframe === 'quarterly') {
+      practiceData.periodic.forEach(period => {
+        const quarter = parseInt(period.label.replace('Q', ''));
+        if (quarter >= 1 && quarter <= 4) {
+          const quarterKey = `q${quarter}` as keyof typeof quarterlyData;
+          quarterlyData[quarterKey] = {
+            actual: period.revenue,
+            goal: practiceData.annual.goal / 4, // Simple division for now
+            performance: (period.revenue / (practiceData.annual.goal / 4)) * 100
+          };
+        }
+      });
+    }
+    
+    // Calculate YTD, MTD, WTD metrics (simplified for now)
+    const ytd = {
+      actual: practiceData.annual.actual,
+      goal: practiceData.annual.goal * (new Date().getMonth() + 1) / 12, // Prorated goal
+      performance: 0
+    };
+    ytd.performance = (ytd.actual / ytd.goal) * 100;
+    
+    const mtd = {
+      actual: practiceData.periodic[practiceData.periodic.length - 1]?.revenue || 0,
+      goal: practiceData.annual.goal / 12, // Simple monthly goal
+      performance: 0,
+      projected: 0
+    };
+    mtd.performance = (mtd.actual / mtd.goal) * 100;
+    mtd.projected = mtd.actual * 30 / new Date().getDate(); // Simple projection
+    
+    // Example marketing data (would come from another endpoint in a real implementation)
+    const marketing = {
+      spend: practiceData.annual.actual * 0.05, // Example: 5% of revenue
+      revenuePercentage: 5,
+      roi: 300, // 3x ROI
+      suggestedBudget: practiceData.annual.actual * 0.06 // Suggested 6%
+    };
+    
+    return {
+      annual: practiceData.annual,
+      quarterly: quarterlyData,
+      ytd,
+      mtd,
+      wtd: {
+        actual: mtd.actual / 4, // Simplified
+        goal: mtd.goal / 4,
+        performance: mtd.performance
+      },
+      marketing
+    };
+  };
 
   // AI-recommended marketing budget calculation
   const formatCurrency = (value: number) => {

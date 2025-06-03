@@ -1,5 +1,6 @@
 const { handleOptions, success, error } = require('../utils/response');
 const { initSupabase } = require('../utils/supabase');
+const { verifyWebhookSignature } = require('../utils/retell');
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
@@ -13,90 +14,192 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    // Verify Retell webhook signature (you should implement this properly in production)
+    // Verify Retell webhook signature
     const retellWebhookSecret = process.env.RETELL_WEBHOOK_SECRET;
     const signature = event.headers['x-retell-signature'];
     
     if (!retellWebhookSecret || !signature) {
-      return error('Missing webhook signature or secret', 401);
+      console.error('Missing webhook signature or secret');
+      return error('Unauthorized', 401);
     }
     
-    // Simple verification - in production, implement proper signature verification
-    // This is just a placeholder for now
-    if (signature !== retellWebhookSecret) {
-      return error('Invalid webhook signature', 401);
+    // Verify the signature using the raw body
+    const isSignatureValid = verifyWebhookSignature(
+      signature,
+      event.body, // Use raw body for signature verification
+      retellWebhookSecret
+    );
+    
+    if (!isSignatureValid) {
+      console.error('Invalid webhook signature');
+      return error('Invalid signature', 401);
     }
     
     // Parse webhook payload
-    const payload = JSON.parse(event.body);
-    const { type } = payload;
+    let payload;
+    try {
+      payload = JSON.parse(event.body);
+    } catch (e) {
+      console.error('Error parsing webhook payload:', e);
+      return error('Invalid payload', 400);
+    }
+    
+    const { type, call_id } = payload || {};
+    
+    if (!type || !call_id) {
+      console.error('Missing required fields in webhook payload');
+      return error('Invalid payload', 400);
+    }
     
     // Initialize Supabase
     const supabase = initSupabase();
     
+    // Log the incoming webhook for debugging
+    console.log(`Processing webhook: ${type} for call ${call_id}`, payload);
+    
     // Handle different event types
     switch (type) {
       case 'call.started': {
-        // Store call started event
-        await supabase
+        // Update call status to 'in_progress'
+        const { error: updateError } = await supabase
+          .from('retell_calls')
+          .update({ 
+            status: 'in_progress',
+            updated_at: new Date().toISOString()
+          })
+          .eq('call_id', call_id);
+          
+        if (updateError) {
+          console.error('Error updating call status:', updateError);
+        }
+        
+        // Log the call event
+        const { error: eventError } = await supabase
           .from('call_events')
           .insert({
+            call_id: call_id,
             event_type: 'started',
-            call_id: payload.call_id,
             timestamp: new Date().toISOString(),
             metadata: payload,
+            duration: payload.duration_seconds || 0
           });
+          
+        if (eventError) {
+          console.error('Error logging call event:', eventError);
+        }
         break;
       }
       
       case 'call.ended': {
-        // Store call ended event
-        await supabase
+        // Update call status to 'completed'
+        const { error: updateError } = await supabase
+          .from('retell_calls')
+          .update({ 
+            status: 'completed',
+            completed_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('call_id', call_id);
+          
+        if (updateError) {
+          console.error('Error updating call status:', updateError);
+        }
+        
+        // Log the call event
+        const { error: eventError } = await supabase
           .from('call_events')
           .insert({
+            call_id: call_id,
             event_type: 'ended',
-            call_id: payload.call_id,
             timestamp: new Date().toISOString(),
-            duration: payload.duration,
-            metadata: payload,
+            duration: payload.duration_seconds || 0,
+            metadata: payload
           });
+          
+        if (eventError) {
+          console.error('Error logging call event:', eventError);
+        }
         break;
       }
       
       case 'call.transcription': {
         // Store call transcription
-        await supabase
+        const { error: transError } = await supabase
           .from('call_transcriptions')
           .insert({
-            call_id: payload.call_id,
+            call_id: call_id,
             timestamp: new Date().toISOString(),
             transcript: payload.transcript,
             metadata: payload,
           });
+          
+        if (transError) {
+          console.error('Error saving transcription:', transError);
+        }
         break;
       }
       
       case 'call.recording': {
         // Store call recording URL
-        await supabase
+        const { error: recError } = await supabase
           .from('call_recordings')
           .insert({
-            call_id: payload.call_id,
+            call_id: call_id,
             timestamp: new Date().toISOString(),
             recording_url: payload.recording_url,
             metadata: payload,
           });
+          
+        if (recError) {
+          console.error('Error saving recording:', recError);
+        }
         break;
       }
       
-      default:
+      default: {
         // Log unknown event type
-        console.log(`Unhandled Retell event type: ${type}`);
+        console.log(`Unhandled Retell event type: ${type}`, payload);
+        
+        // Store unknown event type for debugging
+        await supabase
+          .from('call_events')
+          .insert({
+            call_id: call_id || 'unknown',
+            event_type: type,
+            timestamp: new Date().toISOString(),
+            metadata: payload
+          });
+        break;
+      }
     }
     
-    return success({ received: true, eventType: type });
+    return success({ 
+      success: true, 
+      eventType: type,
+      callId: call_id,
+      timestamp: new Date().toISOString()
+    });
   } catch (err) {
     console.error('Retell webhook error:', err);
-    return error(`Failed to process webhook: ${err.message}`);
+    
+    // Log the error to the database if possible
+    try {
+      const supabase = initSupabase();
+      await supabase
+        .from('call_events')
+        .insert({
+          event_type: 'webhook_error',
+          timestamp: new Date().toISOString(),
+          metadata: {
+            error: err.message,
+            stack: err.stack,
+            body: event.body
+          }
+        });
+    } catch (dbErr) {
+      console.error('Failed to log webhook error:', dbErr);
+    }
+    
+    return error(`Failed to process webhook: ${err.message}`, 500);
   }
 };

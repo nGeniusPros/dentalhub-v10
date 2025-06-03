@@ -3,12 +3,13 @@ import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import LandingPage from '../pages/LandingPage';
 import RecallGeniusLandingPage from '../pages/RecallGeniusLandingPage';
 import Dashboard from '../pages/Dashboard';
-import RevenueDashboard from '../pages/RevenueDashboard';
-import MonthlyRevenueReport from '../pages/MonthlyRevenueReport';
-import ActivePatientsDashboard from '../pages/ActivePatientsDashboard';
+import RevenueDashboard from '../pages/admin/quickaccess/RevenueDashboard';
+import MonthlyRevenueReport from '../pages/admin/quickaccess/MonthlyRevenueReport';
+import ActivePatientsDashboard from '../pages/admin/quickaccess/ActivePatientsDashboard';
 import PatientSatisfactionDashboard from '../pages/PatientSatisfactionDashboard';
-import TreatmentSuccessDashboard from '../pages/TreatmentSuccessDashboard';
-import DailyHuddleDashboard from '../pages/DailyHuddleDashboard';
+import TreatmentSuccessDashboard from '../pages/admin/quickaccess/TreatmentSuccessDashboard';
+import DailyHuddleDashboard from '../pages/admin/quickaccess/DailyHuddleDashboard';
+import TestNexHealth from '../pages/admin/quickaccess/TestNexHealth';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import CommunicationsDashboard from '../pages/admin/communications/CommunicationsDashboard';
 import StaffDashboard from '../pages/staff/StaffDashboard';
@@ -79,6 +80,7 @@ export const AppRoutes = () => {
         <Route path="treatment-success" element={<TreatmentSuccessDashboard />} />
         <Route path="monthly-report" element={<MonthlyRevenueReport />} />
         <Route path="daily-huddle" element={<DailyHuddleDashboard />} />
+        <Route path="test-nexhealth" element={<TestNexHealth />} />
       </Route>
 
       {/* Admin routes */}

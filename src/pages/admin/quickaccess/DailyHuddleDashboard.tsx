@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Icon } from '../components/ui/icon-strategy';
+import { Icon } from '../../../components/ui/icon-strategy';
 // Note: StatsCard is not used in this component but is available if needed
 
 // Types to represent data that would come from API/database

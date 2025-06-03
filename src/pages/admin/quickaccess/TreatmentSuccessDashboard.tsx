@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Icon } from '../components/ui/icon-strategy';
-import StatsCard from '../components/dashboard/StatsCard';
+import { Icon } from '../../../components/ui/icon-strategy';
+import StatsCard from '../../../components/dashboard/StatsCard';
 
 // Types to represent data that would come from API/database
 interface TreatmentData {

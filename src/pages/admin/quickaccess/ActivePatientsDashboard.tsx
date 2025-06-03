@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Download, Calendar, Users, PieChart, BarChart3 } from 'lucide-react';
-import StatsCard from '../components/dashboard/StatsCard';
+import StatsCard from '../../../components/dashboard/StatsCard';
 
 // Types to represent data that would come from API/database
 interface PatientData {

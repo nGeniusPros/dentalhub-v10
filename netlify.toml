@@ -31,6 +31,28 @@
       time = 10
 
 # Environment variable configuration
+[dev]
+  # Prevent Netlify Dev from automatically running a framework start command (like 'npm run dev'),
+  # as our start-dev.cjs script handles starting Vite on the targetPort.
+  # Using ':' as a no-op command.
+  command = "timeout /t -1" # Keep alive command for Windows
+
+  # framework = "#auto" # This can be left commented out or removed if 'command' is specified.
+  
+  # Port for Netlify Dev's own server.
+  # We primarily care about it starting the functions server.
+  port = 8888
+
+  # Port for the Netlify functions server
+  functionsPort = 9999
+
+  # Port for your application server (Vite)
+  # This will be the port Vite runs on. start-dev.cjs may override this with a flag if it finds a different free port.
+  targetPort = 5173
+
+  # Auto-launch browser - set to false as we'll manage this
+  autoLaunch = false
+
 [build.environment]
   # These are build-time environment variables
   # Runtime environment variables should be set in the Netlify UI
