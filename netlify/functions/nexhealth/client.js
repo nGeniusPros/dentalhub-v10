@@ -56,7 +56,7 @@ exports.nexhealthClient = {
       const queryParams = addCommonParams(params);
       
       const response = await axios.get(
-        `${process.env.NEXHEALTH_API_URL}${endpoint}`,
+        `${process.env.NEXHEALTH_API_BASE_URL}${endpoint}`,
         {
           headers: {
             'Accept': 'application/vnd.Nexhealth+json;version=2',
@@ -88,7 +88,7 @@ exports.nexhealthClient = {
       const queryParams = addCommonParams(params);
       
       const response = await axios.post(
-        `${process.env.NEXHEALTH_API_URL}${endpoint}`,
+        `${process.env.NEXHEALTH_API_BASE_URL}${endpoint}`,
         data,
         {
           headers: {
@@ -121,7 +121,7 @@ exports.nexhealthClient = {
       const queryParams = addCommonParams(params);
       
       const response = await axios.patch(
-        `${process.env.NEXHEALTH_API_URL}${endpoint}`,
+        `${process.env.NEXHEALTH_API_BASE_URL}${endpoint}`,
         data,
         {
           headers: {

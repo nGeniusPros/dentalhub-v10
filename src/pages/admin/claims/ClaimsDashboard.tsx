@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, Button } from 'flowbite-react';
 import { Link } from 'react-router-dom';
 import { HiDocumentAdd, HiChartPie, HiInboxIn } from 'react-icons/hi';
-import { ClaimsList } from '../../components/claims/ClaimsList';
-import { ClaimStatusSummary } from '../../components/claims/ClaimStatusSummary';
-import { ERAProcessor } from '../../components/claims/ERAProcessor';
-import { InsuranceVerification } from '../../components/claims/InsuranceVerification';
-import { useClaimsContext } from '../../contexts/ClaimsContext';
-import { ClaimStatus, ClaimStatusFilter, InsuranceVerificationResult, ClaimsSummary } from '../../types/claims.types';
+import { ClaimsList } from '../../../components/claims/ClaimsList';
+import { ClaimStatusSummary } from '../../../components/claims/ClaimStatusSummary';
+import { ERAProcessor } from '../../../components/claims/ERAProcessor';
+import { InsuranceVerification } from '../../../components/claims/InsuranceVerification';
+import { useClaimsContext } from '../../../contexts/ClaimsContext';
+import { ClaimStatus, ClaimStatusFilter, InsuranceVerificationResult, ClaimsSummary } from '../../../types/claims.types';
 
 /**
  * Main dashboard page for the claims module

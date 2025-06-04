@@ -1,5 +1,5 @@
 import React from 'react';
-import { AIConsultantChat } from '../components/ai/AIConsultantChat';
+import { AIConsultantChat } from '../../components/ai/AIConsultantChat';
 
 /**
  * AI Consultant Page

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Card, Button, Spinner, Alert } from 'flowbite-react';
 import { useNavigate } from 'react-router-dom';
-import { useClaimsContext } from '../../contexts/ClaimsContext';
-import { Claim, ClaimStatus, ValidationError } from '../../types/claims.types';
+import { useClaimsContext } from '../../../contexts/ClaimsContext';
+import { Claim, ClaimStatus, ValidationError } from '../../../types/claims.types';
 
 const NewClaimPage: React.FC = () => {
   const navigate = useNavigate();

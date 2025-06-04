@@ -1,7 +1,7 @@
 import React from 'react';
-import { AppointmentsChart } from '../components/dashboard/charts/AppointmentsChart';
-import { RevenueChart } from '../components/dashboard/charts/RevenueChart';
-import PracticeSnapshotGrid from '../components/dashboard/PracticeSnapshotGrid';
+import { AppointmentsChart } from '../../components/dashboard/charts/AppointmentsChart';
+import { RevenueChart } from '../../components/dashboard/charts/RevenueChart';
+import PracticeSnapshotGrid from '../../components/dashboard/PracticeSnapshotGrid';
 
 
 

@@ -4,8 +4,8 @@
  * This is a simple test endpoint to verify that the NexHealth API client
  * is working correctly. It attempts to authenticate and fetch some basic data.
  */
-const { nexhealthClient } = require('./client');
-const { success, error, handleOptions } = require('../utils/response');
+const { nexhealthClient } = require('../../../netlify/functions/nexhealth/client');
+const { success, error, handleOptions } = require('../../../netlify/functions/utils/response');
 
 exports.handler = async (event, context) => {
   if (event.httpMethod === 'OPTIONS') {

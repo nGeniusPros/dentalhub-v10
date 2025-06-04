@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button, Spinner, Alert } from 'flowbite-react';
-import { useClaimsContext } from '../../contexts/ClaimsContext';
-import { Claim } from '../../types/claims.types';
+import { useClaimsContext } from '../../../contexts/ClaimsContext';
+import { Claim } from '../../../types/claims.types';
 
 const ClaimDetailsPage: React.FC = () => {
   const { claimId } = useParams<{ claimId: string }>();
