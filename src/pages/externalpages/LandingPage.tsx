@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Mockup } from "@/components/ui/mockup";
 import {
   LucideMessageSquare,
-  LucideArrowRight,
   LucideCheck,
   LucideCheckCircle,
   LucideChevronDown,
@@ -21,74 +20,9 @@ import {
   LucideClock
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import ExternalLayout from "@/components/external/ExternalLayout";
+import { Glow } from "@/components/ui/glow"; // Keep Glow if used elsewhere, remove if only for old Header
 import StatsCard from "@/components/dashboard/StatsCard";
-import FeatureHighlight from "@/components/FeatureHighlight";
-import { Glow } from "@/components/ui/glow";
-
-const Header = () => {
-  // Function to handle smooth scrolling to sections
-  const scrollToSection = (sectionId: string) => {
-    console.log(`Scrolling to section: ${sectionId}`);
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      console.warn(`Section with id "${sectionId}" not found. Please ensure the section exists in the document.`);
-    }
-  };
-
-  return (
-    <header className="bg-white py-4 shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-4 flex items-center justify-between">
-        {/* Logo */}
-        <div className="text-2xl font-bold text-navy">
-          nGenius Pros
-        </div>
-
-        {/* Navigation Links and CTA aligned to the right */}
-        <div className="flex items-center space-x-8">
-          <Link
-            to="/#how-it-works"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection('how-it-works');
-            }}
-            className="text-gray-darker hover:text-navy transition-colors"
-          >
-            How It Works
-          </Link>
-          <Link
-            to="/#features"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection('features');
-            }}
-            className="text-gray-darker hover:text-navy transition-colors"
-          >
-            Features
-          </Link>
-          <Link
-            to="/#faq"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection('faq');
-            }}
-            className="text-gray-darker hover:text-navy transition-colors"
-          >
-            FAQ
-          </Link>
-          
-          {/* Call-to-Action Button */}
-          <Button className="bg-gradient-to-r from-turquoise to-navy text-white font-medium hover:from-navy hover:to-turquoise transition-colors" asChild>
-            <Link to="/signup">
-              Join the Waitlist
-            </Link>
-          </Button>
-        </div>
-      </div>
-    </header>
-  );
-};
 
 // Portal card component for the second section
 interface PortalCardProps {
@@ -242,8 +176,8 @@ const BenefitCard = ({ title, items, icon, color }: { title: string; items: stri
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gray-smoke">
-      <Header />
+    <ExternalLayout>
+      <div className="min-h-screen bg-gray-smoke">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gray-smoke py-16 md:py-24 lg:py-32">
         <div className="relative mx-auto max-w-[1280px] px-4">
@@ -952,5 +886,6 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
+    </ExternalLayout>
   );
 }

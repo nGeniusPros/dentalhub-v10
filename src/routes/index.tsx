@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
-import LandingPage from '../pages/LandingPage';
-import RecallGeniusLandingPage from '../pages/RecallGeniusLandingPage';
+import LandingPage from '../pages/externalpages/LandingPage';
+import RecallGeniusLandingPage from '../pages/externalpages/RecallGeniusLandingPage';
 import Dashboard from '../pages/admin/Dashboard';
 import RevenueDashboard from '../pages/admin/quickaccess/RevenueDashboard';
 import MonthlyRevenueReport from '../pages/admin/quickaccess/MonthlyRevenueReport';
@@ -53,6 +53,14 @@ import NewClaimPage from '../pages/admin/claims/NewClaimPage';
 import ClaimDetailsPage from '../pages/admin/claims/ClaimDetailsPage';
 import ClaimsReportingPage from '../pages/admin/claims/ClaimsReportingPage';
 import CampaignDetails from '../pages/admin/communications/CampaignDetails';
+import DentalBilling from '../pages/externalpages/services/DentalBilling';
+import DentalRecruiting from '../pages/externalpages/services/DentalRecruiting';
+import DentalConsulting from '../pages/externalpages/services/DentalConsulting';
+import Resources from '../pages/externalpages/Resources';
+import Blog from '../pages/externalpages/Blog';
+import About from '../pages/externalpages/About';
+import Contact from '../pages/externalpages/Contact';
+import Careers from '../pages/externalpages/Careers';
 
 export const AppRoutes = () => {
   return (
@@ -60,6 +68,16 @@ export const AppRoutes = () => {
       {/* Public routes */}
       <Route path="/" element={<LandingPage />} />
       <Route path="/recall" element={<RecallGeniusLandingPage />} />
+      <Route path="/services">
+        <Route path="dental-billing" element={<DentalBilling />} />
+        <Route path="dental-recruiting" element={<DentalRecruiting />} />
+        <Route path="dental-consulting" element={<DentalConsulting />} />
+      </Route>
+      <Route path="/resources" element={<Resources />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/careers" element={<Careers />} />
       
       {/* Login routes */}
       <Route path="/login">
