@@ -73,7 +73,14 @@ export const AppRoutes = () => {
         <Route path="dental-recruiting" element={<DentalRecruiting />} />
         <Route path="dental-consulting" element={<DentalConsulting />} />
       </Route>
+      {/* Add specific resource routes before the general one */}
+      <Route path="/resources/category/:categorySlug" element={<Resources />} />
+      <Route path="/resources/type/:typeSlug" element={<Resources />} />
       <Route path="/resources" element={<Resources />} />
+
+      {/* Blog routes */}
+      <Route path="/blog/category/:categorySlug" element={<Blog />} />
+      {/* Note: Individual post links (e.g., /blog/:postSlug) will require a dedicated route and component (or further modification to Blog.tsx) to display single posts correctly. This current setup primarily enables category filtering. */}
       <Route path="/blog" element={<Blog />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
