@@ -191,13 +191,13 @@ const SuperkiddosProposalPage: React.FC = () => {
   return (
     <div className="proposal-body antialiased">
       <div className="min-h-screen container mx-auto p-4 sm:p-6 lg:p-8">
-        <header className="text-center mb-8 bg-white p-6 rounded-xl shadow-lg" style={{ backgroundColor: 'var(--navy-dark)' }}>
+        <header className="text-center mb-8 p-6 rounded-xl shadow-lg bg-gradient-to-r from-teal-500 via-cyan-500 to-sky-600 text-white">
           <div className="text-white text-4xl font-bold mb-2">
-            nGenius <span style={{ color: 'var(--gold-main)' }}>Pros</span>
+            nGenius <span>Pros</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-semibold text-white">The Next Evolution of Marketing For Superkiddos</h1>
-          <p className="text-lg text-gray-300 mt-2">An Interactive Proposal for Dr. Atoosa Nikaeen</p>
-          <p className="text-sm text-gray-400 mt-1">Prepared by: nGenius Pros LLC</p>
+          <p className="text-lg text-white mt-2">An Interactive Proposal for Dr. Atoosa Nikaeen</p>
+          <p className="text-sm text-white mt-1">Prepared by: nGenius Pros LLC</p>
         </header>
 
         <div className="mb-8 bg-white rounded-lg shadow-md">
