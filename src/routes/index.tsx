@@ -61,6 +61,7 @@ import Blog from '../pages/externalpages/Blog';
 import About from '../pages/externalpages/About';
 import Contact from '../pages/externalpages/Contact';
 import Careers from '../pages/externalpages/Careers';
+import SuperkiddosProposalPage from '../pages/externalpages/SuperkiddosProposalPage';
 
 export const AppRoutes = () => {
   return (
@@ -85,6 +86,7 @@ export const AppRoutes = () => {
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/careers" element={<Careers />} />
+      <Route path="/external/superkiddos-proposal" element={<SuperkiddosProposalPage />} />
       
       {/* Login routes */}
       <Route path="/login">
