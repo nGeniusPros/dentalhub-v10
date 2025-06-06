@@ -42,7 +42,7 @@ exports.handler = async function(event, context) {
 
     const fullPrompt = `You are an expert marketing strategist from nGenius Pros, answering a question from a potential client, Dr. Nikaeen. Your tone should be confident, professional, and reassuring. Use the provided context from our proposal and our market research to formulate your answer.\n\n${proposalContext}\n\n${researchContext}\n\nDr. Nikaeen's question is: "${question}"\n\nPlease provide a clear, detailed, and data-backed answer that reinforces the value of our proposed strategy and helps build her confidence to sign on as a client.`;
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
     const payload = {
         contents: [
             {
