@@ -58,6 +58,7 @@ import DentalRecruiting from '../pages/externalpages/services/DentalRecruiting';
 import DentalConsulting from '../pages/externalpages/services/DentalConsulting';
 import Resources from '../pages/externalpages/Resources';
 import Blog from '../pages/externalpages/Blog';
+import BlogPost from '../pages/externalpages/BlogPost';
 import About from '../pages/externalpages/About';
 import Contact from '../pages/externalpages/Contact';
 import Careers from '../pages/externalpages/Careers';
@@ -81,7 +82,7 @@ export const AppRoutes = () => {
 
       {/* Blog routes */}
       <Route path="/blog/category/:categorySlug" element={<Blog />} />
-      {/* Note: Individual post links (e.g., /blog/:postSlug) will require a dedicated route and component (or further modification to Blog.tsx) to display single posts correctly. This current setup primarily enables category filtering. */}
+      <Route path="/blog/:postSlug" element={<BlogPost />} />
       <Route path="/blog" element={<Blog />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />

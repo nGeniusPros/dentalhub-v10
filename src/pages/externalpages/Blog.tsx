@@ -5,7 +5,19 @@ import { Button } from '@/components/ui/button';
 import { Link, useParams } from 'react-router-dom';
 import { Check as LucideCheck, CalendarDays, Tag, ArrowRight } from 'lucide-react';
 
-const categories = [
+// Blog post interface
+interface BlogPost {
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  categorySlugs: string[];
+  imageSrc?: string;
+  imagePlaceholder?: boolean;
+}
+
+// Export categories so they can be used in BlogPost component
+export const categories = [
   { name: 'AI in Dentistry', slug: 'ai-in-dentistry' },
   { name: 'Practice Management', slug: 'practice-management' },
   { name: 'Staff Well-being', slug: 'staff-well-being' },
@@ -16,65 +28,104 @@ const categories = [
   { name: 'Financial Health', slug: 'financial-health' },
   { name: 'Practice Growth', slug: 'practice-growth' },
   { name: 'Patient Experience', slug: 'patient-experience' },
+  { name: 'Business Growth', slug: 'business-growth' },
 ];
 
-const samplePosts = [
+const samplePosts: BlogPost[] = [
+  {
+    slug: 'patient-experience-how-is-your-practices-patient-experience',
+    imageSrc: '/images/blog/patientexperience1.png',
+    categorySlugs: ['patient-experience', 'practice-growth'],
+    title: 'Patient Experience: How Is Your Practice\'s Patient Experience?',
+    excerpt: 'In today\'s dental market, patient experience is no longer a luxury—it\'s a strategic imperative. Learn how to evaluate, improve, and personalize patient experience.',
+    date: 'June 1, 2025',
+  },
+  {
+    slug: 'practice-management-financial-health',
+    imageSrc: '/images/blog/financialhealth1.png',
+    categorySlugs: ['practice-management', 'business-growth'],
+    title: 'Practice Management: How Is Your Practice\'s Financial Health?',
+    excerpt: 'Learn how to assess your dental practice\'s financial health and implement strategies for sustainable growth.',
+    date: 'March 15, 2025',
+  },
   {
     slug: 'unspoken-crisis-ai-staff-retention',
-    imagePlaceholder: true,
-    categorySlugs: ['staff-well-being', 'practice-management'], // Changed from categories to categorySlugs
+    imageSrc: '/images/blog/unspokencrisis1.png',
+    categorySlugs: ['staff-well-being', 'practice-management'],
     title: 'The Unspoken Crisis: Why Dental Practices Are Losing Staff (And What AI Can Do About It)',
-    excerpt: 'The dental industry is facing unprecedented staff turnover rates. Discover the counter-intuitive approach that’s helping practices retain talent while improving patient care.',
+    excerpt: 'The dental industry is facing unprecedented staff turnover rates. Discover the counter-intuitive approach that\'s helping practices retain talent while improving patient care.',
     date: 'May 5, 2025',
   },
   {
     slug: 'beyond-hype-5-ways-ai-transforming-dentistry',
-    imagePlaceholder: true,
-    categorySlugs: ['ai-in-dentistry', 'practice-management'], // Changed
+    imageSrc: '/images/blog/transformingdentalpractices1.png',
+    categorySlugs: ['ai-in-dentistry', 'practice-management'],
     title: 'Beyond the Hype: 5 Ways AI Is Actually Transforming Dental Practices Today',
     excerpt: 'Cut through the noise and discover the practical applications of AI that are delivering real results for dental practices right now.',
     date: 'May 5, 2025',
   },
   {
     slug: 'paradox-dental-kpis-tracking-less',
-    imagePlaceholder: true,
-    categorySlugs: ['dental-kpis', 'practice-management'], // Changed
+    imageSrc: '/images/blog/dentalkpis1.png',
+    categorySlugs: ['dental-kpis', 'practice-management'],
     title: 'The Paradox of Dental KPIs: Why Tracking More Metrics Is Making Your Practice Less Efficient',
     excerpt: 'Most practices are drowning in data but starving for insights. Learn which KPIs actually matter and how AI can help you focus on what drives real growth.',
     date: 'April 30, 2025',
   },
   {
     slug: 'communication-blind-spot-patients-not-hearing',
-    imagePlaceholder: true,
-    categorySlugs: ['patient-communication', 'practice-growth'], // Changed
-    title: 'The Communication Blind Spot: Why Your Patients Aren’t Hearing What You Think You’re Saying',
+    imageSrc: '/images/blog/communicationblindspot1.png',
+    categorySlugs: ['patient-communication', 'practice-growth'],
+    title: 'The Communication Blind Spot: Why Your Patients Aren\'t Hearing What You Think You\'re Saying',
     excerpt: 'Discover the surprising disconnect in dental patient communication and how AI-powered insights are helping practices bridge the gap.',
     date: 'April 25, 2025',
   },
   {
     slug: 'compliance-without-compromise-ai-trade-off',
-    imagePlaceholder: true,
-    categorySlugs: ['compliance', 'practice-management'], // Changed
+    imageSrc: '/images/blog/compliancewithoutcompromise1.png',
+    categorySlugs: ['compliance', 'practice-management'],
     title: 'Compliance Without Compromise: How AI Is Eliminating the Trade-Off Between Regulation and Efficiency',
-    excerpt: 'Regulatory compliance doesn’t have to come at the expense of practice efficiency. Learn how AI is helping practices stay compliant while improving workflows.',
+    excerpt: 'Regulatory compliance doesn\'t have to come at the expense of practice efficiency. Learn how AI is helping practices stay compliant while improving workflows.',
     date: 'April 20, 2025',
   },
   {
     slug: 'hidden-cost-dental-software-paying-more-less',
-    imagePlaceholder: true,
-    categorySlugs: ['practice-management', 'technology'], // Changed
-    title: 'The Hidden Cost of Dental Software: Why You’re Paying More for Less (And What to Do About It)',
-    excerpt: 'Traditional dental software pricing models are costing practices more than they realize. Discover the transparent alternative that’s disrupting the industry.',
+    imageSrc: '/images/blog/dentalsoftware1.png',
+    categorySlugs: ['practice-management', 'technology'],
+    title: 'The Hidden Cost of Dental Software: Why You\'re Paying More for Less (And What to Do About It)',
+    excerpt: 'Traditional dental software pricing models are costing practices more than they realize. Discover the transparent alternative that\'s disrupting the industry.',
     date: 'April 15, 2025',
   },
 ];
 
 const Blog = () => {
   const { categorySlug } = useParams<{ categorySlug?: string }>();
-
-  const filteredPosts = categorySlug
-    ? samplePosts.filter(post => post.categorySlugs.includes(categorySlug))
-    : samplePosts;
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [visiblePosts, setVisiblePosts] = React.useState(8); // Initially show 8 posts
+  
+  // Filter posts based on category and search term
+  const filteredPosts = samplePosts.filter(post => {
+    // Filter by category if provided
+    const categoryMatch = categorySlug 
+      ? post.categorySlugs.includes(categorySlug)
+      : true;
+      
+    // Filter by search term if provided
+    const searchMatch = searchTerm
+      ? post.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        post.excerpt.toLowerCase().includes(searchTerm.toLowerCase())
+      : true;
+      
+    return categoryMatch && searchMatch;
+  });
+  
+  // Handle loading more posts
+  const handleLoadMore = () => {
+    setVisiblePosts(prev => Math.min(prev + 8, filteredPosts.length));
+  };
+  
+  // Get the posts to display based on current pagination
+  const postsToDisplay = filteredPosts.slice(0, visiblePosts);
 
   let pageTitle = "Blog | nGenius Pros";
   let articlesTitle = "Latest Articles";
@@ -142,6 +193,22 @@ const Blog = () => {
                 )}
               </ul>
             </div>
+            <div className="mb-8">
+              <div className="relative">
+                <Input 
+                  type="text" 
+                  placeholder="Search articles..." 
+                  className="pl-10 bg-white"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h2 className="text-xl font-semibold text-navy mb-3">Subscribe to Our Newsletter</h2>
               <p className="text-sm text-gray-600 mb-4">Get the latest insights and updates delivered to your inbox.</p>
@@ -160,9 +227,17 @@ const Blog = () => {
             
             {filteredPosts.length > 0 ? (
               <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-8">
-                {filteredPosts.map(post => (
+                {postsToDisplay.map(post => (
                 <article key={post.slug} className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col hover:shadow-xl transition-shadow duration-300">
-                  {post.imagePlaceholder && (
+                  {post.imageSrc ? (
+                    <div className="w-full h-48 overflow-hidden">
+                      <img 
+                        src={post.imageSrc} 
+                        alt={post.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : post.imagePlaceholder && (
                     <div className="w-full h-48 bg-gray-300 flex items-center justify-center text-gray-500">
                       {/* Placeholder for Blog Post Image */}
                       <span>Blog Post Image</span>
@@ -209,10 +284,13 @@ const Blog = () => {
               </div>
             )}
 
-            {/* Pagination Placeholder - only show if not filtered or if filtered results are many */}
-            {(!categorySlug || filteredPosts.length > 4) && filteredPosts.length > 0 && (
+            {/* Load More Articles button - only show if there are more posts to load */}
+            {visiblePosts < filteredPosts.length && filteredPosts.length > 0 && (
               <div className="text-center mt-12">
-                <Button variant="outline" className="border-navy text-navy hover:bg-navy-light hover:text-white transition-colors duration-200 px-8 py-3">
+                <Button 
+                  className="bg-navy hover:bg-navy/90 text-white"
+                  onClick={handleLoadMore}
+                >
                   Load More Articles
                 </Button>
               </div>

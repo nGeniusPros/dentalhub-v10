@@ -22,7 +22,6 @@ type LinkEntry = StandardLink | DropdownMenu;
 const links: LinkEntry[] = [
   { to: '/#how-it-works', label: 'How It Works' },
   { to: '/#features', label: 'Features' },
-  { to: '/#faq', label: 'Faq' }, // Changed from FAQ
   {
     label: 'Services',
     isDropdown: true,
@@ -68,7 +67,7 @@ export const NavBar = () => {
       );
     } else {
       // Handle hash links for mobile as well
-      if (linkItem.label === 'How It Works' || linkItem.label === 'Features' || linkItem.label === 'Faq') {
+      if (linkItem.label === 'How It Works' || linkItem.label === 'Features') {
         return (
             <a 
               key={`${linkItem.label}-${index}`} 
@@ -131,7 +130,7 @@ export const NavBar = () => {
               );
             } else {
               // This is StandardLink, linkItem.to is a string
-              if (linkItem.label === 'How It Works' || linkItem.label === 'Features' || linkItem.label === 'Faq') {
+              if (linkItem.label === 'How It Works' || linkItem.label === 'Features') {
                 return (
                   <a key={linkItem.label} href={linkItem.to} className="text-gray-darker hover:text-navy">
                     {linkItem.label}
