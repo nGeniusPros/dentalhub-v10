@@ -1,5 +1,5 @@
 const { handleOptions, success, error } = require('./utils/response');
-const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
+const { successResponse, errorResponse, createHandler } = require('./utils/response-helpers');
 
 
 // Define required environment variables
