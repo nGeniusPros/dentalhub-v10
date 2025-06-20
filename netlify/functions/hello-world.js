@@ -1,4 +1,11 @@
 const { handleOptions, success, error } = require('./utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
+
+
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['SUPABASE_URL', 'FIREBASE_PROJECT_ID'];
+
+
 
 /**
  * Simple Hello World function to test API connectivity

@@ -11,7 +11,12 @@
     "preview": "vite preview",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "prepare:netlify": "node scripts/prepare-for-netlify.js",
+    "fix:functions": "node scripts/fix-netlify-functions.js",
+    "verify:functions": "node scripts/verify-netlify-functions.js",
+    "deploy:preview": "netlify deploy",
+    "deploy:prod": "netlify deploy --prod"
   },
   "dependencies": {
     "@ant-design/icons": "^5.6.1",

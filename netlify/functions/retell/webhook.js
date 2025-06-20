@@ -1,16 +1,18 @@
-const { handleOptions, success, error } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 const { initSupabase } = require('../utils/supabase');
 const { verifyWebhookSignature } = require('../utils/retell');
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['RETELL_WEBHOOK_SECRET'];
+
+
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions();
-  }
+  
 
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
-    return error('Method not allowed', 405);
+    return errorResponse('Method not allowed', 405);
   }
 
   try {
@@ -19,8 +21,8 @@ exports.handler = async (event, context) => {
     const signature = event.headers['x-retell-signature'];
     
     if (!retellWebhookSecret || !signature) {
-      console.error('Missing webhook signature or secret');
-      return error('Unauthorized', 401);
+      console.errorResponse('Missing webhook signature or secret');
+      return errorResponse('Unauthorized', 401);
     }
     
     // Verify the signature using the raw body
@@ -31,8 +33,8 @@ exports.handler = async (event, context) => {
     );
     
     if (!isSignatureValid) {
-      console.error('Invalid webhook signature');
-      return error('Invalid signature', 401);
+      console.errorResponse('Invalid webhook signature');
+      return errorResponse('Invalid signature', 401);
     }
     
     // Parse webhook payload
@@ -40,15 +42,15 @@ exports.handler = async (event, context) => {
     try {
       payload = JSON.parse(event.body);
     } catch (e) {
-      console.error('Error parsing webhook payload:', e);
-      return error('Invalid payload', 400);
+      console.errorResponse('Error parsing webhook payload:', e);
+      return errorResponse('Invalid payload', 400);
     }
     
     const { type, call_id } = payload || {};
     
     if (!type || !call_id) {
-      console.error('Missing required fields in webhook payload');
-      return error('Invalid payload', 400);
+      console.errorResponse('Missing required fields in webhook payload');
+      return errorResponse('Invalid payload', 400);
     }
     
     // Initialize Supabase
@@ -70,7 +72,7 @@ exports.handler = async (event, context) => {
           .eq('call_id', call_id);
           
         if (updateError) {
-          console.error('Error updating call status:', updateError);
+          console.errorResponse('Error updating call status:', updateError);
         }
         
         // Log the call event
@@ -85,7 +87,7 @@ exports.handler = async (event, context) => {
           });
           
         if (eventError) {
-          console.error('Error logging call event:', eventError);
+          console.errorResponse('Error logging call event:', eventError);
         }
         break;
       }
@@ -102,7 +104,7 @@ exports.handler = async (event, context) => {
           .eq('call_id', call_id);
           
         if (updateError) {
-          console.error('Error updating call status:', updateError);
+          console.errorResponse('Error updating call status:', updateError);
         }
         
         // Log the call event
@@ -117,7 +119,7 @@ exports.handler = async (event, context) => {
           });
           
         if (eventError) {
-          console.error('Error logging call event:', eventError);
+          console.errorResponse('Error logging call event:', eventError);
         }
         break;
       }
@@ -134,7 +136,7 @@ exports.handler = async (event, context) => {
           });
           
         if (transError) {
-          console.error('Error saving transcription:', transError);
+          console.errorResponse('Error saving transcription:', transError);
         }
         break;
       }
@@ -151,7 +153,7 @@ exports.handler = async (event, context) => {
           });
           
         if (recError) {
-          console.error('Error saving recording:', recError);
+          console.errorResponse('Error saving recording:', recError);
         }
         break;
       }
@@ -173,14 +175,14 @@ exports.handler = async (event, context) => {
       }
     }
     
-    return success({ 
+    return successResponse({ 
       success: true, 
       eventType: type,
       callId: call_id,
       timestamp: new Date().toISOString()
     });
   } catch (err) {
-    console.error('Retell webhook error:', err);
+    console.errorResponse('Retell webhook error:', err);
     
     // Log the error to the database if possible
     try {
@@ -197,9 +199,9 @@ exports.handler = async (event, context) => {
           }
         });
     } catch (dbErr) {
-      console.error('Failed to log webhook error:', dbErr);
+      console.errorResponse('Failed to log webhook error:', dbErr);
     }
     
-    return error(`Failed to process webhook: ${err.message}`, 500);
+    return errorResponse(`Failed to process webhook: ${err.message}`, 500);
   }
 };

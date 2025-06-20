@@ -1,5 +1,4 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { supabase } from '../lib/supabase';
 
 /**
@@ -25,7 +24,7 @@ const isProduction = import.meta.env.PROD ||
 // Base URL for API requests
 const baseURL = isProduction 
   ? '/api' 
-  : 'http://localhost:8888/.netlify/functions';
+  : '/api';
 
 // Create an axios instance for Netlify Functions
 const netlifyApi = axios.create({

@@ -4,7 +4,7 @@
  * This function routes requests to the appropriate dashboard handler
  * based on the path. It centralizes error handling and response formatting.
  */
-const { success, error, handleOptions } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 const revenueHandler = require('./revenue');
 const monthlyReportHandler = require('./monthly-report');
 const activePatientsHandler = require('./active-patients');
@@ -14,9 +14,7 @@ const dailyHuddleHandler = require('./daily-huddle');
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions(event);
-  }
+  
 
   try {
     // Extract path and parameters
@@ -40,10 +38,10 @@ exports.handler = async (event, context) => {
       case 'daily-huddle':
         return await dailyHuddleHandler.handler(event, context);
       default:
-        return error('Endpoint not found', 404, event);
+        return errorResponse('Endpoint not found', 404, event);
     }
   } catch (err) {
-    console.error('Error in dashboard function:', err);
-    return error(`Function error: ${err.message}`, 500, event);
+    console.errorResponse('Error in dashboard function:', err);
+    return errorResponse(`Function error: ${err.message}`, 500, event);
   }
 };

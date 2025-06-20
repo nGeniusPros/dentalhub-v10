@@ -1,15 +1,17 @@
 const nodemailer = require('nodemailer');
-const { handleOptions, success, error } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['EMAIL_HOST', 'EMAIL_PORT', 'EMAIL_USER', 'EMAIL_PASS', 'EMAIL_FROM'];
+
+
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions();
-  }
+  
 
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
-    return error('Method not allowed', 405);
+    return errorResponse('Method not allowed', 405);
   }
 
   try {
@@ -22,7 +24,7 @@ exports.handler = async (event, context) => {
 
     // Validate environment variables
     if (!host || !port || !user || !pass || !from) {
-      return error('Missing email configuration', 500);
+      return errorResponse('Missing email configuration', 500);
     }
 
     // Create nodemailer transporter
@@ -41,7 +43,7 @@ exports.handler = async (event, context) => {
 
     // Validate required parameters
     if (!to || !subject || (!text && !html)) {
-      return error('Missing required parameters: to, subject, and either text or html', 400);
+      return errorResponse('Missing required parameters: to, subject, and either text or html', 400);
     }
 
     // Send email
@@ -54,12 +56,12 @@ exports.handler = async (event, context) => {
       attachments,
     });
 
-    return success({
+    return successResponse({
       messageId: info.messageId,
       message: 'Email sent successfully',
     });
   } catch (err) {
-    console.error('Email function error:', err);
-    return error(`Failed to send email: ${err.message}`);
+    console.errorResponse('Email function error:', err);
+    return errorResponse(`Failed to send email: ${err.message}`);
   }
 };

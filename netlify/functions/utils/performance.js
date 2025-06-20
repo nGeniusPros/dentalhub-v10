@@ -5,6 +5,16 @@
  * such as execution time, success rates, and resource usage.
  */
 
+const { successResponse, errorResponse, createHandler } = require('./response-helpers');
+
+/**
+ * This is a utility module and not a direct function handler.
+ * Adding a dummy handler for Netlify Functions compatibility.
+ */
+exports.handler = createHandler(async (event, context) => {
+  return successResponse({ message: 'This is a utility module, not a direct endpoint.' }, 200);
+}, []);
+
 /**
  * Creates a middleware that wraps a function handler to track performance
  * 

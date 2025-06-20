@@ -1,15 +1,13 @@
 const { initSupabase } = require('../utils/supabase');
-const { handleOptions, success, error } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions();
-  }
+  
 
   try {
     if (event.httpMethod !== 'POST') {
-      return error('Method not allowed', 405);
+      return errorResponse('Method not allowed', 405);
     }
 
     const supabase = initSupabase();
@@ -38,12 +36,12 @@ exports.handler = async (event, context) => {
         result = await supabase.auth.refreshSession(session);
         break;
       default:
-        return error('Invalid action', 400);
+        return errorResponse('Invalid action', 400);
     }
 
-    return success(result);
+    return successResponse(result);
   } catch (err) {
-    console.error('Auth function error:', err);
-    return error(err.message);
+    console.errorResponse('Auth function error:', err);
+    return errorResponse(err.message);
   }
 };

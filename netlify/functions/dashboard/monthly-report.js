@@ -1,13 +1,11 @@
 const { nexhealthClient } = require('../nexhealth/client');
-const { success, error, handleOptions } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 
 /**
  * Netlify function handler for the monthly report dashboard
  */
 exports.handler = async (event, context) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions(event);
-  }
+  
   
   try {
     // Get query parameters
@@ -50,10 +48,10 @@ exports.handler = async (event, context) => {
       endDate
     );
     
-    return success(reportData);
+    return successResponse(reportData);
   } catch (err) {
-    console.error('Error fetching monthly report data:', err);
-    return error(`Monthly report error: ${err.message}`, 500, event);
+    console.errorResponse('Error fetching monthly report data:', err);
+    return errorResponse(`Monthly report error: ${err.message}`, 500, event);
   }
 };
 

@@ -1,17 +1,19 @@
 const axios = require('axios');
-const { handleOptions, success, error } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 const { initSupabase } = require('../utils/supabase');
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['BEEHIIV_API_KEY'];
+
+
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions();
-  }
+  
 
   // Get Beehiiv API key from environment variables
   const apiKey = process.env.BEEHIIV_API_KEY;
   if (!apiKey) {
-    return error('Missing Beehiiv API key', 500);
+    return errorResponse('Missing Beehiiv API key', 500);
   }
 
   // Create axios instance with Beehiiv API configuration
@@ -41,7 +43,7 @@ exports.handler = async (event, context) => {
 
         // Validate required parameters
         if (!email || !publicationId) {
-          return error('Missing required parameters: email, publicationId', 400);
+          return errorResponse('Missing required parameters: email, publicationId', 400);
         }
 
         // Prepare request for Beehiiv API
@@ -79,7 +81,7 @@ exports.handler = async (event, context) => {
             ignoreDuplicates: false
           });
 
-        return success({
+        return successResponse({
           subscriberId: response.data.id,
           status: response.data.status,
           message: 'Subscriber added successfully'
@@ -92,13 +94,13 @@ exports.handler = async (event, context) => {
 
         // Validate required parameters
         if (!email || !publicationId) {
-          return error('Missing required parameters: email, publicationId', 400);
+          return errorResponse('Missing required parameters: email, publicationId', 400);
         }
 
         // Make request to Beehiiv API
         const response = await beehiiv.get(`/subscribers/find?email=${encodeURIComponent(email)}&publication_id=${publicationId}`);
 
-        return success(response.data);
+        return successResponse(response.data);
       }
 
       // Update subscriber status (unsubscribe)
@@ -107,12 +109,12 @@ exports.handler = async (event, context) => {
 
         // Validate required parameters
         if (!email || !publicationId || !status) {
-          return error('Missing required parameters: email, publicationId, status', 400);
+          return errorResponse('Missing required parameters: email, publicationId, status', 400);
         }
 
         // Verify valid status
         if (!['active', 'inactive', 'unsubscribed'].includes(status)) {
-          return error('Invalid status value. Must be one of: active, inactive, unsubscribed', 400);
+          return errorResponse('Invalid status value. Must be one of: active, inactive, unsubscribed', 400);
         }
 
         // First find the subscriber to get their ID
@@ -121,7 +123,7 @@ exports.handler = async (event, context) => {
         );
 
         if (!findResponse.data.id) {
-          return error('Subscriber not found', 404);
+          return errorResponse('Subscriber not found', 404);
         }
 
         // Update subscriber status
@@ -141,7 +143,7 @@ exports.handler = async (event, context) => {
           .eq('email', email)
           .eq('publication_id', publicationId);
 
-        return success({
+        return successResponse({
           subscriberId: updateResponse.data.id,
           status: updateResponse.data.status,
           message: 'Subscriber status updated successfully'
@@ -149,17 +151,17 @@ exports.handler = async (event, context) => {
       }
 
       default:
-        return error('Method not allowed', 405);
+        return errorResponse('Method not allowed', 405);
     }
   } catch (err) {
-    console.error('Beehiiv API error:', err);
+    console.errorResponse('Beehiiv API error:', err);
     
     // Handle Beehiiv API errors
     if (err.response && err.response.data) {
-      return error(`Beehiiv API error: ${err.response.data.message || err.message}`, 
+      return errorResponse(`Beehiiv API error: ${err.response.data.message || err.message}`, 
                  err.response.status || 500);
     }
     
-    return error(`Newsletter operation failed: ${err.message}`);
+    return errorResponse(`Newsletter operation failed: ${err.message}`);
   }
 };

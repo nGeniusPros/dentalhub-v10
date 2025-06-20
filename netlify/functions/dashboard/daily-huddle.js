@@ -6,7 +6,7 @@
  * important metrics for the daily huddle meeting.
  */
 const { nexhealthClient } = require('../nexhealth/client');
-const { success, error, handleOptions } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 
 // Helper to get date range for today or a specific date
 const getDateRange = (dateString) => {
@@ -186,9 +186,7 @@ const summarizeProcedures = (procedures, appointments) => {
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions(event);
-  }
+  
   
   try {
     // Get date from query parameters (default to today)
@@ -243,7 +241,7 @@ exports.handler = async (event, context) => {
     const expectedRevenue = proceduresSummary.reduce((sum, p) => sum + p.totalFee, 0);
     
     // Return formatted data
-    return success({
+    return successResponse({
       data: {
         date: {
           iso: start,
@@ -267,7 +265,7 @@ exports.handler = async (event, context) => {
       }
     });
   } catch (err) {
-    console.error('Error fetching daily huddle data:', err);
-    return error(`Failed to fetch daily huddle data: ${err.message}`, 500, event);
+    console.errorResponse('Error fetching daily huddle data:', err);
+    return errorResponse(`Failed to fetch daily huddle data: ${err.message}`, 500, event);
   }
 };

@@ -1,4 +1,16 @@
 const crypto = require('crypto');
+const { successResponse, errorResponse, createHandler } = require('./response-helpers');
+
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['RETELL_WEBHOOK_SECRET'];
+
+/**
+ * This is a utility module and not a direct function handler.
+ * Adding a dummy handler for Netlify Functions compatibility.
+ */
+exports.handler = createHandler(async (event, context) => {
+  return successResponse({ message: 'This is a utility module, not a direct endpoint.' }, 200);
+}, REQUIRED_ENV_VARS);
 
 /**
  * Verify the Retell webhook signature

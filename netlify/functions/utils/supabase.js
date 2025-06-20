@@ -1,4 +1,16 @@
 const { createClient } = require('@supabase/supabase-js');
+const { successResponse, errorResponse, createHandler } = require('./response-helpers');
+
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['SUPABASE_URL', 'SUPABASE_SERVICE_KEY'];
+
+/**
+ * This is a utility module and not a direct function handler.
+ * Adding a dummy handler for Netlify Functions compatibility.
+ */
+exports.handler = createHandler(async (event, context) => {
+  return successResponse({ message: 'This is a utility module, not a direct endpoint.' }, 200);
+}, REQUIRED_ENV_VARS);
 
 /**
  * Initialize Supabase client with environment variables

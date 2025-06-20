@@ -1,16 +1,18 @@
 const { nexhealthClient } = require('../nexhealth/client');
 
 // Import response utilities
-const { success, error, handleOptions } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['NEXHEALTH_SUBDOMAIN', 'NEXHEALTH_LOCATION_ID'];
+
+
 
 /**
  * Netlify function handler for the revenue dashboard
  */
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions(event);
-  }
+  
   
   try {
     // Get query parameters
@@ -43,7 +45,7 @@ exports.handler = async (event, context) => {
       
       console.log(`Retrieved ${payments.data?.length || 0} payments and ${charges.data?.length || 0} charges`);
     } catch (err) {
-      console.error('Error fetching from NexHealth API:', err);
+      console.errorResponse('Error fetching from NexHealth API:', err);
       throw err;
     }
     
@@ -51,10 +53,10 @@ exports.handler = async (event, context) => {
     const dashboardData = transformRevenueData(payments, charges, timeframe, parseInt(year));
     
     // Wrap the dashboard data in a data property to match frontend expectations
-    return success({ data: dashboardData });
+    return successResponse({ data: dashboardData });
   } catch (err) {
-    console.error('Error fetching revenue data:', err);
-    return error(`Revenue data error: ${err.message}`, 500, event);
+    console.errorResponse('Error fetching revenue data:', err);
+    return errorResponse(`Revenue data error: ${err.message}`, 500, event);
   }
 };
 

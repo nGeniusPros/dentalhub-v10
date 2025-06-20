@@ -1,6 +1,13 @@
 // netlify/functions/nexhealth/get-patients-list.js
 
 const { fetchFromNexHealth } = require('../../../src/lib/nexHealthClient');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
+
+
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['NEXHEALTH_SUBDOMAIN', 'NEXHEALTH_LOCATION_ID'];
+
+
 
 exports.handler = async (event, context) => {
   try {

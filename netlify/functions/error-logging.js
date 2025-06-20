@@ -6,6 +6,13 @@
  */
 
 const { handleOptions, success, error, logError } = require('./utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
+
+
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['SENTRY_DSN', 'NODE_ENV'];
+
+
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request

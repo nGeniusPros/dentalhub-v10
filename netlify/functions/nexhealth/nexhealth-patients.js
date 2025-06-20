@@ -1,5 +1,9 @@
 const { getAuthenticatedClient } = require('./auth');
-const { success, error } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['NEXHEALTH_SUBDOMAIN', 'NEXHEALTH_LOCATION_ID'];
+
+
 
 /**
  * Transforms a raw patient object from NexHealth API to PatientListItem format.
@@ -78,7 +82,7 @@ exports.handler = async (event, context) => {
 
   // Only allow GET requests
   if (event.httpMethod !== 'GET') {
-    return error({ 
+    return errorResponse({ 
       message: 'Method Not Allowed',
       allowedMethods: ['GET', 'OPTIONS']
     }, 405);
@@ -143,8 +147,8 @@ exports.handler = async (event, context) => {
     if (response.status >= 400 || !response.data) {
       const errorMessage = response.data?.message || response.data?.error || 
                          `NexHealth API error: ${response.status}`;
-      console.error('NexHealth API error response:', response.data);
-      return error({ 
+      console.errorResponse('NexHealth API error response:', response.data);
+      return errorResponse({ 
         message: errorMessage,
         status: response.status
       }, response.status || 500);
@@ -174,7 +178,7 @@ exports.handler = async (event, context) => {
       perPage,
     };
 
-    return success({
+    return successResponse({
       data: patientsList,
       pagination,
       meta: {
@@ -185,12 +189,12 @@ exports.handler = async (event, context) => {
 
   } catch (error) {
     if (error.response) {
-      console.error('Error response from NexHealth API:', error.response.data);
+      console.errorResponse('Error response from NexHealth API:', error.response.data);
     } else {
-      console.error('Error in patients endpoint:', error);
+      console.errorResponse('Error in patients endpoint:', error);
     }
     const errorMessage = error.response?.data?.message || error.message || 'Internal Server Error';
     const statusCode = error.response?.status || 500;
-    return error({ message: errorMessage }, statusCode);
+    return errorResponse({ message: errorMessage }, statusCode);
   }
 };

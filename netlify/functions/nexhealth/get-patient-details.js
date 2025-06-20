@@ -2,6 +2,13 @@
 // Handles requests to /api/nexhealth/get-patient-details?patientId=<ID>
 
 const { fetchFromNexHealth } = require('../../../src/lib/nexHealthClient');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
+
+
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['NEXHEALTH_SUBDOMAIN'];
+
+
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'GET') {

@@ -1,4 +1,4 @@
-const { handleOptions, success, error } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 const { initSupabase } = require('../utils/supabase');
 
 // Initialize Supabase client
@@ -26,13 +26,11 @@ function buildDateRangeFilter(startDate, endDate) {
  */
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions();
-  }
+  
 
   // Only allow GET requests
   if (event.httpMethod !== 'GET') {
-    return error('Method not allowed', 405);
+    return errorResponse('Method not allowed', 405);
   }
 
   try {
@@ -85,13 +83,13 @@ exports.handler = async (event, context) => {
     const { data: calls, error: queryError, count } = await query;
     
     if (queryError) {
-      console.error('Error fetching call analytics:', queryError);
+      console.errorResponse('Error fetching call analytics:', queryError);
       throw new Error('Failed to fetch call analytics');
     }
     
     // If no calls found, return empty results
     if (!calls || calls.length === 0) {
-      return success({
+      return successResponse({
         calls: [],
         total: 0,
         summary: {
@@ -150,9 +148,9 @@ exports.handler = async (event, context) => {
       }
     };
     
-    return success(response);
+    return successResponse(response);
   } catch (err) {
-    console.error('Error in get-call-analytics:', err);
+    console.errorResponse('Error in get-call-analytics:', err);
     
     // Log the error to the database if possible
     try {
@@ -168,9 +166,9 @@ exports.handler = async (event, context) => {
           }
         });
     } catch (logErr) {
-      console.error('Failed to log analytics error:', logErr);
+      console.errorResponse('Failed to log analytics error:', logErr);
     }
     
-    return error(`Failed to retrieve call analytics: ${err.message}`, 500);
+    return errorResponse(`Failed to retrieve call analytics: ${err.message}`, 500);
   }
 };

@@ -5,7 +5,7 @@
  * metrics for the patient satisfaction dashboard.
  */
 const { nexhealthClient } = require('../nexhealth/client');
-const { success, error, handleOptions } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 
 // Helper to get date range based on period
 const getDateRange = (period = 'month') => {
@@ -166,9 +166,7 @@ const categorizeSatisfactionByProvider = async (satisfactionData, appointments) 
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions(event);
-  }
+  
   
   try {
     // Get period from query parameters (default to month)
@@ -213,7 +211,7 @@ exports.handler = async (event, context) => {
     const byProvider = await categorizeSatisfactionByProvider(satisfactionData, appointments);
     
     // Return formatted data
-    return success({
+    return successResponse({
       data: {
         period: {
           start,
@@ -232,7 +230,7 @@ exports.handler = async (event, context) => {
       }
     });
   } catch (err) {
-    console.error('Error fetching patient satisfaction data:', err);
-    return error(`Failed to fetch patient satisfaction data: ${err.message}`, 500, event);
+    console.errorResponse('Error fetching patient satisfaction data:', err);
+    return errorResponse(`Failed to fetch patient satisfaction data: ${err.message}`, 500, event);
   }
 };

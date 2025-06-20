@@ -1,3 +1,9 @@
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
+
+
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['GOOGLE_GEMINI_API_KEY'];
+
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 exports.handler = async function(event, context) {

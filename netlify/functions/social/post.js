@@ -1,23 +1,25 @@
 const axios = require('axios');
-const { handleOptions, success, error } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 const { initSupabase } = require('../utils/supabase');
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['AYRSHARE_API_KEY'];
+
+
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions();
-  }
+  
 
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
-    return error('Method not allowed', 405);
+    return errorResponse('Method not allowed', 405);
   }
 
   try {
     // Get Ayrshare API key from environment variables
     const apiKey = process.env.AYRSHARE_API_KEY;
     if (!apiKey) {
-      return error('Missing Ayrshare API key', 500);
+      return errorResponse('Missing Ayrshare API key', 500);
     }
 
     // Parse request body
@@ -32,7 +34,7 @@ exports.handler = async (event, context) => {
 
     // Validate required parameters
     if (!post) {
-      return error('Missing required parameter: post', 400);
+      return errorResponse('Missing required parameter: post', 400);
     }
 
     // Prepare request for Ayrshare API
@@ -84,25 +86,25 @@ exports.handler = async (event, context) => {
         });
 
       if (dbError) {
-        console.error('Error storing social post record:', dbError);
+        console.errorResponse('Error storing social post record:', dbError);
       }
     }
 
-    return success({
+    return successResponse({
       postId: ayrshareResponse.data.id,
       status: ayrshareResponse.data.status,
       message: 'Social media post created successfully',
       details: ayrshareResponse.data
     });
   } catch (err) {
-    console.error('Ayrshare API error:', err);
+    console.errorResponse('Ayrshare API error:', err);
     
     // Handle Ayrshare API errors
     if (err.response && err.response.data) {
-      return error(`Ayrshare API error: ${err.response.data.message || err.message}`, 
+      return errorResponse(`Ayrshare API error: ${err.response.data.message || err.message}`, 
                   err.response.status || 500);
     }
     
-    return error(`Failed to create social media post: ${err.message}`);
+    return errorResponse(`Failed to create social media post: ${err.message}`);
   }
 };

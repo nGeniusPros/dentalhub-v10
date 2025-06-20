@@ -1,16 +1,14 @@
-const { handleOptions, success, error, validateRequiredFields } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 const { initSupabase } = require('../utils/supabase');
 const { sendNotification, sendMulticastNotification } = require('../utils/firebase');
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions();
-  }
+  
 
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
-    return error('Method not allowed', 405);
+    return errorResponse('Method not allowed', 405);
   }
 
   try {
@@ -20,7 +18,7 @@ exports.handler = async (event, context) => {
     // Validate required fields
     const validationError = validateRequiredFields(payload, ['title', 'body']);
     if (validationError) {
-      return error(validationError, 400);
+      return errorResponse(validationError, 400);
     }
     
     const {
@@ -39,7 +37,7 @@ exports.handler = async (event, context) => {
     
     // Ensure we have at least one target (token, tokens array, or topic)
     if (!token && !tokens && !topic && !sendToAll && !userGroup) {
-      return error('Missing notification target (token, tokens, topic, userGroup, or sendToAll)', 400);
+      return errorResponse('Missing notification target (token, tokens, topic, userGroup, or sendToAll)', 400);
     }
     
     // Prepare notification object
@@ -63,12 +61,12 @@ exports.handler = async (event, context) => {
         .eq('active', true);
         
       if (devicesError) {
-        console.error('Error fetching device tokens:', devicesError);
-        return error(`Failed to fetch device tokens: ${devicesError.message}`, 500);
+        console.errorResponse('Error fetching device tokens:', devicesError);
+        return errorResponse(`Failed to fetch device tokens: ${devicesError.message}`, 500);
       }
       
       if (!devices || devices.length === 0) {
-        return error('No active devices found', 400);
+        return errorResponse('No active devices found', 400);
       }
       
       // Extract just the tokens
@@ -86,12 +84,12 @@ exports.handler = async (event, context) => {
         .eq('user_group', userGroup);
         
       if (devicesError) {
-        console.error('Error fetching device tokens for user group:', devicesError);
-        return error(`Failed to fetch device tokens: ${devicesError.message}`, 500);
+        console.errorResponse('Error fetching device tokens for user group:', devicesError);
+        return errorResponse(`Failed to fetch device tokens: ${devicesError.message}`, 500);
       }
       
       if (!devices || devices.length === 0) {
-        return error(`No active devices found for user group: ${userGroup}`, 400);
+        return errorResponse(`No active devices found for user group: ${userGroup}`, 400);
       }
       
       // Extract just the tokens
@@ -133,18 +131,18 @@ exports.handler = async (event, context) => {
         });
         
       if (dbError) {
-        console.error('Error storing notification:', dbError);
+        console.errorResponse('Error storing notification:', dbError);
         // Continue anyway, as the notification was already sent
       }
     }
     
-    return success({
+    return successResponse({
       success: true,
       ...notificationResult,
       message: 'Notification sent successfully'
     });
   } catch (err) {
-    console.error('Error sending notification:', err);
-    return error(`Failed to send notification: ${err.message}`);
+    console.errorResponse('Error sending notification:', err);
+    return errorResponse(`Failed to send notification: ${err.message}`);
   }
 };

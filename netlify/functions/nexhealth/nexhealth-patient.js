@@ -1,5 +1,5 @@
 const { nexhealthClient } = require('./client');
-const { success, error, handleOptions } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 
 /**
  * Transforms raw NexHealth patient data into the PatientDetailsData format.
@@ -8,7 +8,7 @@ const { success, error, handleOptions } = require('../utils/response');
  */
 function transformPatientData(nexPatient) {
   if (!nexPatient || typeof nexPatient !== 'object') {
-    console.error('Invalid nexPatient object received for transformation:', nexPatient);
+    console.errorResponse('Invalid nexPatient object received for transformation:', nexPatient);
     return null;
   }
 
@@ -35,19 +35,17 @@ function transformPatientData(nexPatient) {
 
 exports.handler = async (event, context) => {
   // Handle CORS preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions(event);
-  }
+  
 
   if (event.httpMethod !== 'GET') {
-    return error('Method Not Allowed', 405, event);
+    return errorResponse('Method Not Allowed', 405, event);
   }
 
   const pathParts = event.path.split('/');
   const patientId = pathParts[pathParts.length - 1];
 
   if (!patientId || isNaN(parseInt(patientId, 10))) {
-    return error('Valid Patient ID is required in the path.', 400, event);
+    return errorResponse('Valid Patient ID is required in the path.', 400, event);
   }
 
   try {
@@ -71,23 +69,23 @@ exports.handler = async (event, context) => {
 
 
     if (!rawPatientData) {
-      console.error(`Patient data for ID ${patientId} not found in expected structure:`, response);
-      return error(`Patient with ID ${patientId} not found or unexpected API response structure.`, 404, event);
+      console.errorResponse(`Patient data for ID ${patientId} not found in expected structure:`, response);
+      return errorResponse(`Patient with ID ${patientId} not found or unexpected API response structure.`, 404, event);
     }
     
     const transformedData = transformPatientData(rawPatientData);
 
     if (!transformedData) {
-      console.error('Failed to transform patient data for ID:', patientId, 'Raw data:', rawPatientData);
-      return error('Failed to transform patient data.', 500, event);
+      console.errorResponse('Failed to transform patient data for ID:', patientId, 'Raw data:', rawPatientData);
+      return errorResponse('Failed to transform patient data.', 500, event);
     }
 
-    return success(transformedData, 200, event);
+    return successResponse(transformedData, 200, event);
 
   } catch (err) {
-    console.error(`Error fetching patient ${patientId}:`, err.message, err.stack);
+    console.errorResponse(`Error fetching patient ${patientId}:`, err.message, err.stack);
     const statusCode = err.response?.status || (err.message && err.message.includes('404') ? 404 : 500);
     const message = err.message || 'Failed to fetch patient data.';
-    return error(message, statusCode, event);
+    return errorResponse(message, statusCode, event);
   }
 };

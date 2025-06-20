@@ -1,4 +1,11 @@
 const { success, error, getCorsHeaders, logError, createSupabaseAdmin } = require('./utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
+
+
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['COMMIT_REF', 'NETLIFY_DEV', 'DEEPSEEK_API_KEY'];
+
+
 const axios = require('axios');
 
 /**

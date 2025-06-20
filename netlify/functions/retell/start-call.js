@@ -1,7 +1,11 @@
 const axios = require('axios');
-const { handleOptions, success, error } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 const { initSupabase } = require('../utils/supabase');
 const { formatPhoneNumber, isValidPhoneNumber } = require('../utils/retell');
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['RETELL_API_KEY', 'APP_URL'];
+
+
 
 // Maximum call duration in seconds (15 minutes)
 const MAX_CALL_DURATION = 15 * 60;
@@ -51,21 +55,19 @@ function validateCallRequest(body) {
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions();
-  }
+  
 
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
-    return error('Method not allowed', 405);
+    return errorResponse('Method not allowed', 405);
   }
 
   try {
     // Get Retell API key from environment variables
     const apiKey = process.env.RETELL_API_KEY;
     if (!apiKey) {
-      console.error('Missing Retell API key');
-      return error('Service configuration error', 500);
+      console.errorResponse('Missing Retell API key');
+      return errorResponse('Service configuration error', 500);
     }
 
     // Parse and validate request body
@@ -73,12 +75,12 @@ exports.handler = async (event, context) => {
     try {
       requestBody = JSON.parse(event.body);
     } catch (e) {
-      return error('Invalid JSON payload', 400);
+      return errorResponse('Invalid JSON payload', 400);
     }
 
     const validation = validateCallRequest(requestBody);
     if (!validation.isValid) {
-      return error(`Invalid request: ${validation.errors.join(', ')}`, 400);
+      return errorResponse(`Invalid request: ${validation.errors.join(', ')}`, 400);
     }
 
     const { 
@@ -98,12 +100,12 @@ exports.handler = async (event, context) => {
       .single();
 
     if (agentError || !agent) {
-      console.error('Agent not found:', agentError);
-      return error('Agent not found', 404);
+      console.errorResponse('Agent not found:', agentError);
+      return errorResponse('Agent not found', 404);
     }
 
     if (agent.status !== 'active') {
-      return error('Agent is not active', 400);
+      return errorResponse('Agent is not active', 400);
     }
 
     // Prepare call data
@@ -136,7 +138,7 @@ exports.handler = async (event, context) => {
         timeout: 10000 // 10 second timeout
       }
     ).catch(err => {
-      console.error('Retell API error:', err.response?.data || err.message);
+      console.errorResponse('Retell API error:', err.response?.data || err.message);
       throw new Error(`Failed to initiate call: ${err.response?.data?.error || err.message}`);
     });
 
@@ -163,7 +165,7 @@ exports.handler = async (event, context) => {
       .single();
 
     if (dbError) {
-      console.error('Error storing call record:', dbError);
+      console.errorResponse('Error storing call record:', dbError);
       throw new Error('Failed to store call record');
     }
 
@@ -180,14 +182,14 @@ exports.handler = async (event, context) => {
         }
       });
 
-    return success({
+    return successResponse({
       callId: response.data.call_id,
       status: response.data.status,
       message: 'Call initiated successfully',
       data: savedCall
     });
   } catch (err) {
-    console.error('Error in start-call:', err);
+    console.errorResponse('Error in start-call:', err);
     
     // Log the error to the database if possible
     try {
@@ -204,9 +206,9 @@ exports.handler = async (event, context) => {
           }
         });
     } catch (logErr) {
-      console.error('Failed to log error:', logErr);
+      console.errorResponse('Failed to log error:', logErr);
     }
     
-    return error(err.message || 'Failed to initiate call', 500);
+    return errorResponse(err.message || 'Failed to initiate call', 500);
   }
 };

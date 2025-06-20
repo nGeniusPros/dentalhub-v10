@@ -1,6 +1,13 @@
 // netlify/functions/nexhealth/create-new-patient.js
 
 const { fetchFromNexHealth } = require('../../../src/lib/nexHealthClient');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
+
+
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['NEXHEALTH_SUBDOMAIN', 'NEXHEALTH_LOCATION_ID', 'NEXHEALTH_DEFAULT_PROVIDER_ID'];
+
+
 
 exports.handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {

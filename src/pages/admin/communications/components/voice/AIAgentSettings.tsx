@@ -21,7 +21,7 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
   open,
   onClose
 }) => {
-  const { retellLoading, agentStatus, retellError } = useCommunication();
+  const { retellLoading, agentStatus, retellError, updateAgentConfig, getAgentStatus } = useCommunication();
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [settings, setSettings] = useState({
@@ -70,28 +70,24 @@ export const AIAgentSettings: React.FC<AIAgentSettingsProps> = ({
     setSaveError(null);
     
     try {
-      // In a real implementation, you would call your API to update the Retell agent
-      // This example uses the browser's console to simulate the API call
-      console.log('Saving AI agent settings:', settings);
-      
-      // Example of how you would update the agent in a real implementation:
-      /*
-      await communicationService.retell.updateAgentConfig({
+      // Call the RetellAI service to update the agent configuration
+      await updateAgentConfig({
         voiceId: settings.voiceId,
         parameters: {
           customSchedule: settings.customSchedule,
           schedule: settings.schedule,
           afterHours: settings.afterHours,
           lunchHours: settings.lunchHours,
-          holidays: settings.holidays
+          holidays: settings.holidays,
+          customMessage: settings.customMessage
         }
       });
-      */
+      
+      // Refresh agent status
+      await getAgentStatus();
       
       // Close the dialog after successful save
-      setTimeout(() => {
-        onClose();
-      }, 1000);
+      onClose();
     } catch (error) {
       console.error('Error saving AI agent settings:', error);
       setSaveError('Failed to save settings. Please try again.');

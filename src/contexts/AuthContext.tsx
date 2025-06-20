@@ -1,13 +1,15 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { initErrorTracking } from '../utils/errorTracking';
+import { supabase } from '../lib/supabase';
+import { getUserProfile } from '../db/supabaseClient';
 
 interface AuthContextType {
   user: User | null;
   login: (credentials: LoginCredentials) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
   loading: boolean; // Alias for isLoading to maintain compatibility
-  devLogin: () => void; // Added for development/testing
+  devLogin: () => Promise<void>; // Added for development/testing
 }
 
 interface User {
@@ -17,12 +19,13 @@ interface User {
   title?: string;
   department?: string;
   locationId?: string; // Reference to the user's assigned location
+  email: string;
 }
 
 interface LoginCredentials {
   email: string;
   password: string;
-  role: 'admin' | 'staff' | 'patient';
+  role?: 'admin' | 'staff' | 'patient'; // Made optional since Supabase doesn't require this
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -32,63 +35,182 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for existing session
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      // Auto-login for development environment
-      if (import.meta.env.DEV) {
-        devLogin();
+    // Check for existing Supabase session
+    const checkSession = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          return;
+        }
+        
+        if (data.session) {
+          const { data: userData, error: userError } = await supabase.auth.getUser();
+          
+          if (userError) {
+            console.error('Error getting user:', userError);
+            return;
+          }
+          
+          if (userData.user) {
+            // Get user profile data from profiles table
+            const profile = await getUserProfile(userData.user.id);
+            
+            if (profile) {
+              const userObj: User = {
+                id: userData.user.id,
+                name: profile.full_name || userData.user.email?.split('@')[0] || 'User',
+                email: userData.user.email || '',
+                role: (profile.role as 'admin' | 'staff' | 'patient' | 'super_admin') || 'staff',
+                title: profile.title,
+                department: profile.department,
+                locationId: profile.location_id
+              };
+              
+              setUser(userObj);
+              
+              // Initialize error tracking with user ID for better error context
+              if (import.meta.env.PROD) {
+                initErrorTracking(userData.user.id);
+              }
+            }
+          }
+        } else if (import.meta.env.DEV) {
+          // Auto-login for development environment if no session exists
+          await devLogin();
+        }
+      } catch (err) {
+        console.error('Session check error:', err);
+      } finally {
+        setIsLoading(false);
       }
-    }
-    setIsLoading(false);
+    };
+    
+    checkSession();
   }, []);
 
   // Development login helper - creates a mock admin user
-  const devLogin = () => {
-    const devUser = {
-      id: 'dev-admin-user',
-      role: 'admin' as const,
-      name: 'Dev Admin',
-      title: 'Administrator',
-      department: 'Development',
-      locationId: 'dev-location-id' // Mock location ID for development
-    };
-    setUser(devUser);
-    localStorage.setItem('user', JSON.stringify(devUser));
-    
-    // For development, also create a mock location in localStorage
-    // This helps with testing LocationContext functionality
-    const devLocation = {
-      id: 'dev-location-id',
-      name: 'Development Office',
-      address: '123 Dev Street',
-      city: 'San Francisco',
-      state: 'CA',
-      postalCode: '94103',
-      contactPhone: '555-123-4567',
-      contactEmail: 'dev@dentalhub.com'
-    };
-    localStorage.setItem('dev-location', JSON.stringify(devLocation));
-    
-    console.log('Development auto-login successful');
+  const devLogin = async () => {
+    // For development, we'll use a special dev account or create one if needed
+    try {
+      // Try to sign in with dev credentials
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: 'dev@dentalhub.com',
+        password: 'devpassword123'
+      });
+      
+      if (error) {
+        console.log('Dev account not found, creating one...');
+        // Create a dev account if it doesn't exist
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: 'dev@dentalhub.com',
+          password: 'devpassword123'
+        });
+        
+        if (signUpError) {
+          throw signUpError;
+        }
+        
+        // Create a profile for the dev user
+        if (signUpData.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: signUpData.user.id,
+              full_name: 'Dev Admin',
+              role: 'admin',
+              title: 'Administrator',
+              department: 'Development',
+              location_id: 'dev-location-id'
+            });
+            
+          if (profileError) {
+            console.error('Error creating dev profile:', profileError);
+          }
+          
+          const devUser: User = {
+            id: signUpData.user.id,
+            role: 'admin',
+            name: 'Dev Admin',
+            email: 'dev@dentalhub.com',
+            title: 'Administrator',
+            department: 'Development',
+            locationId: 'dev-location-id'
+          };
+          
+          setUser(devUser);
+        }
+      } else if (data.user) {
+        // Dev account exists, get profile
+        const profile = await getUserProfile(data.user.id);
+        
+        const devUser: User = {
+          id: data.user.id,
+          role: profile?.role as 'admin' || 'admin',
+          name: profile?.full_name || 'Dev Admin',
+          email: data.user.email || 'dev@dentalhub.com',
+          title: profile?.title || 'Administrator',
+          department: profile?.department || 'Development',
+          locationId: profile?.location_id || 'dev-location-id'
+        };
+        
+        setUser(devUser);
+      }
+      
+      // For development, also create a mock location in localStorage
+      // This helps with testing LocationContext functionality
+      const devLocation = {
+        id: 'dev-location-id',
+        name: 'Development Office',
+        address: '123 Dev Street',
+        city: 'San Francisco',
+        state: 'CA',
+        postalCode: '94103',
+        contactPhone: '555-123-4567',
+        contactEmail: 'dev@dentalhub.com'
+      };
+      localStorage.setItem('dev-location', JSON.stringify(devLocation));
+      
+      console.log('Development auto-login successful');
+    } catch (error) {
+      console.error('Dev login error:', error);
+    }
   };
 
   const login = async (credentials: LoginCredentials) => {
     try {
-      // Replace with your actual API call
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password
       });
 
-      if (!response.ok) throw new Error('Login failed');
+      if (signInError) {
+        throw new Error(signInError.message);
+      }
 
-      const userData = await response.json();
+      if (!data.user) {
+        throw new Error('No user returned from authentication');
+      }
+
+      // Get user profile data from profiles table
+      const profile = await getUserProfile(data.user.id);
+      
+      if (!profile) {
+        throw new Error('User profile not found');
+      }
+      
+      const userData: User = {
+        id: data.user.id,
+        name: profile.full_name || data.user.email?.split('@')[0] || 'User',
+        email: data.user.email || '',
+        role: (profile.role as 'admin' | 'staff' | 'patient' | 'super_admin') || 'staff',
+        title: profile.title,
+        department: profile.department,
+        locationId: profile.location_id
+      };
+
       setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
       
       // Initialize error tracking with user ID for better error context
       if (import.meta.env.PROD) {
@@ -100,9 +222,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error);
+      }
+      setUser(null);
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
   };
 
   return (

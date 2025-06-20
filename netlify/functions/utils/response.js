@@ -1,7 +1,28 @@
 /**
  * Utility functions for handling Netlify Function responses
  * These helpers ensure consistent responses across all functions
+ * 
+ * NOTE: This file is being deprecated in favor of response-helpers.js
+ * New functions should use response-helpers.js instead.
  */
+
+const { createClient } = require('@supabase/supabase-js');
+const { successResponse, errorResponse, createHandler } = require('./response-helpers');
+
+// Define required environment variables
+const REQUIRED_ENV_VARS = ['SUPABASE_URL', 'SUPABASE_SERVICE_KEY'];
+
+/**
+ * This is a utility module and not a direct function handler.
+ * Adding a dummy handler for Netlify Functions compatibility.
+ */
+exports.handler = createHandler(async (event, context) => {
+  try {
+    return successResponse({ message: 'This is a utility module, not a direct endpoint.' }, 200);
+  } catch (error) {
+    return errorResponse(error.message, 500);
+  }
+}, REQUIRED_ENV_VARS);
 
 // Determine appropriate CORS origin based on request
 const getCorsHeaders = (event) => {

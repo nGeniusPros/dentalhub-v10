@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Define the API base URL - this should match your backend server
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 // Define types
 export interface SendSMSRequest {

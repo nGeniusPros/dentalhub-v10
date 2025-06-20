@@ -5,7 +5,7 @@
  * metrics for the active patients dashboard.
  */
 const { nexhealthClient } = require('../nexhealth/client');
-const { success, error, handleOptions } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 
 // Helper to get date range based on period
 const getDateRange = (period) => {
@@ -103,9 +103,7 @@ const categorizeByProvider = async (patients, appointments) => {
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions(event);
-  }
+  
   
   try {
     // Get period from query parameters (default to month)
@@ -159,7 +157,7 @@ exports.handler = async (event, context) => {
     const byProvider = await categorizeByProvider(patients, appointments);
     
     // Return formatted data
-    return success({
+    return successResponse({
       data: {
         total: totalActivePatients,
         newPatients,
@@ -169,7 +167,7 @@ exports.handler = async (event, context) => {
       }
     });
   } catch (err) {
-    console.error('Error fetching active patients data:', err);
-    return error(`Failed to fetch active patients data: ${err.message}`, 500, event);
+    console.errorResponse('Error fetching active patients data:', err);
+    return errorResponse(`Failed to fetch active patients data: ${err.message}`, 500, event);
   }
 };

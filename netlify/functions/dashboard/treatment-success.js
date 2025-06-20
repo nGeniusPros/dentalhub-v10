@@ -5,7 +5,7 @@
  * metrics for the treatment success dashboard.
  */
 const { nexhealthClient } = require('../nexhealth/client');
-const { success, error, handleOptions } = require('../utils/response');
+const { successResponse, errorResponse, createHandler } = require('../utils/response-helpers');
 
 // Helper to get date range based on period
 const getDateRange = (period = 'month') => {
@@ -110,9 +110,7 @@ const analyzeTreatmentPlans = (appointments, procedures) => {
 
 exports.handler = async (event, context) => {
   // Handle preflight OPTIONS request
-  if (event.httpMethod === 'OPTIONS') {
-    return handleOptions(event);
-  }
+  
   
   try {
     // Get period from query parameters (default to month)
@@ -158,7 +156,7 @@ exports.handler = async (event, context) => {
       (completedTreatmentPlans / totalTreatmentPlans) * 100 : 0;
     
     // Return formatted data
-    return success({
+    return successResponse({
       data: {
         period: {
           start,
@@ -180,7 +178,7 @@ exports.handler = async (event, context) => {
       }
     });
   } catch (err) {
-    console.error('Error fetching treatment success data:', err);
-    return error(`Failed to fetch treatment success data: ${err.message}`, 500, event);
+    console.errorResponse('Error fetching treatment success data:', err);
+    return errorResponse(`Failed to fetch treatment success data: ${err.message}`, 500, event);
   }
 };
